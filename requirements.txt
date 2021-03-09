@@ -1,0 +1,4 @@
+pydantic==1.8.1
+tqdm==4.52.0
+haversine==2.3.0
+pyshp==2.1.3
