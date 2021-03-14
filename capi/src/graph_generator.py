@@ -64,7 +64,7 @@ class GraphGenerator(IGraphGenerator):
 
         curr_polygon_bucket_index = 0
         for i in range(len(polygon) - 1):
-            if abs(polygon[i].x - polygon[i + 1].x) >= 180:
+            if abs(polygon[i].x - polygon[i + 1].x) > 180:
                 curr_polygon_bucket_index = (curr_polygon_bucket_index + 1) % 2
             polygons[curr_polygon_bucket_index].append(polygon[i + 1])
 
