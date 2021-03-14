@@ -26,7 +26,6 @@ class TestGraphGenerator(unittest.TestCase):
 
             actual_graph = VisGraph()
             actual_graph.load(output_graph_path)
-            os.unlink(output_graph_path)
 
         self.assertEqual(expected_graph, actual_graph)
 
@@ -48,6 +47,5 @@ class TestGraphGenerator(unittest.TestCase):
 
             actual_graph = VisGraph()
             actual_graph.load(output_graph_path)
-            os.unlink(output_graph_path)
 
         self.assertEqual(expected_graph, actual_graph)
