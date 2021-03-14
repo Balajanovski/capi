@@ -1,20 +1,17 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Coast Aware Path Interpolator (CAPI)
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+## What is CAPI?
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+CAPI is a library which aims to provide sensible interpolations of paths around obstacles
+represented as polygons. For instance, when we have two points in the path of a vessel, and we wish
+to infer the ship's trajectory between them, we definitely do not want the inferred path to cross over land.
+So, we take the shortest path which does not violate this constraint.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+![](imgs/img_1.PNG)
+![](imgs/img_2.PNG)
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## How does CAPI Work?
+
+CAPI comes with two parts. Firstly, a visibility graph generator, which turns a vector representation of all
+the obstacles (such as a shapefile for countries), into a visibility graph. Secondly, CAPI comes with a path searcher,
+which uses A* to traverse the generated visibility graph and come up with the sensible interpolation.
