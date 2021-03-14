@@ -25,9 +25,9 @@ SOFTWARE.
 
 import typing
 
+from capi.src.pyvisgraph.geometry import euclidean_distance
 from capi.src.pyvisgraph.graph import Graph, Point
 from capi.src.pyvisgraph.priority_dict import PriorityDict
-from capi.src.pyvisgraph.visible_vertices import euclidean_distance
 
 
 def shortest_path(

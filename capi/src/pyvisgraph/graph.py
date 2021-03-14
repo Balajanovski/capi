@@ -27,6 +27,7 @@ from collections import defaultdict
 
 class Point:
     __slots__ = ("x", "y", "polygon_id")
+    _EPSILON_TOLERANCE = 0.00000001
 
     def __init__(self, x: float, y: float, polygon_id: int = -1):
         self.x = x
@@ -37,7 +38,7 @@ class Point:
         if not isinstance(point, Point):
             return False
 
-        return self.x == point.x and self.y == point.y
+        return abs(self.x - point.x) < self._EPSILON_TOLERANCE and abs(self.y - point.y) < self._EPSILON_TOLERANCE
 
     def __ne__(self, point: object) -> bool:
         return not self.__eq__(point)
@@ -53,7 +54,7 @@ class Point:
         return "(%.2f, %.2f)" % (self.x, self.y)
 
     def __hash__(self) -> int:
-        return (hash(self.x) << 16) ^ hash(self.y)
+        return (hash(self.x) << 32) ^ hash(self.y)
 
     def __repr__(self) -> str:
         return "Point(%.2f, %.2f)" % (self.x, self.y)
@@ -119,6 +120,7 @@ class Graph:
         self.edges: typing.Set[Edge] = set()
         self.polygons: typing.DefaultDict[int, typing.Set[Edge]] = defaultdict(set)
         pid = 0
+
         for polygon in polygons:
             curr_polygon = list(polygon)
 

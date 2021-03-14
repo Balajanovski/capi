@@ -27,9 +27,10 @@ from multiprocessing import Pool
 
 from tqdm import tqdm  # type: ignore
 
+from capi.src.pyvisgraph.geometry import closest_point, point_in_polygon
 from capi.src.pyvisgraph.graph import Edge, Graph, Point
 from capi.src.pyvisgraph.shortest_path import shortest_path
-from capi.src.pyvisgraph.visible_vertices import closest_point, point_in_polygon, visible_vertices
+from capi.src.pyvisgraph.visible_vertices import visible_vertices
 
 
 class VisGraph:

@@ -27,14 +27,13 @@ import unittest
 from math import cos, degrees, pi, sin
 
 import capi.src.pyvisgraph as vg
+from capi.src.pyvisgraph.geometry import intersect_point, point_in_polygon
 from capi.src.pyvisgraph.graph import Edge, Graph, Point
 from capi.src.pyvisgraph.visible_vertices import (
-    angle,
+    angle_arctan,
     edge_intersect,
     euclidean_distance,
-    intersect_point,
     point_edge_distance,
-    point_in_polygon,
     visible_vertices,
 )
 
@@ -69,12 +68,12 @@ class TestAngleFunction(unittest.TestCase):
         point_d = Point(2.0, 2.0)
         point_e = Point(2.0, 0.0)
         point_f = Point(0.0, 0.0)
-        assert angle(center, point_a) == 0
-        assert angle(center, point_b) == pi * 3 / 2
-        assert degrees(angle(center, point_c)) == 135
-        assert degrees(angle(center, point_d)) == 45
-        assert degrees(angle(center, point_e)) == 315
-        assert degrees(angle(center, point_f)) == 225
+        assert angle_arctan(center, point_a) == 0
+        assert angle_arctan(center, point_b) == pi * 3 / 2
+        assert degrees(angle_arctan(center, point_c)) == 135
+        assert degrees(angle_arctan(center, point_d)) == 45
+        assert degrees(angle_arctan(center, point_e)) == 315
+        assert degrees(angle_arctan(center, point_f)) == 225
 
     @staticmethod
     def test_angle_function_floating_point_errors():
