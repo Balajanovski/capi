@@ -11,6 +11,7 @@ from capi.src.pyvisgraph.vis_graph import VisGraph
 class PathInterpolator(IPathInterpolator):
     def __init__(
         self,
+        shapefile_file_path: str,
         visibility_graph_file_path: str,
         meridian_crossing_visibility_graph_file_path: typing.Optional[str] = None,
     ):
