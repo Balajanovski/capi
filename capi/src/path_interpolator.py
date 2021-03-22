@@ -2,8 +2,10 @@ import typing
 
 from haversine import haversine  # type: ignore
 
+from capi.interfaces.intersection_prechecker_factory import IIntersectionPrecheckerFactory
 from capi.interfaces.path_interpolator import IPathInterpolator
 from capi.src.dtos.coordinate import Coordinate
+from capi.src.intersection_prechecker_factory import IntersectionPrecheckerFactory
 from capi.src.pyvisgraph.graph import Point
 from capi.src.pyvisgraph.vis_graph import VisGraph
 
@@ -14,6 +16,7 @@ class PathInterpolator(IPathInterpolator):
         shapefile_file_path: str,
         visibility_graph_file_path: str,
         meridian_crossing_visibility_graph_file_path: typing.Optional[str] = None,
+        intersection_prechecker_factory: typing.Optional[IIntersectionPrecheckerFactory] = None,
     ):
         self._graph = VisGraph()
         self._graph.load(visibility_graph_file_path)
@@ -23,7 +26,17 @@ class PathInterpolator(IPathInterpolator):
             self._meridian_crossing_graph = VisGraph()
             self._meridian_crossing_graph.load(meridian_crossing_visibility_graph_file_path)
 
+        _intersection_prechecker_factory = (
+            IntersectionPrecheckerFactory()
+            if intersection_prechecker_factory is None
+            else intersection_prechecker_factory
+        )
+        self._intersection_prechecker = _intersection_prechecker_factory.create(shapefile_file_path)
+
     def interpolate(self, coord_1: Coordinate, coord_2: Coordinate) -> typing.Sequence[Coordinate]:
+        if not self._intersection_prechecker.does_line_cross_polygons(coord_1, coord_2):
+            return [coord_1, coord_2]
+
         point_1 = Point(coord_1.longitude, coord_1.latitude)
         point_2 = Point(coord_2.longitude, coord_2.latitude)
 

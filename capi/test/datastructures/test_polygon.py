@@ -67,3 +67,64 @@ class TestPolygon(unittest.TestCase):
         # Outside points
         self.assertFalse(poly.is_point_inside(Coordinate(longitude=175, latitude=1)))
         self.assertFalse(poly.is_point_inside(Coordinate(longitude=-175, latitude=1)))
+
+    def test_line_intersects_vertices_clockwise(self):
+        vertices = [
+            Coordinate(longitude=-1, latitude=1),
+            Coordinate(longitude=1, latitude=1),
+            Coordinate(longitude=1, latitude=-1),
+            Coordinate(longitude=-1, latitude=-1),
+        ]
+        poly = Polygon(vertices)
+
+        self.assertTrue(
+            poly.line_intersects(Coordinate(longitude=-1.25, latitude=1.5), Coordinate(longitude=0, latitude=0))
+        )
+        self.assertTrue(
+            poly.line_intersects(Coordinate(longitude=0.25, latitude=0.25), Coordinate(longitude=-0.25, latitude=-0.25))
+        )
+        self.assertFalse(
+            poly.line_intersects(Coordinate(longitude=-1.25, latitude=1.5), Coordinate(longitude=1.25, latitude=1.75))
+        )
+
+    def test_line_intersects_vertices_counterclockwise(self):
+        vertices = [
+            Coordinate(longitude=1, latitude=1),
+            Coordinate(longitude=1, latitude=-1),
+            Coordinate(longitude=-1, latitude=-1),
+            Coordinate(longitude=-1, latitude=1),
+        ]
+        poly = Polygon(vertices)
+
+        self.assertTrue(
+            poly.line_intersects(Coordinate(longitude=-1.25, latitude=1.5), Coordinate(longitude=0, latitude=0))
+        )
+        self.assertTrue(
+            poly.line_intersects(Coordinate(longitude=0.25, latitude=0.25), Coordinate(longitude=-0.25, latitude=-0.25))
+        )
+        self.assertFalse(
+            poly.line_intersects(Coordinate(longitude=-1.25, latitude=1.5), Coordinate(longitude=1.25, latitude=1.75))
+        )
+
+    def test_line_intersects_vertices_meridian_spanning(self):
+        vertices = [
+            Coordinate(longitude=179, latitude=1),
+            Coordinate(longitude=-179, latitude=1),
+            Coordinate(longitude=-179, latitude=-1),
+            Coordinate(longitude=179, latitude=-1),
+        ]
+        poly = Polygon(vertices)
+
+        self.assertTrue(
+            poly.line_intersects(Coordinate(longitude=178.75, latitude=1.5), Coordinate(longitude=180, latitude=0))
+        )
+        self.assertTrue(
+            poly.line_intersects(
+                Coordinate(longitude=-179.75, latitude=0.25), Coordinate(longitude=179.75, latitude=-0.25)
+            )
+        )
+        self.assertFalse(
+            poly.line_intersects(
+                Coordinate(longitude=178.75, latitude=1.5), Coordinate(longitude=-178.75, latitude=1.75)
+            )
+        )

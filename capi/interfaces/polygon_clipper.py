@@ -7,7 +7,7 @@ from capi.interfaces.datastructures.polygon import IPolygon
 
 class IPolygonClipper(abc.ABC):
     @abc.abstractmethod
-    def clip_single_polygon(self, polygon: IPolygon, clipping_box: IAxisAlignedBox) -> IPolygon:
+    def clip_single_polygon(self, polygon: IPolygon, clipping_box: IAxisAlignedBox) -> typing.Optional[IPolygon]:
         pass
 
     @abc.abstractmethod

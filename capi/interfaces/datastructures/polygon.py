@@ -15,6 +15,10 @@ class IPolygon(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def line_intersects(self, point_1: Coordinate, point_2: Coordinate) -> bool:
+        pass
+
+    @abc.abstractmethod
     def __eq__(self, other: object) -> bool:
         pass
 

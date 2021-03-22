@@ -20,18 +20,18 @@ class PolygonClipper(IPolygonClipper):
     def __init__(
         self,
         meridian_wrap_transformer: typing.Optional[IMeridianWrapCoordTransformer] = None,
-        coord_merge_epsilon_tolerance: float = 0.0000000001,
+        coord_merge_epsilon_tolerance: float = 0.00000001,
     ):
         self._transformer = (
             MeridianWrapCoordTransformer() if meridian_wrap_transformer is None else meridian_wrap_transformer
         )
         self._epsilon_tolerance = coord_merge_epsilon_tolerance
 
-    def clip_single_polygon(self, polygon: IPolygon, clipping_box: IAxisAlignedBox) -> IPolygon:
+    def clip_single_polygon(self, polygon: IPolygon, clipping_box: IAxisAlignedBox) -> typing.Optional[IPolygon]:
         polygon_verts = list(polygon.vertices)
         box_verts = [clipping_box.upper_left, clipping_box.lower_right]
 
-        wrapped_verts = self._transformer.wrap_coordinates(polygon_verts + box_verts)
+        wrapped_verts = list(self._transformer.wrap_coordinates(polygon_verts + box_verts))
         wrapped_poly_verts = wrapped_verts[: len(polygon_verts)]
         wrapped_box_verts = wrapped_verts[-len(box_verts) :]
         wrapped_clipping_box = AxisAlignedBox(wrapped_box_verts[0], wrapped_box_verts[1])
@@ -52,17 +52,24 @@ class PolygonClipper(IPolygonClipper):
             : len(wrapped_clipped_verts)
         ]
 
+        if len(clipped_verts) < 3:
+            return None
         return Polygon(vertices=self._transformer.reverse_wrap(clipped_verts))
 
     def clip_polygons(
         self, polygons: typing.Sequence[IPolygon], clipping_box: IAxisAlignedBox
     ) -> typing.Sequence[IPolygon]:
-        return [self.clip_single_polygon(polygon, clipping_box) for polygon in polygons]
+        clipped_polygons = []
+        for polygon in polygons:
+            clipped_polygon = self.clip_single_polygon(polygon, clipping_box)
+            if clipped_polygon is not None:
+                clipped_polygons.append(clipped_polygon)
+        return clipped_polygons
 
     def _filter_out_redundant_vertices(self, vertices: typing.Sequence[Coordinate]) -> typing.Sequence[Coordinate]:
         dup_filtered = self._filter_out_duplicate_vertices(vertices)
         edge_filtered = self._filter_out_duplicate_grad_vertices(dup_filtered)
-        return edge_filtered
+        return self._filter_out_duplicate_vertices(edge_filtered)
 
     def _filter_out_duplicate_vertices(self, vertices: typing.Sequence[Coordinate]) -> typing.Sequence[Coordinate]:
         if len(vertices) <= 1:

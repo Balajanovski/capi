@@ -1,5 +1,7 @@
 import typing
 
+import shapely.geometry as geom  # type: ignore
+
 from capi.interfaces.datastructures.axis_aligned_box import IAxisAlignedBox
 from capi.interfaces.datastructures.polygon import IPolygon
 from capi.interfaces.meridian_handling.meridian_wrap_coord_transformer import IMeridianWrapCoordTransformer
@@ -63,6 +65,31 @@ class AxisAlignedBox(IAxisAlignedBox):
         max_lon = transformed_vertices[1].longitude
 
         return (min_lon < transformed_point.longitude < max_lon) and (min_lat < transformed_point.latitude < max_lat)
+
+    def line_intersects(self, point_1: Coordinate, point_2: Coordinate) -> bool:
+        meridian_wrapped_coords = list(
+            self._meridian_wrap_transformer.wrap_coordinates(list(self.vertices) + [point_1, point_2])
+        )
+        meridian_wrapped_poly_coords = meridian_wrapped_coords[:-2]
+        meridian_wrapped_point_1 = meridian_wrapped_coords[-2]
+        meridian_wrapped_point_2 = meridian_wrapped_coords[-1]
+
+        shapely_poly = self._make_shapely_polygon(meridian_wrapped_poly_coords)
+        return typing.cast(
+            bool,
+            shapely_poly.intersects(
+                geom.LineString(
+                    coordinates=[
+                        (meridian_wrapped_point_1.longitude, meridian_wrapped_point_1.latitude),
+                        (meridian_wrapped_point_2.longitude, meridian_wrapped_point_2.latitude),
+                    ]
+                )
+            ),
+        )
+
+    @staticmethod
+    def _make_shapely_polygon(vertices: typing.Iterable[Coordinate]) -> geom.Polygon:
+        return geom.Polygon([(vertex.longitude, vertex.latitude) for vertex in vertices])
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, IPolygon):

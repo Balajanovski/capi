@@ -30,8 +30,6 @@ class TestPolygonSpatialIndex(unittest.TestCase):
             ),
         ]
 
-        bounding_box_computer = mock.create_autospec(IPolygonBoundingBoxComputer)
-
         def _mock_compute(polygon: IPolygon) -> IAxisAlignedBox:
             if polygon == polygons[0]:
                 return AxisAlignedBox(
@@ -43,6 +41,7 @@ class TestPolygonSpatialIndex(unittest.TestCase):
                 )
             raise RuntimeError(f"Unknown case in {_mock_compute.__name__}. Polygon: {polygon}")
 
+        bounding_box_computer = mock.create_autospec(IPolygonBoundingBoxComputer)
         bounding_box_computer.compute.side_effect = _mock_compute
 
         index = PolygonSpatialIndex(polygons=polygons, bounding_box_computer=bounding_box_computer)

@@ -1,6 +1,6 @@
 import typing
 
-import shapely.geometry as geom
+import shapely.geometry as geom  # type: ignore
 
 from capi.interfaces.datastructures.polygon import IPolygon
 from capi.interfaces.meridian_handling.meridian_wrap_coord_transformer import IMeridianWrapCoordTransformer
@@ -37,6 +37,27 @@ class Polygon(IPolygon):
         shapely_point = geom.Point(meridian_wrapped_query_coord.longitude, meridian_wrapped_query_coord.latitude)
 
         return typing.cast(bool, shapely_point.within(shapely_polygon))
+
+    def line_intersects(self, point_1: Coordinate, point_2: Coordinate) -> bool:
+        meridian_wrapped_coords = list(
+            self._meridian_wrap_transformer.wrap_coordinates(self._vertices + [point_1, point_2])
+        )
+        meridian_wrapped_poly_coords = meridian_wrapped_coords[:-2]
+        meridian_wrapped_point_1 = meridian_wrapped_coords[-2]
+        meridian_wrapped_point_2 = meridian_wrapped_coords[-1]
+
+        shapely_poly = self._make_shapely_polygon(meridian_wrapped_poly_coords)
+        return typing.cast(
+            bool,
+            shapely_poly.intersects(
+                geom.LineString(
+                    coordinates=[
+                        (meridian_wrapped_point_1.longitude, meridian_wrapped_point_1.latitude),
+                        (meridian_wrapped_point_2.longitude, meridian_wrapped_point_2.latitude),
+                    ]
+                )
+            ),
+        )
 
     @staticmethod
     def _make_shapely_polygon(vertices: typing.Iterable[Coordinate]) -> geom.Polygon:
