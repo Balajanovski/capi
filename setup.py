@@ -7,7 +7,7 @@ with open("requirements.txt", "r") as handle:
 
 setuptools.setup(
     name="capi",
-    version="1.0.0",
+    version="1.1.0",
     author="James Balajan",
     author_email="James.Balajan@wisetechglobal.com",
     description="Python library for performing coast aware path interpolation",
