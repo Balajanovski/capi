@@ -12,10 +12,11 @@ class TestIntersectionPrechecker(unittest.TestCase):
     )
 
     def test_does_line_cross_polygons_no_cross(self):
+        # Meridian crossing
         self.assertFalse(
             self._intersection_prechecker.does_line_cross_polygons(
-                Coordinate(latitude=-0.005, longitude=0.093),
-                Coordinate(latitude=0.016479, longitude=0.4111),
+                Coordinate(latitude=-24.16374, longitude=172.80026),
+                Coordinate(latitude=-23.27864, longitude=-167.68802),
             )
         )
 

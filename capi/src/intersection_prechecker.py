@@ -29,9 +29,8 @@ class IntersectionPrechecker(IIntersectionPrechecker):
         index_clip_box = self._create_clip_box(coord_1, coord_2, lat_lon_wrap=False, margin=0)
 
         candidate_polygons = self._spatial_index.intersecting_polygons_with_box(index_clip_box)
-        clipped_polygons = candidate_polygons
 
-        for polygon in clipped_polygons:
+        for polygon in candidate_polygons:
             if polygon.line_intersects(coord_1, coord_2):
                 return True
 

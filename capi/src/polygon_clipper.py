@@ -78,7 +78,7 @@ class PolygonClipper(IPolygonClipper):
         rev_verts = reversed(vertices)
 
         dup_filtered_vertices = []
-        prev_vertex = vertices[0]  # first of reversed list
+        prev_vertex = vertices[0]  # last of reversed list
         for curr_vertex in rev_verts:
             if not self._coords_identical(prev_vertex, curr_vertex, self._epsilon_tolerance):
                 dup_filtered_vertices.append(curr_vertex)
