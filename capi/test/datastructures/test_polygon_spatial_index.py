@@ -1,9 +1,5 @@
 import unittest
-import unittest.mock as mock
 
-from capi.interfaces.datastructures.axis_aligned_box import IAxisAlignedBox
-from capi.interfaces.datastructures.polygon import IPolygon
-from capi.interfaces.geometry.polygon_bounding_box_computer import IPolygonBoundingBoxComputer
 from capi.src.datastructures.axis_aligned_box import AxisAlignedBox
 from capi.src.datastructures.polygon import Polygon
 from capi.src.datastructures.polygon_spatial_index import PolygonSpatialIndex
@@ -30,21 +26,7 @@ class TestPolygonSpatialIndex(unittest.TestCase):
             ),
         ]
 
-        def _mock_compute(polygon: IPolygon) -> IAxisAlignedBox:
-            if polygon == polygons[0]:
-                return AxisAlignedBox(
-                    top_left=Coordinate(longitude=-2, latitude=1), bottom_right=Coordinate(longitude=-1, latitude=-1)
-                )
-            if polygon == polygons[1]:
-                return AxisAlignedBox(
-                    top_left=Coordinate(longitude=1, latitude=1), bottom_right=Coordinate(longitude=2, latitude=-1)
-                )
-            raise RuntimeError(f"Unknown case in {_mock_compute.__name__}. Polygon: {polygon}")
-
-        bounding_box_computer = mock.create_autospec(IPolygonBoundingBoxComputer)
-        bounding_box_computer.compute.side_effect = _mock_compute
-
-        index = PolygonSpatialIndex(polygons=polygons, bounding_box_computer=bounding_box_computer)
+        index = PolygonSpatialIndex(polygons=polygons)
 
         query_1 = AxisAlignedBox(
             top_left=Coordinate(longitude=0, latitude=1), bottom_right=Coordinate(longitude=1, latitude=-1)

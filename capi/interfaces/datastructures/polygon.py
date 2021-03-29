@@ -1,6 +1,8 @@
 import abc
 import typing
 
+import shapely.geometry as geom  # type: ignore
+
 from capi.src.dtos.coordinate import Coordinate
 
 
@@ -24,4 +26,8 @@ class IPolygon(abc.ABC):
 
     @abc.abstractmethod
     def __repr__(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def to_shapely_polygon(self) -> geom.Polygon:
         pass
