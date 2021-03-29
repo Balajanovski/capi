@@ -1,16 +1,13 @@
-from pydantic import BaseModel, validator  # pylint: disable=no-name-in-module
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 
 class Coordinate(BaseModel):
     latitude: float
     longitude: float
 
-    # pylint: disable=no-self-argument, no-self-use
-    @validator("latitude")
-    def latitude_range(cls, v: float) -> float:
-        return ((v + 90) % 180) - 90
 
-    # pylint: disable=no-self-argument, no-self-use
-    @validator("longitude")
-    def longitude_range(cls, v: float) -> float:
-        return ((v + 180) % 360) - 180
+def construct_coord_in_lat_lon_range(latitude: float, longitude: float) -> Coordinate:
+    return Coordinate.construct(
+        latitude=((latitude + 90) % 180) - 90,
+        longitude=((longitude + 180) % 360) - 180,
+    )

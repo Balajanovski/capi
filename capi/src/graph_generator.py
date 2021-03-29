@@ -1,24 +1,25 @@
 import typing
 
-import shapefile  # type: ignore
-
 from capi.interfaces.graph_generator import IGraphGenerator
+from capi.interfaces.shapefiles.shapefile_reader import IShapefileReader
 from capi.src.pyvisgraph.graph import Point
 from capi.src.pyvisgraph.vis_graph import VisGraph
+from capi.src.shapefiles.shapefile_reader import ShapefileReader
 
 
 class GraphGenerator(IGraphGenerator):
-    def __init__(self, num_workers: int = 1):
+    def __init__(self, num_workers: int = 1, shapefile_reader: typing.Optional[IShapefileReader] = None):
         self._num_workers = num_workers
+        self._shapefile_reader = ShapefileReader() if shapefile_reader is None else shapefile_reader
 
     def generate(self, shape_file_path: str, output_path: str, meridian_crossing: bool = False) -> None:
-        shape_file = shapefile.Reader(shape_file_path)
+        read_polygons = self._shapefile_reader.read(shape_file_path)
         unadjusted_polygons = [
             [
-                self._generate_point_with_meridian_adjustment(point[0], point[1], meridian_crossing)
-                for point in shape.points
+                self._generate_point_with_meridian_adjustment(vertex.longitude, vertex.latitude, meridian_crossing)
+                for vertex in polygon.vertices
             ]
-            for shape in shape_file.shapes()
+            for polygon in read_polygons
         ]
 
         polygons: typing.List[typing.Sequence[Point]] = []

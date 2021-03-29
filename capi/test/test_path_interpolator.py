@@ -2,7 +2,7 @@ import os
 import typing
 import unittest
 
-from haversine import haversine
+from haversine import haversine  # type: ignore
 
 from capi.src.dtos.coordinate import Coordinate
 from capi.src.path_interpolator import PathInterpolator
@@ -11,6 +11,7 @@ from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 class TestPathInterpolator(unittest.TestCase):
     _EPSILON_TOLERANCE = 0.01
+    _SHAPEFILE_FILE_PATH = os.path.join(TEST_FILES_DIR, "GSHHS_c_L1.shp")
 
     def test_copenhagen_to_singapore(self):
         copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
@@ -46,30 +47,34 @@ class TestPathInterpolator(unittest.TestCase):
             self._make_coordinate(104.00, 1.00),
         ]
 
-        interpolator = PathInterpolator(visibility_graph_file_path=graph_file_path)
+        interpolator = PathInterpolator(
+            visibility_graph_file_path=graph_file_path, shapefile_file_path=self._SHAPEFILE_FILE_PATH
+        )
         path = interpolator.interpolate(copenhagen_coordinates, singapore_coordinates)
 
         self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
 
     def test_cross_meridian_with_meridian_graph(self):
-        singapore_coordinates = Coordinate(latitude=1, longitude=104)
-        california_coordinates = Coordinate(latitude=37, longitude=-125)
+        coords_1 = Coordinate(latitude=1, longitude=104)
+        coords_2 = Coordinate(latitude=37, longitude=-125)
         graph_file_path = os.path.join(TEST_FILES_DIR, "graph.pkl")
         meridian_graph_file_path = os.path.join(TEST_FILES_DIR, "meridian_graph.pkl")
 
         expected_path = [
             self._make_coordinate(104, 1.00),
-            self._make_coordinate(104.2212, 1.093306),
-            self._make_coordinate(104.590, 1.232056),
-            self._make_coordinate(115.6071, 5.229972),
+            self._make_coordinate(116.74586, 7.034528),
+            self._make_coordinate(123.012472, 9.040389),
+            self._make_coordinate(123.451306, 9.194139),
+            self._make_coordinate(126.06253, 10.0621),
             self._make_coordinate(-125.0, 37.0),
         ]
 
         interpolator = PathInterpolator(
             visibility_graph_file_path=graph_file_path,
             meridian_crossing_visibility_graph_file_path=meridian_graph_file_path,
+            shapefile_file_path=self._SHAPEFILE_FILE_PATH,
         )
-        path = interpolator.interpolate(singapore_coordinates, california_coordinates)
+        path = interpolator.interpolate(coords_1, coords_2)
 
         self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
 
@@ -81,8 +86,8 @@ class TestPathInterpolator(unittest.TestCase):
         return length
 
     def test_cross_meridian_without_meridian_graph(self):
-        singapore_coordinates = Coordinate(latitude=1, longitude=104)
-        california_coordinates = Coordinate(latitude=37, longitude=-125)
+        coords_1 = Coordinate(latitude=1, longitude=104)
+        coords_2 = Coordinate(latitude=37, longitude=-125)
         graph_file_path = os.path.join(TEST_FILES_DIR, "graph.pkl")
 
         expected_path = [
@@ -120,8 +125,24 @@ class TestPathInterpolator(unittest.TestCase):
 
         interpolator = PathInterpolator(
             visibility_graph_file_path=graph_file_path,
+            shapefile_file_path=self._SHAPEFILE_FILE_PATH,
         )
-        path = interpolator.interpolate(singapore_coordinates, california_coordinates)
+        path = interpolator.interpolate(coords_1, coords_2)
+
+        self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
+
+    def test_non_intersecting(self):
+        coords_1 = self._make_coordinate(-79.80740, 9.13017)
+        coords_2 = self._make_coordinate(-79.81564, 9.14596)
+        graph_file_path = os.path.join(TEST_FILES_DIR, "graph.pkl")
+
+        expected_path = [coords_1, coords_2]
+
+        interpolator = PathInterpolator(
+            visibility_graph_file_path=graph_file_path,
+            shapefile_file_path=self._SHAPEFILE_FILE_PATH,
+        )
+        path = interpolator.interpolate(coords_1, coords_2)
 
         self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
 
