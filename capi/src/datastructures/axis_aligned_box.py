@@ -87,6 +87,9 @@ class AxisAlignedBox(IAxisAlignedBox):
             ),
         )
 
+    def to_shapely_polygon(self) -> geom.Polygon:
+        return self._make_shapely_polygon(self.vertices)
+
     @staticmethod
     def _make_shapely_polygon(vertices: typing.Iterable[Coordinate]) -> geom.Polygon:
         return geom.Polygon([(vertex.longitude, vertex.latitude) for vertex in vertices])

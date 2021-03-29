@@ -22,6 +22,20 @@ class Polygon(IPolygon):
             MeridianWrapCoordTransformer() if meridian_wrap_transformer is None else meridian_wrap_transformer
         )
 
+    @classmethod
+    def from_shapely_polygon(
+        cls,
+        shapely_polygon: geom.Polygon,
+        meridian_wrap_transformer: typing.Optional[IMeridianWrapCoordTransformer] = None,
+    ) -> IPolygon:
+        return cls(
+            [
+                Coordinate(latitude=latitude, longitude=longitude)
+                for longitude, latitude in zip(shapely_polygon.exterior.xy[0][:-1], shapely_polygon.exterior.xy[1][:-1])
+            ],
+            meridian_wrap_transformer=meridian_wrap_transformer,
+        )
+
     @property
     def vertices(self) -> typing.Sequence[Coordinate]:
         return self._vertices
@@ -58,6 +72,9 @@ class Polygon(IPolygon):
                 )
             ),
         )
+
+    def to_shapely_polygon(self) -> geom.Polygon:
+        return self._make_shapely_polygon(self._vertices)
 
     @staticmethod
     def _make_shapely_polygon(vertices: typing.Iterable[Coordinate]) -> geom.Polygon:

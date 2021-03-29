@@ -4,9 +4,11 @@ import unittest
 import hypothesis
 import hypothesis.strategies as st
 
+from capi.interfaces.datastructures.polygon import IPolygon
 from capi.src.datastructures.polygon import Polygon
 from capi.src.dtos.coordinate import Coordinate
 from capi.src.hypothesis_strategies.coordinate import coordinate_strategy
+from capi.src.hypothesis_strategies.polygon import polygon_strategy
 
 
 class TestPolygon(unittest.TestCase):
@@ -128,3 +130,12 @@ class TestPolygon(unittest.TestCase):
                 Coordinate(longitude=178.75, latitude=1.5), Coordinate(longitude=-178.75, latitude=1.75)
             )
         )
+
+    @hypothesis.given(
+        polygon=polygon_strategy(),
+    )
+    def test_to_shapely_polygon(self, polygon: IPolygon):
+        shapely_poly = polygon.to_shapely_polygon()
+        reconstructed_poly = Polygon.from_shapely_polygon(shapely_poly)
+
+        self.assertEqual(polygon, reconstructed_poly)
