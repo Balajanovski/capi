@@ -1,4 +1,4 @@
-FROM debian:10-slim
+FROM python:3.7.10-slim
 
 ARG PROXY
 
@@ -8,12 +8,26 @@ ENV HTTP_PROXY=${PROXY}
 ENV HTTPS_PROXY=${PROXY}
 
 WORKDIR /opt
-RUN apt -y clean && apt -yqq update --fix-missing && apt -y install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev liblzma-dev git
-RUN curl https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz --output /opt/Python-3.7.9.tgz && tar -xf /opt/Python-3.7.9.tgz
-WORKDIR /opt/Python-3.7.9
-RUN ./configure --enable-optimizations && make -j 2 && make altinstall
-WORKDIR /opt
-RUN rm -rf Python-3.7.9
+RUN apt -y clean && \
+    apt -yqq update --fix-missing && \
+    apt -y install build-essential \
+                   git \
+                   libpcre3 \
+                   libpcre3-dev \
+                   automake \
+                   bison \
+                   flex \
+                   zlib1g-dev \
+                   libncurses5-dev \
+                   libgdbm-dev \
+                   libnss3-dev \
+                   libssl-dev \
+                   libsqlite3-dev \
+                   libreadline-dev \
+                   libffi-dev \
+                   curl \
+                   libbz2-dev \
+                   liblzma-dev
 
 # The compilation step is needed so that pygeos and shapely could use the same version of GEOS library
 RUN apt -y install libgeos-dev

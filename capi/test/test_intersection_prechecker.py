@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from capi.src.dtos.coordinate import Coordinate
-from capi.src.intersection_prechecker import IntersectionPrechecker
+from capi.src.implementation.dtos.coordinate import Coordinate
+from capi.src.implementation.intersection_prechecker import IntersectionPrechecker
 from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 

@@ -1,6 +1,6 @@
 import os
 
-from capi.src.test_common.run_test_command import run_command
+from capi.test_common.run_test_command import run_command
 
 
 def main():

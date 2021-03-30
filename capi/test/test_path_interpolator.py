@@ -4,8 +4,8 @@ import unittest
 
 from haversine import haversine  # type: ignore
 
-from capi.src.dtos.coordinate import Coordinate
-from capi.src.path_interpolator import PathInterpolator
+from capi.src.implementation.dtos.coordinate import Coordinate
+from capi.src.implementation.path_interpolator import PathInterpolator
 from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 

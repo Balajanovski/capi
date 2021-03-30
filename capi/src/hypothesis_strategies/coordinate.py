@@ -2,7 +2,7 @@ import typing
 
 import hypothesis.strategies as st
 
-from capi.src.dtos.coordinate import Coordinate
+from capi.src.implementation.dtos.coordinate import Coordinate
 
 _ALLOW_INFINITY = False
 _ALLOW_NAN = False

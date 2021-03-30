@@ -26,7 +26,7 @@ import unittest
 
 import shapefile  # type: ignore
 
-import capi.src.pyvisgraph as vg
+import capi.src.implementation.pyvisgraph as vg
 from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 

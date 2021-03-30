@@ -1,9 +1,9 @@
 import unittest
 
-from capi.src.datastructures.axis_aligned_box import AxisAlignedBox
-from capi.src.datastructures.polygon import Polygon
-from capi.src.dtos.coordinate import Coordinate
-from capi.src.polygon_clipper import PolygonClipper
+from capi.src.implementation.datastructures.polygon import Polygon
+from capi.src.implementation.dtos.coordinate import Coordinate
+from capi.src.implementation.datastructures.axis_aligned_box import AxisAlignedBox
+from capi.src.implementation.polygon_clipper import PolygonClipper
 
 
 class TestPolygonClipper(unittest.TestCase):

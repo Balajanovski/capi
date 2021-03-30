@@ -2,8 +2,8 @@ import typing
 
 import hypothesis.strategies as st
 
-from capi.src.datastructures.polygon import Polygon
 from capi.src.hypothesis_strategies.coordinate import coordinate_strategy
+from capi.src.implementation.datastructures.polygon import Polygon
 
 
 @st.composite

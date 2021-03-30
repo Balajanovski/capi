@@ -26,10 +26,10 @@ from __future__ import division
 import unittest
 from math import cos, degrees, pi, sin
 
-import capi.src.pyvisgraph as vg
-from capi.src.pyvisgraph.geometry import intersect_point, point_in_polygon
-from capi.src.pyvisgraph.graph import Edge, Graph, Point
-from capi.src.pyvisgraph.visible_vertices import (
+import capi.src.implementation.pyvisgraph as vg
+from capi.src.implementation.pyvisgraph.geometry import intersect_point, point_in_polygon
+from capi.src.implementation.pyvisgraph.graph import Edge, Graph, Point
+from capi.src.implementation.pyvisgraph.visible_vertices import (
     angle_arctan,
     edge_intersect,
     euclidean_distance,

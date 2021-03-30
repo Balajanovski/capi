@@ -2,8 +2,8 @@ import os
 import unittest
 from tempfile import TemporaryDirectory
 
-from capi.src.graph_generator import GraphGenerator
-from capi.src.pyvisgraph.vis_graph import VisGraph
+from capi.src.implementation.graph_generator import GraphGenerator
+from capi.src.implementation.pyvisgraph.vis_graph import VisGraph
 from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 

@@ -2,10 +2,10 @@ import unittest
 
 import hypothesis
 
-from capi.src.datastructures.axis_aligned_box import AxisAlignedBox
-from capi.src.datastructures.polygon import Polygon
-from capi.src.dtos.coordinate import Coordinate
-from capi.src.geometry.polygon_bounding_box_computer import PolygonBoundingBoxComputer
+from capi.src.implementation.datastructures.axis_aligned_box import AxisAlignedBox
+from capi.src.implementation.datastructures.polygon import Polygon
+from capi.src.implementation.dtos.coordinate import Coordinate
+from capi.src.implementation.geometry.polygon_bounding_box_computer import PolygonBoundingBoxComputer
 from capi.src.hypothesis_strategies.axis_aligned_box import axis_aligned_box_strategy
 
 

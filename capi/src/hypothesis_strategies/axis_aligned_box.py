@@ -3,9 +3,9 @@ import typing
 import hypothesis.strategies as st
 from hypothesis import assume
 
-from capi.src.datastructures.axis_aligned_box import AxisAlignedBox
-from capi.src.dtos.coordinate import Coordinate
 from capi.src.hypothesis_strategies.coordinate import coordinate_strategy
+from capi.src.implementation.datastructures.axis_aligned_box import AxisAlignedBox
+from capi.src.implementation.dtos.coordinate import Coordinate
 
 
 @st.composite
