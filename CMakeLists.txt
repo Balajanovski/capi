@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14...3.18)
+cmake_minimum_required(VERSION 3.13...3.18)
 project(capi VERSION "2.0.0")
 
 # Currently, Scikit-build does not support FindPython, so we convert the
@@ -19,7 +19,7 @@ execute_process(
         "${Python_EXECUTABLE}" -c
         "import pybind11; print(pybind11.get_cmake_dir())"
         OUTPUT_VARIABLE _tmp_dir
-        OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ECHO STDOUT)
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
 list(APPEND CMAKE_PREFIX_PATH "${_tmp_dir}")
 
 # Now we can find pybind11
