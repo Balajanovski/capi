@@ -10,19 +10,18 @@
 
 #include "types/coordinate/coordinate.hpp"
 
-
 class Polygon {
-public:
+  public:
     Polygon(std::initializer_list<Coordinate> vertices);
     explicit Polygon(std::vector<Coordinate> vertices);
 
-    const std::vector<Coordinate>& get_vertices() const;
+    const std::vector<Coordinate> &get_vertices() const;
 
-    bool operator==(const Polygon& other) const;
-    bool operator!=(const Polygon& other) const;
-private:
+    bool operator==(const Polygon &other) const;
+    bool operator!=(const Polygon &other) const;
+
+  private:
     std::vector<Coordinate> _vertices;
 };
 
-
-#endif//CAPI_POLYGON_HPP
+#endif // CAPI_POLYGON_HPP

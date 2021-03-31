@@ -7,9 +7,7 @@
 
 #include "datastructures/graph/graph.hpp"
 
-
-TEST_CASE("Graph Add Edge")
-{
+TEST_CASE("Graph Add Edge") {
     auto graph = Graph(10);
     graph.add_edge(1, 5);
 
@@ -18,8 +16,7 @@ TEST_CASE("Graph Add Edge")
     REQUIRE_FALSE(graph.has_edge(1, 6));
 }
 
-TEST_CASE("Graph edge outside allowed range")
-{
+TEST_CASE("Graph edge outside allowed range") {
     auto graph = Graph(0);
 
     REQUIRE_FALSE(graph.has_edge(1, 0));

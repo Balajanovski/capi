@@ -12,7 +12,6 @@
 
 namespace py = pybind11;
 
-
 PYBIND11_MODULE(_vis_graph, m) {
     m.doc() = "CAPI visibility graphs";
 
@@ -20,13 +19,10 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def(py::init<double, double>())
         .def("get_latitude", &Coordinate::get_latitude)
         .def("get_longitude", &Coordinate::get_longitude)
-        .def("__repr__", [](const Coordinate& coord) {
-                return std::string("Coordinate (latitude: ") +
-                       coord.get_latitude() +
-                       " longitude: " +
-                       coord.get_longitude() +
-                       ")";
-            });
+        .def("__repr__", [](const Coordinate &coord) {
+            return std::string("Coordinate (latitude: ") + coord.get_latitude() +
+                   " longitude: " + coord.get_longitude() + ")";
+        });
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

@@ -6,9 +6,8 @@
 
 #include "rotation_tree_node.hpp"
 
-
-RotationTreeNode::RotationTreeNode(const Coordinate &coord): _coord(coord), _father(nullptr), _left_brother(nullptr), _right_brother(nullptr), _rightmost_son(nullptr) {}
-
+RotationTreeNode::RotationTreeNode(const Coordinate &coord)
+    : _coord(coord), _father(nullptr), _left_brother(nullptr), _right_brother(nullptr), _rightmost_son(nullptr) {}
 
 void RotationTreeNode::add_node_as_rightmost_son(const std::shared_ptr<RotationTreeNode> &node) {
     if (node == nullptr) {
@@ -17,7 +16,8 @@ void RotationTreeNode::add_node_as_rightmost_son(const std::shared_ptr<RotationT
 
     node->detach_from_tree();
 
-    if(_rightmost_son != nullptr) _rightmost_son->_right_brother = node;
+    if (_rightmost_son != nullptr)
+        _rightmost_son->_right_brother = node;
     node->_left_brother = _rightmost_son;
     node->_father = shared_from_this();
 
@@ -36,7 +36,8 @@ void RotationTreeNode::add_node_as_left_brother(const std::shared_ptr<RotationTr
 
     node->_father = _father;
 
-    if(_left_brother != nullptr) _left_brother->_right_brother = node;
+    if (_left_brother != nullptr)
+        _left_brother->_right_brother = node;
     node->_left_brother = _left_brother;
 
     node->_right_brother = shared_from_this();
@@ -48,30 +49,22 @@ void RotationTreeNode::detach_from_tree() {
         _father->_rightmost_son = _left_brother;
     }
 
-    if (_left_brother != nullptr) _left_brother->_right_brother = _right_brother;
-    if (_right_brother != nullptr) _right_brother->_left_brother = _left_brother;
+    if (_left_brother != nullptr)
+        _left_brother->_right_brother = _right_brother;
+    if (_right_brother != nullptr)
+        _right_brother->_left_brother = _left_brother;
 
     _father = nullptr;
     _left_brother = nullptr;
     _right_brother = nullptr;
 }
 
-std::shared_ptr<RotationTreeNode> RotationTreeNode::get_right_brother() const {
-    return _right_brother;
-}
+std::shared_ptr<RotationTreeNode> RotationTreeNode::get_right_brother() const { return _right_brother; }
 
-std::shared_ptr<RotationTreeNode> RotationTreeNode::get_left_brother() const {
-    return _left_brother;
-}
+std::shared_ptr<RotationTreeNode> RotationTreeNode::get_left_brother() const { return _left_brother; }
 
-std::shared_ptr<RotationTreeNode> RotationTreeNode::get_father() const {
-    return _father;
-}
+std::shared_ptr<RotationTreeNode> RotationTreeNode::get_father() const { return _father; }
 
-std::shared_ptr<RotationTreeNode> RotationTreeNode::get_rightmost_son() const {
-    return _rightmost_son;
-}
+std::shared_ptr<RotationTreeNode> RotationTreeNode::get_rightmost_son() const { return _rightmost_son; }
 
-Coordinate RotationTreeNode::get_coordinate() const {
-    return _coord;
-}
+Coordinate RotationTreeNode::get_coordinate() const { return _coord; }

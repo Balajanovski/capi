@@ -77,9 +77,7 @@ Graph VisgraphGenerator::generate(const std::vector<Polygon> &polygons) const {
 }
 
 void VisgraphGenerator::handle(const std::shared_ptr<RotationTreeNode> &p, const std::shared_ptr<RotationTreeNode> &q,
-                               Graph &graph) {
-
-}
+                               Graph &graph) {}
 
 void VisgraphGenerator::sort_verticies_by_position(std::vector<Coordinate> &vertices) {
     const auto cmp = [](const Coordinate &a, const Coordinate &b) {

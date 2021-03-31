@@ -7,17 +7,17 @@
 
 #include "types/coordinate/coordinate.hpp"
 
-
 class LineSegment {
-public:
-    LineSegment(const Coordinate& endpoint_1, const Coordinate& endpoint_2) : _endpoint_1(endpoint_1), _endpoint_2(endpoint_2) {}
+  public:
+    LineSegment(const Coordinate &endpoint_1, const Coordinate &endpoint_2)
+        : _endpoint_1(endpoint_1), _endpoint_2(endpoint_2) {}
 
     Coordinate get_endpoint_1() const;
     Coordinate get_endpoint_2() const;
-private:
+
+  private:
     Coordinate _endpoint_1;
     Coordinate _endpoint_2;
 };
 
-
-#endif //CAPI_LINE_SEGMENT_HPP
+#endif // CAPI_LINE_SEGMENT_HPP

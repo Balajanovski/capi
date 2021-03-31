@@ -5,20 +5,19 @@
 #ifndef CAPI_GRAPH_HPP
 #define CAPI_GRAPH_HPP
 
-#include <vector>
 #include <unordered_set>
-
+#include <vector>
 
 class Graph {
-public:
+  public:
     explicit Graph(int num_vertices);
 
     void add_edge(int a, int b);
     bool has_edge(int a, int b) const;
-private:
+
+  private:
     std::vector<std::unordered_set<int>> _neighbors;
     int _num_vertices;
 };
 
-
-#endif //CAPI_GRAPH_HPP
+#endif // CAPI_GRAPH_HPP

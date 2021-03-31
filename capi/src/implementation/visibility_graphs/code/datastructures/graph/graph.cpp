@@ -2,18 +2,18 @@
 // Created by James.Balajan on 31/03/2021.
 //
 
-#include <stdexcept>
 #include <fmt/core.h>
+#include <stdexcept>
 
 #include "graph.hpp"
 
-
-Graph::Graph(int num_vertices): _neighbors(num_vertices, std::unordered_set<int>()), _num_vertices(num_vertices) {}
+Graph::Graph(int num_vertices) : _neighbors(num_vertices, std::unordered_set<int>()), _num_vertices(num_vertices) {}
 
 void Graph::add_edge(int a, int b) {
     if (a >= _num_vertices || a < 0 || b >= _num_vertices || b < 0) {
         throw std::runtime_error(fmt::format("Attempted to add edge ({}, {}) outside of allowed range. "
-                                             "Num vertices: {}", a, b, _num_vertices));
+                                             "Num vertices: {}",
+                                             a, b, _num_vertices));
     }
 
     _neighbors[a].insert(b);
