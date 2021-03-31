@@ -8,16 +8,20 @@
 #include <initializer_list>
 #include <vector>
 
-#include "types/coordinate.hpp"
+#include "types/coordinate/coordinate.hpp"
 
 
 class Polygon {
 public:
     Polygon(std::initializer_list<Coordinate> vertices);
+    explicit Polygon(std::vector<Coordinate> vertices);
 
     const std::vector<Coordinate>& get_vertices() const;
+
+    bool operator==(const Polygon& other) const;
+    bool operator!=(const Polygon& other) const;
 private:
-    std::vector<Coordinate> vertex_coords;
+    std::vector<Coordinate> _vertices;
 };
 
 

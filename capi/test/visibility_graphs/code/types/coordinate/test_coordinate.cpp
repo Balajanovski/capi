@@ -5,7 +5,7 @@
 
 #include <catch.hpp>
 
-#include "types/coordinate.hpp"
+#include "types/coordinate/coordinate.hpp"
 
 
 TEST_CASE("Coordinate Constructor")

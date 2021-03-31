@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.13...3.18)
 project(capi VERSION "2.0.0")
 
+set(PY_MODULE_TARGET _vis_graph)
+set(TEST_TARGET "${PROJECT_NAME}_test")
+set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
+
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
 if(SKBUILD)
@@ -27,21 +31,32 @@ find_package(pybind11 CONFIG REQUIRED)
 
 # Get our source files
 set(VIS_GRAPH_IMPL_DIR ${CMAKE_SOURCE_DIR}/capi/src/implementation/visibility_graphs)
-set(VIS_GRAPH_INTERFACES_DIR ${CMAKE_SOURCE_DIR}/capi/src/interfaces/visibility_graphs)
 
 file(GLOB_RECURSE VIS_GRAPH_IMPLEMENTATION_FILES "${VIS_GRAPH_IMPL_DIR}/code/*.cpp" "${VIS_GRAPH_IMPL_DIR}/code/*.hpp")
-file(GLOB_RECURSE VIS_GRAPH_INTERFACE_FILES "${VIS_GRAPH_INTERFACES_DIR}/code/*.hpp")
-include_directories(${VIS_GRAPH_IMPL_DIR}/code ${VIS_GRAPH_INTERFACES_DIR})
+include_directories(${VIS_GRAPH_IMPL_DIR}/code)
 
-pybind11_add_module(_vis_graph MODULE ${VIS_GRAPH_IMPLEMENTATION_FILES} ${VIS_GRAPH_INTERFACE_FILES} ${VIS_GRAPH_IMPL_DIR}/bindings.cpp)
-target_compile_definitions(_vis_graph PRIVATE VERSION_INFO=${PROJECT_VERSION})
-install(TARGETS _vis_graph DESTINATION .)
+# Get fmt library
+include_directories(${CPP_LIBS_DIR}/fmt/include)
+file(GLOB_RECURSE FMT_SOURCE "${CPP_LIBS_DIR}/fmt/*.cc" "${CPP_LIBS_DIR}/fmt/*.h")
+
+# Create python module
+pybind11_add_module(${PY_MODULE_TARGET} MODULE
+        ${VIS_GRAPH_IMPLEMENTATION_FILES}
+        ${FMT_SOURCE}
+        ${VIS_GRAPH_IMPL_DIR}/bindings.cpp)
+target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
+install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
 # Setup unit tests
 set(TEST_DIR "capi/test")
 file(GLOB_RECURSE TEST_FILES "${TEST_DIR}/*.cpp" "${TEST_DIR}/*.hpp")
 
 # Generate a test executable
-set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
 include_directories(${CPP_LIBS_DIR}/catch2)
-add_executable("${PROJECT_NAME}_test" ${TEST_FILES} ${VIS_GRAPH_IMPLEMENTATION_FILES} ${VIS_GRAPH_INTERFACE_FILES} ${CPP_LIBS_DIR}/catch2/catch.cpp)
+file(GLOB_RECURSE CATCH_SOURCE "${CPP_LIBS_DIR}/catch2/*.cpp" "${CPP_LIBS_DIR}/catch2/*.hpp")
+
+add_executable(${TEST_TARGET}
+        ${TEST_FILES}
+        ${VIS_GRAPH_IMPLEMENTATION_FILES}
+        ${CATCH_SOURCE}
+        ${FMT_SOURCE})

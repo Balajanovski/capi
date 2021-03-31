@@ -7,7 +7,7 @@
 
 class Coordinate {
 public:
-    Coordinate(double longitude_, double latitude_);
+    Coordinate(double longitude, double latitude);
 
     double get_latitude() const;
     double get_longitude() const;
@@ -15,8 +15,8 @@ public:
     bool operator==(const Coordinate& other) const;
     bool operator!=(const Coordinate& other) const;
 private:
-    double latitude;
-    double longitude;
+    double _latitude;
+    double _longitude;
 };
 
 #endif //CAPI_COORDINATE_HPP
