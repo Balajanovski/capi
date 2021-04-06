@@ -6,18 +6,20 @@
 #define CAPI_GRAPH_HPP
 
 #include <unordered_set>
-#include <vector>
+#include <unordered_map>
+
+#include "types/coordinate/coordinate.hpp"
 
 class Graph {
   public:
-    explicit Graph(int num_vertices);
+    Graph();
+    explicit Graph(size_t num_vertices);
 
-    void add_edge(int a, int b);
-    bool has_edge(int a, int b) const;
+    void add_edge(const Coordinate& a, const Coordinate& b);
+    [[nodiscard]] bool has_edge(const Coordinate& a, const Coordinate& b) const;
 
   private:
-    std::vector<std::unordered_set<int>> _neighbors;
-    int _num_vertices;
+    std::unordered_map<Coordinate, std::unordered_set<Coordinate>> _neighbors;
 };
 
 #endif // CAPI_GRAPH_HPP

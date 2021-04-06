@@ -15,7 +15,7 @@ class Polygon {
     Polygon(std::initializer_list<Coordinate> vertices);
     explicit Polygon(std::vector<Coordinate> vertices);
 
-    const std::vector<Coordinate> &get_vertices() const;
+    [[nodiscard]] const std::vector<Coordinate> &get_vertices() const;
 
     bool operator==(const Polygon &other) const;
     bool operator!=(const Polygon &other) const;

@@ -5,20 +5,20 @@
 #include <catch.hpp>
 #include <stdexcept>
 
+#include "types/coordinate/coordinate.hpp"
 #include "datastructures/graph/graph.hpp"
 
 TEST_CASE("Graph Add Edge") {
-    auto graph = Graph(10);
-    graph.add_edge(1, 5);
+    auto graph = Graph();
+    const auto coord1 = Coordinate(1, 2);
+    const auto coord2 = Coordinate(2, 1);
+    const auto coord3 = Coordinate(1, 1);
+    const auto coord4 = Coordinate(1, 2);
 
-    REQUIRE(graph.has_edge(1, 5));
-    REQUIRE(graph.has_edge(5, 1));
-    REQUIRE_FALSE(graph.has_edge(1, 6));
-}
+    graph.add_edge(coord1, coord2);
 
-TEST_CASE("Graph edge outside allowed range") {
-    auto graph = Graph(0);
-
-    REQUIRE_FALSE(graph.has_edge(1, 0));
-    REQUIRE_THROWS_AS(graph.add_edge(1, 0), std::runtime_error);
+    REQUIRE(graph.has_edge(coord1, coord2));
+    REQUIRE(graph.has_edge(coord2, coord1));
+    REQUIRE_FALSE(graph.has_edge(coord1, coord3));
+    REQUIRE(graph.has_edge(coord4, coord2));
 }

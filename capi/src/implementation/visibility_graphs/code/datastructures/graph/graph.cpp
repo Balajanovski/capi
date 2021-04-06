@@ -7,23 +7,24 @@
 
 #include "graph.hpp"
 
-Graph::Graph(int num_vertices) : _neighbors(num_vertices, std::unordered_set<int>()), _num_vertices(num_vertices) {}
+Graph::Graph() = default;
 
-void Graph::add_edge(int a, int b) {
-    if (a >= _num_vertices || a < 0 || b >= _num_vertices || b < 0) {
-        throw std::runtime_error(fmt::format("Attempted to add edge ({}, {}) outside of allowed range. "
-                                             "Num vertices: {}",
-                                             a, b, _num_vertices));
+Graph::Graph(size_t num_vertices) {
+    _neighbors.reserve(num_vertices);
+}
+
+void Graph::add_edge(const Coordinate &a, const Coordinate &b) {
+    if (_neighbors.find(a) == _neighbors.end()) {
+        _neighbors[a] = std::unordered_set<Coordinate>();
+    } if (_neighbors.find(b) == _neighbors.end()) {
+        _neighbors[b] = std::unordered_set<Coordinate>();
     }
 
     _neighbors[a].insert(b);
     _neighbors[b].insert(a);
 }
 
-bool Graph::has_edge(int a, int b) const {
-    if (a >= _num_vertices || a < 0 || b >= _num_vertices || b < 0) {
-        return false;
-    }
-
-    return (_neighbors[a].find(b) != _neighbors[a].end());
+bool Graph::has_edge(const Coordinate &a, const Coordinate &b) const {
+    return (_neighbors.find(a) != _neighbors.end()) &&
+        (_neighbors.at(a).find(b) != _neighbors.at(a).end());
 }
