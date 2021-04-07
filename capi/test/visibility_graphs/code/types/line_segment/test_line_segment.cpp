@@ -16,12 +16,32 @@ TEST_CASE("Line Segment Constructor") {
     REQUIRE(line_segment.get_endpoint_2() == endpoint_2);
 }
 
-TEST_CASE("Intersection with ray") {
+TEST_CASE("Line Segment Intersection with segment") {
     const auto endpoint_1 = Coordinate(1.0, 2.0);
     const auto endpoint_2 = Coordinate(2.0, 1.0);
     const auto line_segment = LineSegment(endpoint_1, endpoint_2);
 
-    REQUIRE(Coordinate(1.5, 1.5) == *line_segment.intersection_with_ray(Coordinate(1, 1), Coordinate(1, 1)));
-    REQUIRE_FALSE(line_segment.intersection_with_ray(Coordinate(1, 1), Coordinate(-1, -1)).has_value());
-    REQUIRE_FALSE(line_segment.intersection_with_ray(Coordinate(1, 1), Coordinate(-1, 1)).has_value());
+    REQUIRE(Coordinate(1.5, 1.5) == line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(2, 2))).value());
+    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(1.1, 1.1))).has_value());
+    REQUIRE(Coordinate(1.0, 2.0) == line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(1, 2))).value());
+    REQUIRE(Coordinate(2.0, 1.0) == line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(2, 1))).value());
+    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(0, 0))).has_value());
+    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(0, 2))).has_value());
+    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1.5, 1.5), Coordinate(2.5, 0.5))).has_value());
+    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1.5, 1.5), Coordinate(0.5, 2.5))).has_value());
+    REQUIRE(Coordinate(2, 1) == line_segment.intersection_with_segment(LineSegment(Coordinate(3, 0), Coordinate(2, 1))).value());
+    REQUIRE(Coordinate(1, 2) == line_segment.intersection_with_segment(LineSegment(Coordinate(0, 3), Coordinate(1, 2))).value());
+}
+
+TEST_CASE("Line Segment Equals operator") {
+    const auto seg1 = LineSegment(Coordinate(1.0, 2.0), Coordinate(2.0, 1.0));
+    const auto seg2 = LineSegment(Coordinate(2.0, 1.0), Coordinate(1.0, 2.0));
+    const auto seg3 = LineSegment(Coordinate(1.0, 1.0), Coordinate(2.0, 1.0));
+
+    REQUIRE(seg1 == seg1);
+    REQUIRE_FALSE(seg1 != seg1);
+    REQUIRE(seg2 == seg1);
+    REQUIRE_FALSE(seg2 != seg1);
+    REQUIRE_FALSE(seg1 == seg3);
+    REQUIRE(seg1 != seg3);
 }

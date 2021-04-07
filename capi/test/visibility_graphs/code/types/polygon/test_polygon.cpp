@@ -8,8 +8,15 @@
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
 
-TEST_CASE("Polygon Constructor") {
+TEST_CASE("Polygon Constructor Counter Clockwise") {
     const auto polygon = Polygon({Coordinate(1, 2), Coordinate(2, 1), Coordinate(3, 3)});
+
+    REQUIRE(polygon.get_vertices().size() == 3);
+    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(1, 2), Coordinate(2, 1), Coordinate(3, 3)}));
+}
+
+TEST_CASE("Polygon Constructor Clockwise") {
+    const auto polygon = Polygon({Coordinate(3, 3), Coordinate(2, 1), Coordinate(1, 2)});
 
     REQUIRE(polygon.get_vertices().size() == 3);
     REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(1, 2), Coordinate(2, 1), Coordinate(3, 3)}));

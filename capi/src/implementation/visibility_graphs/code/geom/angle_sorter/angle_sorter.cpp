@@ -7,14 +7,20 @@
 #include "angle_sorter.hpp"
 
 
-void AngleSorter::sort_counter_clockwise_around_root_vertex(const Coordinate &root, std::vector<Coordinate> &vertices) {
+void AngleSorter::sort_counter_clockwise_around_observer(const Coordinate &observer, std::vector<Coordinate> &vertices) {
     if (vertices.empty()) {
         return;
     }
 
     const auto cmp = [&](const Coordinate& c1, const Coordinate& c2) -> bool {
-        const auto v1 = c1 - root;
-        const auto v2 = c2 - root;
+        if (c1 == observer) {
+            return true;
+        } else if (c2 == observer) {
+            return false;
+        }
+
+        const auto v1 = c1 - observer;
+        const auto v2 = c2 - observer;
 
         if (v1.get_longitude() >= 0 && v2.get_longitude() < 0) {
             return false;

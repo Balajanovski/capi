@@ -195,3 +195,9 @@ class OpenEdges:
             if angle_edge1 < angle_edge2:
                 return True
         return False
+
+
+if __name__ == '__main__':
+    g = Graph([[Point(0, 1), Point(-1, 0), Point(-1, -1), Point(0, -1), Point(0.3, -0.5), Point(1, 0)]])
+    p = Point(1.000, 0.000)
+    print(visible_vertices(p, g))

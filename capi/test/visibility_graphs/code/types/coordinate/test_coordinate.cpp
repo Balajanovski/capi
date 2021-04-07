@@ -71,6 +71,17 @@ TEST_CASE("Coordinate Multiply by scalar") {
     REQUIRE((coord * 2) == Coordinate(2, 4));
 }
 
+TEST_CASE("Coordinate parallel") {
+    const auto coord1 = Coordinate(1, 2);
+    const auto coord2 = Coordinate(2, 4);
+    const auto coord3 = Coordinate(-1, 2);
+    const auto coord4 = Coordinate(-1, -2);
+
+    REQUIRE(coord1.parallel(coord2));
+    REQUIRE(coord1.parallel(coord4));
+    REQUIRE_FALSE(coord1.parallel(coord3));
+}
+
 TEST_CASE("Coordinate vector orientation") {
     const auto base = Coordinate(1, 1);
     const auto counter_clockwise = Coordinate(1, 2);
@@ -80,6 +91,23 @@ TEST_CASE("Coordinate vector orientation") {
     REQUIRE(base.vector_orientation(counter_clockwise) == Orientation::COUNTER_CLOCKWISE);
     REQUIRE(base.vector_orientation(clockwise) == Orientation::CLOCKWISE);
     REQUIRE(base.vector_orientation(collinear) == Orientation::COLLINEAR);
+}
+
+TEST_CASE("Coordinate scalar multiple factor") {
+    const auto coord1 = Coordinate(1, 2);
+    const auto coord2 = Coordinate(2, 4);
+    const auto coord3 = Coordinate(-1, -2);
+    const auto coord4 = Coordinate(-1, 2);
+    const auto coord5 = Coordinate(1, -2);
+    const auto coord6 = Coordinate(0, 0);
+
+    REQUIRE(coord1.scalar_multiple_factor(coord2).value() == 2);
+    REQUIRE(coord2.scalar_multiple_factor(coord1).value() == 0.5);
+    REQUIRE(coord1.scalar_multiple_factor(coord3).value() == -1);
+    REQUIRE(coord1.scalar_multiple_factor(coord6).value() == 0);
+    REQUIRE(coord6.scalar_multiple_factor(coord1).value() == 0);
+    REQUIRE_FALSE(coord1.scalar_multiple_factor(coord4).has_value());
+    REQUIRE_FALSE(coord1.scalar_multiple_factor(coord5).has_value());
 }
 
 TEST_CASE("Coordinate hash") {

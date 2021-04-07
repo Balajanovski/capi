@@ -3,21 +3,25 @@
 //
 
 #include <cmath>
+#include <stdexcept>
 #include <fmt/format.h>
 
 #include "coordinate.hpp"
+#include "constants/constants.hpp"
 
 double round_to_epsilon_tolerance(double val);
 
-Coordinate::Coordinate(double longitude, double latitude) : _latitude(latitude), _longitude(longitude) {}
+Coordinate::Coordinate(double longitude, double latitude) {
+    _longitude = longitude;
+    _latitude = latitude;
+}
 
 double Coordinate::get_latitude() const { return _latitude; }
 
 double Coordinate::get_longitude() const { return _longitude; }
 
 bool Coordinate::operator==(const Coordinate &other) const {
-    return std::abs(_latitude - other._latitude) < EPSILON_TOLERANCE &&
-        std::abs(_longitude - other._longitude) < EPSILON_TOLERANCE;
+    return (other - *this).magnitude_squared() < (EPSILON_TOLERANCE * EPSILON_TOLERANCE);
 }
 
 bool Coordinate::operator!=(const Coordinate &other) const { return !(*this == other); }
@@ -34,6 +38,14 @@ Coordinate Coordinate::operator-(const Coordinate &other) const {
     return (*this) + (-other);
 }
 
+Coordinate Coordinate::operator*(double scalar) const {
+    return {_longitude * scalar, _latitude * scalar};
+}
+
+Coordinate Coordinate::operator/(double scalar) const {
+    return (*this) * (1 / scalar);
+}
+
 double Coordinate::dot_product(const Coordinate &other) const {
     return _longitude * other._longitude + _latitude * other._latitude;
 }
@@ -46,20 +58,42 @@ double Coordinate::magnitude_squared() const {
     return (_longitude * _longitude) + (_latitude * _latitude);
 }
 
-Coordinate Coordinate::operator*(double scalar) const {
-    return {_longitude * scalar, _latitude * scalar};
+double Coordinate::magnitude() const {
+    return std::sqrt(magnitude_squared());
 }
 
 Orientation Coordinate::vector_orientation(const Coordinate &v2) const {
-    const auto determinant = _latitude * v2._longitude - _longitude * v2._latitude;
+    const auto cross_prod = this->cross_product_magnitude(v2);
 
-    if (determinant < 0) {
-        return Orientation::COUNTER_CLOCKWISE;
-    } else if (determinant > 0) {
+    if (cross_prod < -(EPSILON_TOLERANCE * EPSILON_TOLERANCE)) {
         return Orientation::CLOCKWISE;
+    } else if (cross_prod > (EPSILON_TOLERANCE * EPSILON_TOLERANCE)) {
+        return Orientation::COUNTER_CLOCKWISE;
     } else {
         return Orientation::COLLINEAR;
     }
+}
+
+bool Coordinate::parallel(const Coordinate& other) const {
+    return this->vector_orientation(other) == Orientation::COLLINEAR;
+}
+
+std::optional<double> Coordinate::scalar_multiple_factor(const Coordinate& other) const {
+    if (!this->parallel(other)) {
+        return {};
+    }
+
+    if (_longitude == 0 && _latitude == 0) {
+        return 0;
+    } else if (_longitude == 0) {
+        return other._latitude / _latitude;
+    } else {
+        return other._longitude / _longitude;
+    }
+}
+
+Coordinate Coordinate::unit_vector() const {
+    return (*this) / magnitude();
 }
 
 std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {

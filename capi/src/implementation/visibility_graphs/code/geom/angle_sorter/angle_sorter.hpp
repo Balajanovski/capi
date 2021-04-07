@@ -11,7 +11,7 @@
 
 class AngleSorter {
 public:
-    static void sort_counter_clockwise_around_root_vertex(const Coordinate& root, std::vector<Coordinate>& vertices);
+    static void sort_counter_clockwise_around_observer(const Coordinate& observer, std::vector<Coordinate>& vertices);
 };
 
 
