@@ -35,7 +35,6 @@ class Coordinate {
     [[nodiscard]] Orientation vector_orientation(const Coordinate& v2) const;
     [[nodiscard]] bool parallel(const Coordinate& other) const;
     [[nodiscard]] std::optional<double> scalar_multiple_factor(const Coordinate& other) const;
-    [[nodiscard]] Coordinate unit_vector() const;
 private:
     double _longitude;
     double _latitude;

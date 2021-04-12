@@ -92,10 +92,6 @@ std::optional<double> Coordinate::scalar_multiple_factor(const Coordinate& other
     }
 }
 
-Coordinate Coordinate::unit_vector() const {
-    return (*this) / magnitude();
-}
-
 std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {
     const std::size_t long_hash = hash<double>()(round_to_epsilon_tolerance(coord.get_longitude()));
     const std::size_t lat_hash = hash<double>()(round_to_epsilon_tolerance(coord.get_latitude()));
