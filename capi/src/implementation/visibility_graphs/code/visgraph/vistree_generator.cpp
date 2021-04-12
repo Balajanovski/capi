@@ -45,15 +45,12 @@ std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const C
 
         VistreeGenerator::erase_segments_from_open_edges(clockwise_segments, open_edges);
 
-        const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(open_edges, all_polygon_vertices_and_incident_segments, observer, current_vertex, prev_vertex, prev_vertex_visible);
+        const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(open_edges, all_polygon_vertices_and_incident_segments, observer, current_vertex);
         if (curr_vertex_visible) {
             visible_vertices.push_back(current_vertex);
         }
 
         VistreeGenerator::add_segments_to_open_edges(counter_clockwise_segments, open_edges, observer, current_vertex);
-
-        prev_vertex = current_vertex;
-        prev_vertex_visible = curr_vertex_visible;
     }
 
     return visible_vertices;

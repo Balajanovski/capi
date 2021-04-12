@@ -9,19 +9,27 @@
 
 Graph::Graph() = default;
 
+Graph::Graph(const Graph& other_graph): _neighbors(other_graph._neighbors) {}
+
 Graph::Graph(size_t num_vertices) {
     _neighbors.reserve(num_vertices);
 }
 
 void Graph::add_edge(const Coordinate &a, const Coordinate &b) {
+    add_directed_edge(a, b);
+    add_directed_edge(b, a);
+}
+
+void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b) {
+    const auto mutex_index = std::hash<Coordinate>()(a) % NUM_COORDINATE_MUTEXES;
+    _coordinate_bucket_access_mutexes[mutex_index].lock();
+
     if (_neighbors.find(a) == _neighbors.end()) {
         _neighbors[a] = std::unordered_set<Coordinate>();
-    } if (_neighbors.find(b) == _neighbors.end()) {
-        _neighbors[b] = std::unordered_set<Coordinate>();
     }
-
     _neighbors[a].insert(b);
-    _neighbors[b].insert(a);
+
+    _coordinate_bucket_access_mutexes[mutex_index].unlock();
 }
 
 bool Graph::has_edge(const Coordinate &a, const Coordinate &b) const {

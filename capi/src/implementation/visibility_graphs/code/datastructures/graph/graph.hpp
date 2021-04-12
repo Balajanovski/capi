@@ -7,6 +7,8 @@
 
 #include <unordered_set>
 #include <unordered_map>
+#include <mutex>
+#include <array>
 
 #include "types/coordinate/coordinate.hpp"
 
@@ -15,16 +17,21 @@ class Graph {
 
   public:
     Graph();
+    Graph(const Graph& other_graph);
     explicit Graph(size_t num_vertices);
 
     void add_edge(const Coordinate& a, const Coordinate& b);
+    void add_directed_edge(const Coordinate& a, const Coordinate& b);
     [[nodiscard]] bool has_edge(const Coordinate& a, const Coordinate& b) const;
 
     bool operator==(const Graph& other) const;
     bool operator!=(const Graph& other) const;
 
   private:
+    static constexpr size_t NUM_COORDINATE_MUTEXES = 500;
+
     std::unordered_map<Coordinate, std::unordered_set<Coordinate>> _neighbors;
+    std::array<std::mutex, NUM_COORDINATE_MUTEXES> _coordinate_bucket_access_mutexes;
 };
 
 std::ostream& operator<<(std::ostream& outs, const Graph& graph);
