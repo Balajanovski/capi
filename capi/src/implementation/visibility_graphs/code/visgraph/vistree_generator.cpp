@@ -7,7 +7,6 @@
 
 #include "vistree_generator.hpp"
 #include "geom/angle_sorter/angle_sorter.hpp"
-#include "geom/line_segment_orientation_to_ray/line_segment_orientation_to_ray.hpp"
 #include "constants/constants.hpp"
 
 
@@ -41,15 +40,15 @@ std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const C
     std::optional<bool> prev_vertex_visible = {};
     std::vector<Coordinate> visible_vertices;
     for (const auto& current_vertex: vertices_sorted_clockwise_around_observer) {
-        const auto scanline_vector = current_vertex - nudged_observer;
+        const auto scanline_segment = LineSegment(nudged_observer, current_vertex);
         const auto& incident_segments = all_polygon_vertices_and_incident_segments.at(current_vertex);
-        const auto clockwise_segments = VistreeGenerator::clockwise_segments(incident_segments, nudged_observer, scanline_vector);
-        const auto counter_clockwise_segments = VistreeGenerator::counter_clockwise_segments(incident_segments, nudged_observer, scanline_vector);
-        const auto collinear_segments = VistreeGenerator::collinear_segments(incident_segments, nudged_observer, scanline_vector);
+        const auto clockwise_segments = VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::CLOCKWISE);
+        const auto counter_clockwise_segments = VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::COUNTER_CLOCKWISE);
+        const auto collinear_segments = VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::COLLINEAR);
 
         VistreeGenerator::erase_segments_from_open_edges(clockwise_segments, open_edges);
 
-        const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(open_edges, nudged_observer, current_vertex, prev_vertex, prev_vertex_visible);
+        const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(open_edges, all_polygon_vertices_and_incident_segments, nudged_observer, current_vertex, prev_vertex, prev_vertex_visible);
         if (curr_vertex_visible) {
             visible_vertices.push_back(current_vertex);
         }
@@ -116,13 +115,12 @@ VistreeGenerator::all_vertices(const VertexToSegmentMapping &vertices_and_segmen
 }
 
 std::vector<LineSegment>
-VistreeGenerator::clockwise_segments(const std::vector<LineSegment> &segments, const Coordinate &ray_base,
-                                     const Coordinate &ray_direction) {
+VistreeGenerator::orientation_segments(const std::vector<LineSegment> &segments, const LineSegment& scanline_segment, const Orientation& desired_orientation) {
     auto clockwise_segments = std::vector<LineSegment>();
 
     for (const auto& segment: segments) {
-        const auto segment_orientation = line_segment_orientation_to_ray(segment, ray_base, ray_direction);
-        if (segment_orientation == Orientation::CLOCKWISE) {
+        const auto segment_orientation = scanline_segment.orientation_of_point_to_segment(segment.get_adjacent_to(scanline_segment.get_endpoint_2()));
+        if (segment_orientation == desired_orientation) {
             clockwise_segments.push_back(segment);
         }
     }
@@ -130,41 +128,19 @@ VistreeGenerator::clockwise_segments(const std::vector<LineSegment> &segments, c
     return clockwise_segments;
 }
 
-std::vector<LineSegment>
-VistreeGenerator::counter_clockwise_segments(const std::vector<LineSegment> &segments, const Coordinate &ray_base,
-                                             const Coordinate &ray_direction) {
-    auto counter_clockwise_segments = std::vector<LineSegment>();
-
-    for (const auto& segment: segments) {
-        const auto segment_orientation = line_segment_orientation_to_ray(segment, ray_base, ray_direction);
-        if (ray_base != segment.get_endpoint_1() && ray_base != segment.get_endpoint_2() && (segment_orientation == Orientation::COUNTER_CLOCKWISE)) {
-            counter_clockwise_segments.push_back(segment);
-        }
-    }
-
-    return counter_clockwise_segments;
-}
-
-std::vector<LineSegment>
-VistreeGenerator::collinear_segments(const std::vector<LineSegment> &segments, const Coordinate &ray_base,
-                                     const Coordinate &ray_direction) {
-    auto collinear_segments = std::vector<LineSegment>();
-
-    for (const auto& segment: segments) {
-        const auto segment_orientation = line_segment_orientation_to_ray(segment, ray_base, ray_direction);
-        if ((segment_orientation == Orientation::COLLINEAR)) {
-            collinear_segments.push_back(segment);
-        }
-    }
-
-    return collinear_segments;
-}
-
 bool VistreeGenerator::is_vertex_visible(const VistreeGenerator::OpenEdges &open_edges,
+                                         const VertexToSegmentMapping& vertices_and_segments,
                                          const Coordinate &observer_coordinate,
                                          const Coordinate &vertex_in_question,
                                          const std::optional<Coordinate>& prev_vertex,
                                          const std::optional<bool>& prev_vertex_visible) {
+    // 2d analog of face culling to reduce the number of vertex candidates
+    // Uses the fact that polygon vertices are provided in counter clockwise order
+    if (vertices_and_segments.at(vertex_in_question)[0].get_tangent_vector().cross_product_magnitude(vertex_in_question - observer_coordinate) < -EPSILON_TOLERANCE_SQUARED
+        && vertices_and_segments.at(vertex_in_question)[1].get_tangent_vector().cross_product_magnitude(vertex_in_question - observer_coordinate) < -EPSILON_TOLERANCE_SQUARED) {
+        return false;
+    }
+
     if (!open_edges.empty()) {
         const auto& closest_edge = open_edges.begin()->second;
         const auto intersection = closest_edge->intersection_with_segment(LineSegment(observer_coordinate, vertex_in_question));
@@ -212,5 +188,5 @@ Coordinate VistreeGenerator::nudge_observer_out_of_polygon(const Coordinate &obs
     }
     nudge_vec = nudge_vec.unit_vector();
 
-    return observer + (nudge_vec * (EPSILON_TOLERANCE * 10));
+    return observer /*+ (nudge_vec * (EPSILON_TOLERANCE * 1.20))*/;
 }

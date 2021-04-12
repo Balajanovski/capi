@@ -65,9 +65,9 @@ double Coordinate::magnitude() const {
 Orientation Coordinate::vector_orientation(const Coordinate &v2) const {
     const auto cross_prod = this->cross_product_magnitude(v2);
 
-    if (cross_prod < -(EPSILON_TOLERANCE * EPSILON_TOLERANCE)) {
+    if (cross_prod < -(EPSILON_TOLERANCE_SQUARED)) {
         return Orientation::CLOCKWISE;
-    } else if (cross_prod > (EPSILON_TOLERANCE * EPSILON_TOLERANCE)) {
+    } else if (cross_prod > (EPSILON_TOLERANCE_SQUARED)) {
         return Orientation::COUNTER_CLOCKWISE;
     } else {
         return Orientation::COLLINEAR;
