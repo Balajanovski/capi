@@ -15,7 +15,9 @@ class VisgraphGenerator {
   public:
     explicit VisgraphGenerator();
 
-    Graph generate(const std::vector<Polygon> &polygons) const;
+    [[nodiscard]] static Graph generate(const std::vector<Polygon> &polygons);
+  private:
+    static std::vector<Coordinate> polygon_vertices(const std::vector<Polygon>& polygons);
 };
 
 #endif // CAPI_VISGRAPH_GENERATOR_HPP

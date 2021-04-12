@@ -59,6 +59,20 @@ TEST_CASE("Coordinate magnitude of cross product") {
     REQUIRE(coord1.cross_product_magnitude(coord2) == -2);
 }
 
+TEST_CASE("Coordinate cross product 0 when parallel") {
+    const auto coord1 = Coordinate(1, 2);
+    const auto coord2 = Coordinate(2, 4);
+
+    REQUIRE(coord1.cross_product_magnitude(coord2) == 0);
+}
+
+TEST_CASE("Coordinate cross product 0 when parallel 2") {
+    const auto coord1 = Coordinate(1, 2);
+    const auto coord2 = Coordinate(-2, -4);
+
+    REQUIRE(coord1.cross_product_magnitude(coord2) == 0);
+}
+
 TEST_CASE("Coordinate Magnitude squared") {
     const auto coord = Coordinate(1, 2);
 

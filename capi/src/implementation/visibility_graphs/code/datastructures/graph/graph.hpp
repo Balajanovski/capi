@@ -11,6 +11,8 @@
 #include "types/coordinate/coordinate.hpp"
 
 class Graph {
+    friend std::ostream& operator<<(std::ostream& outs, const Graph& graph);
+
   public:
     Graph();
     explicit Graph(size_t num_vertices);
@@ -18,8 +20,13 @@ class Graph {
     void add_edge(const Coordinate& a, const Coordinate& b);
     [[nodiscard]] bool has_edge(const Coordinate& a, const Coordinate& b) const;
 
+    bool operator==(const Graph& other) const;
+    bool operator!=(const Graph& other) const;
+
   private:
     std::unordered_map<Coordinate, std::unordered_set<Coordinate>> _neighbors;
 };
+
+std::ostream& operator<<(std::ostream& outs, const Graph& graph);
 
 #endif // CAPI_GRAPH_HPP

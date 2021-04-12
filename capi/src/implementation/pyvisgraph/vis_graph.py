@@ -65,7 +65,7 @@ class VisGraph:
         self.visgraph = Graph([])
 
         points = self.graph.get_points()
-        batch_size = 10
+        batch_size = 30
 
         if workers == 1:
             for batch in tqdm(
@@ -73,6 +73,7 @@ class VisGraph:
                 disable=not status,
             ):
                 for edge in _vis_graph(self.graph, batch):
+                    print(edge)
                     self.visgraph.add_edge(edge)
         else:
             pool = Pool(workers)
@@ -177,6 +178,15 @@ def _vis_graph_wrapper(batch: typing.Tuple[Graph, typing.Sequence[Point]]) -> ty
 def _vis_graph(graph: Graph, points: typing.Sequence[Point]) -> typing.Sequence[Edge]:
     visible_edges = []
     for point in points:
-        for vertex_visible_from_point in visible_vertices(point, graph, scan="half"):
+        print(point)
+        for vertex_visible_from_point in visible_vertices(point, graph, scan="full"):
+            print("\t", vertex_visible_from_point)
             visible_edges.append(Edge(point, vertex_visible_from_point))
     return visible_edges
+
+
+if __name__ == '__main__':
+    g = VisGraph()
+    g.build([[Point(1, 0), Point(0, 1), Point(-1, 0), Point(-1, -1), Point(0, -1), Point(0.3, -0.5)],
+                    [Point(3, -1), Point(2, -2), Point(2.9, -3), Point(3, -3), Point(4, -2)]])
+    print(g.visgraph)

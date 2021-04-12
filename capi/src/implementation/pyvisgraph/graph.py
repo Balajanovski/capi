@@ -168,7 +168,7 @@ class Graph:
         for point in self.graph:
             res += "\n" + str(point) + ": "
             for edge in self.graph[point]:
-                res += str(edge)
+                res += f"[{edge}] "
         return res
 
     def __repr__(self) -> str:

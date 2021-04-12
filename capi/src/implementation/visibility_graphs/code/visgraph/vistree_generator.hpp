@@ -17,7 +17,7 @@
 
 class VistreeGenerator {
 public:
-    static std::vector<Coordinate> get_visible_vertices_from_root(const Coordinate& nudged_observer, const std::vector<Polygon>& polygons);
+    static std::vector<Coordinate> get_visible_vertices_from_root(const Coordinate& observer, const std::vector<Polygon>& polygons, bool half_scan = false);
 private:
     using OpenEdges = std::multimap<double, const std::unique_ptr<LineSegment>>;
     using VertexToSegmentMapping = std::unordered_map<Coordinate, std::vector<LineSegment>>;
@@ -29,7 +29,6 @@ private:
     static bool is_vertex_visible(const OpenEdges& open_edges, const VertexToSegmentMapping& vertices_and_segments, const Coordinate& observer_coordinate, const Coordinate& vertex_in_question, const std::optional<Coordinate>& prev_vertex, const std::optional<bool>& prev_vertex_visible);
     static void erase_segments_from_open_edges(const std::vector<LineSegment>& segments, OpenEdges& open_edges);
     static void add_segments_to_open_edges(const std::vector<LineSegment>& segments, OpenEdges& open_edges, const Coordinate& observer, const Coordinate& current_vertex);
-    static Coordinate nudge_observer_out_of_polygon(const Coordinate& observer, const VertexToSegmentMapping& vertices_and_segments);
 };
 
 

@@ -2,10 +2,13 @@ cmake_minimum_required(VERSION 3.13...3.18)
 project(capi VERSION "2.0.0")
 
 set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
+
+# OpenMP
+find_package(OpenMP REQUIRED)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
@@ -47,6 +50,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
         ${FMT_SOURCE}
         ${VIS_GRAPH_IMPL_DIR}/bindings.cpp)
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
+target_link_libraries(${PY_MODULE_TARGET} PRIVATE OpenMP::OpenMP_CXX)
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
 # Setup unit tests
@@ -62,3 +66,4 @@ add_executable(${TEST_TARGET}
         ${VIS_GRAPH_IMPLEMENTATION_FILES}
         ${CATCH_SOURCE}
         ${FMT_SOURCE})
+target_link_libraries(${TEST_TARGET} PRIVATE OpenMP::OpenMP_CXX)

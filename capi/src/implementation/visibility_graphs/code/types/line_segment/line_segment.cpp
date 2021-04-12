@@ -62,11 +62,6 @@ Coordinate LineSegment::get_tangent_vector() const {
     return _endpoint_2 - _endpoint_1;
 }
 
-Coordinate LineSegment::get_normal_vector() const {
-    const auto tangent_vector = get_tangent_vector();
-    return Coordinate(tangent_vector.get_latitude(), -tangent_vector.get_longitude());
-}
-
 Orientation LineSegment::orientation_of_point_to_segment(const Coordinate& point) const {
     const auto signed_area = (_endpoint_2.get_longitude() - _endpoint_1.get_longitude()) * (point.get_latitude() - _endpoint_1.get_latitude()) - (_endpoint_2.get_latitude() - _endpoint_1.get_latitude()) * (point.get_longitude() - _endpoint_1.get_longitude());
     if (signed_area > 0) {
@@ -84,4 +79,19 @@ bool LineSegment::operator==(const LineSegment &other) const {
 
 bool LineSegment::operator!=(const LineSegment &other) const {
     return !((*this) == other);
+}
+
+bool LineSegment::on_segment(const Coordinate &point) const {
+    const auto ab = get_tangent_vector();
+    const auto ac = point - _endpoint_1;
+
+    const auto cross_prod = ab.cross_product_magnitude(ac);
+    if (cross_prod > EPSILON_TOLERANCE_SQUARED || cross_prod < -EPSILON_TOLERANCE_SQUARED) {
+        return false;
+    }
+
+    return ((_endpoint_1.get_longitude() < point.get_longitude() && point.get_longitude() < _endpoint_2.get_longitude()) ||
+                (_endpoint_2.get_longitude() < point.get_longitude() && point.get_longitude() < _endpoint_1.get_longitude())) &&
+            ((_endpoint_1.get_latitude() < point.get_latitude() && point.get_latitude() < _endpoint_2.get_latitude()) ||
+                (_endpoint_2.get_latitude() < point.get_latitude() && point.get_latitude() < _endpoint_1.get_latitude()));
 }
