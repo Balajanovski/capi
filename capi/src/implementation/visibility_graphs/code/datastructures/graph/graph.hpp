@@ -9,12 +9,13 @@
 #include <unordered_map>
 #include <mutex>
 #include <array>
+#include <string>
 
 #include "types/coordinate/coordinate.hpp"
 
-class Graph {
-    friend std::ostream& operator<<(std::ostream& outs, const Graph& graph);
+// TODO: GRAPH SERIALIZATION
 
+class Graph {
   public:
     Graph();
     Graph(const Graph& other_graph);
@@ -27,6 +28,7 @@ class Graph {
     bool operator==(const Graph& other) const;
     bool operator!=(const Graph& other) const;
 
+    [[nodiscard]] std::string to_string_representation() const;
   private:
     static constexpr size_t NUM_COORDINATE_MUTEXES = 500;
 

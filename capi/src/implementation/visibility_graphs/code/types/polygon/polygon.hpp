@@ -7,6 +7,7 @@
 
 #include <initializer_list>
 #include <vector>
+#include <string>
 
 #include "types/coordinate/coordinate.hpp"
 
@@ -20,10 +21,15 @@ class Polygon {
     bool operator==(const Polygon &other) const;
     bool operator!=(const Polygon &other) const;
 
+    [[nodiscard]] std::string to_string_representation() const;
   private:
     std::vector<Coordinate> _vertices;
 
+    static std::vector<Coordinate> preprocess_vertices(const std::vector<Coordinate>& vertices);
     static std::vector<Coordinate> normalize_vertex_orientation_to_counter_clockwise(const std::vector<Coordinate>& vertices);
+    static std::vector<Coordinate> remove_collinear_vertices(const std::vector<Coordinate>& vertices);
 };
+
+std::ostream& operator<<(std::ostream& outs, const Polygon& poly);
 
 #endif // CAPI_POLYGON_HPP

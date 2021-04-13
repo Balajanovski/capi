@@ -8,6 +8,7 @@
 
 #include "coordinate.hpp"
 #include "constants/constants.hpp"
+#include "geom/fast_arctan/fast_arctan.hpp"
 
 double round_to_epsilon_tolerance(double val);
 
@@ -92,6 +93,34 @@ std::optional<double> Coordinate::scalar_multiple_factor(const Coordinate& other
     }
 }
 
+double Coordinate::angle_to_horizontal() const {
+    if (_longitude == 0) {
+        if (_latitude < 0) {
+            return M_PI_2 * 3;
+        }
+        return M_PI_2;
+    }
+
+    if (_latitude == 0) {
+        if (_longitude < 0) {
+            return M_PI;
+        }
+        return 0;
+    }
+
+    const auto arctan = fast_arctan(_latitude / _longitude);
+    if (_longitude < 0) {
+        return M_PI + arctan;
+    } if (_latitude < 0) {
+        return (2*M_PI) + arctan;
+    }
+    return arctan;
+}
+
+std::string Coordinate::to_string_representation() const {
+    return fmt::format("Coordinate ({}, {})", _longitude, _latitude);
+}
+
 std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {
     const std::size_t long_hash = hash<double>()(round_to_epsilon_tolerance(coord.get_longitude()));
     const std::size_t lat_hash = hash<double>()(round_to_epsilon_tolerance(coord.get_latitude()));
@@ -103,5 +132,5 @@ double round_to_epsilon_tolerance(double val) {
 }
 
 std::ostream& operator<<(std::ostream& outs, const Coordinate& coord) {
-    return outs << fmt::format("Coordinate ({}, {})", coord.get_longitude(), coord.get_latitude());
+    return outs << coord.to_string_representation();
 }

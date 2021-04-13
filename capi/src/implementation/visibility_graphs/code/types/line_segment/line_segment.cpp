@@ -58,6 +58,10 @@ std::optional<Coordinate> LineSegment::intersection_with_segment(const LineSegme
     return segment_start + (segment_vector * lambda_2);
 }
 
+Coordinate LineSegment::get_tangent_vector() const {
+    return _endpoint_2 - _endpoint_1;
+}
+
 Orientation LineSegment::orientation_of_point_to_segment(const Coordinate& point) const {
     const auto signed_area = (_endpoint_2.get_longitude() - _endpoint_1.get_longitude()) * (point.get_latitude() - _endpoint_1.get_latitude()) - (_endpoint_2.get_latitude() - _endpoint_1.get_latitude()) * (point.get_longitude() - _endpoint_1.get_longitude());
     if (signed_area > 0) {
@@ -66,6 +70,19 @@ Orientation LineSegment::orientation_of_point_to_segment(const Coordinate& point
         return Orientation::CLOCKWISE;
     }
     return Orientation::COLLINEAR;
+}
+
+bool LineSegment::on_segment(const Coordinate &point) const {
+    const auto point_orientation = orientation_of_point_to_segment(point);
+
+    if (point_orientation != Orientation::COLLINEAR) {
+        return false;
+    }
+
+    return ((_endpoint_1.get_longitude() <= point.get_longitude() && point.get_longitude() <= _endpoint_2.get_longitude()) ||
+            (_endpoint_2.get_longitude() <= point.get_longitude() && point.get_longitude() <= _endpoint_1.get_longitude())) &&
+           ((_endpoint_1.get_latitude() <= point.get_latitude() && point.get_latitude() <= _endpoint_2.get_latitude()) ||
+            (_endpoint_2.get_latitude() <= point.get_latitude() && point.get_latitude() <= _endpoint_1.get_latitude()));
 }
 
 bool LineSegment::operator==(const LineSegment &other) const {

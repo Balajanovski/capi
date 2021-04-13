@@ -4,6 +4,7 @@
 
 #include <fmt/core.h>
 #include <stdexcept>
+#include <sstream>
 
 #include "graph.hpp"
 
@@ -37,9 +38,11 @@ bool Graph::has_edge(const Coordinate &a, const Coordinate &b) const {
         (_neighbors.at(a).find(b) != _neighbors.at(a).end());
 }
 
-std::ostream& operator<<(std::ostream& outs, const Graph& graph) {
+std::string Graph::to_string_representation() const {
+    auto outs = std::stringstream();
+
     outs << "Graph (\n";
-    for (const auto& neighbors: graph._neighbors) {
+    for (const auto& neighbors: _neighbors) {
         outs << fmt::format("\t[({}, {}) [", neighbors.first.get_longitude(), neighbors.first.get_latitude());
         for (const auto& neighbor: neighbors.second) {
             outs << fmt::format("({}, {}) ", neighbor.get_longitude(), neighbor.get_latitude());
@@ -48,7 +51,7 @@ std::ostream& operator<<(std::ostream& outs, const Graph& graph) {
     }
     outs << ")";
 
-    return outs;
+    return outs.str();
 }
 
 bool Graph::operator==(const Graph& other) const {
@@ -57,4 +60,8 @@ bool Graph::operator==(const Graph& other) const {
 
 bool Graph::operator!=(const Graph &other) const {
     return !(*this == other);
+}
+
+std::ostream& operator<<(std::ostream& outs, const Graph& graph) {
+    return outs << graph.to_string_representation();
 }

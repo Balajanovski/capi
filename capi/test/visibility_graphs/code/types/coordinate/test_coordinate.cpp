@@ -3,6 +3,7 @@
 //
 
 #include <catch.hpp>
+#include <cmath>
 
 #include "types/coordinate/coordinate.hpp"
 
@@ -122,6 +123,19 @@ TEST_CASE("Coordinate scalar multiple factor") {
     REQUIRE(coord6.scalar_multiple_factor(coord1).value() == 0);
     REQUIRE_FALSE(coord1.scalar_multiple_factor(coord4).has_value());
     REQUIRE_FALSE(coord1.scalar_multiple_factor(coord5).has_value());
+}
+
+TEST_CASE("Coordinate angle to horizontal") {
+    const auto epsilon_tolerance = 0.000001;
+
+    REQUIRE(std::abs(Coordinate(1, 0).angle_to_horizontal()) < epsilon_tolerance);
+    REQUIRE(std::abs(Coordinate(1, 1).angle_to_horizontal() - M_PI_4) < epsilon_tolerance);
+    REQUIRE(std::abs(Coordinate(0, 1).angle_to_horizontal() - M_PI_2) < epsilon_tolerance);
+    REQUIRE(std::abs(Coordinate(-1, 1).angle_to_horizontal() - (3 * M_PI_4)) < epsilon_tolerance);
+    REQUIRE(std::abs(Coordinate(-1, 0).angle_to_horizontal() - M_PI) < epsilon_tolerance);
+    REQUIRE(std::abs(Coordinate(-1, -1).angle_to_horizontal() - (5 * M_PI_4)) < epsilon_tolerance);
+    REQUIRE(std::abs(Coordinate(0, -1).angle_to_horizontal() - (3 * M_PI_2)) < epsilon_tolerance);
+    REQUIRE(std::abs(Coordinate(1, -1).angle_to_horizontal() - (7 * M_PI_4)) < epsilon_tolerance);
 }
 
 TEST_CASE("Coordinate hash") {

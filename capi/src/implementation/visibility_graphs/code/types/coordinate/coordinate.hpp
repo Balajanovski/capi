@@ -7,6 +7,7 @@
 
 #include <ostream>
 #include <optional>
+#include <string>
 
 #include "types/orientation/orientation.hpp"
 
@@ -35,6 +36,8 @@ class Coordinate {
     [[nodiscard]] Orientation vector_orientation(const Coordinate& v2) const;
     [[nodiscard]] bool parallel(const Coordinate& other) const;
     [[nodiscard]] std::optional<double> scalar_multiple_factor(const Coordinate& other) const;
+    [[nodiscard]] double angle_to_horizontal() const;
+    [[nodiscard]] std::string to_string_representation() const;
 private:
     double _longitude;
     double _latitude;

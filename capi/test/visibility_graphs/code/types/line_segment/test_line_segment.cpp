@@ -46,7 +46,7 @@ TEST_CASE("Line Segment Equals operator") {
     REQUIRE(seg1 != seg3);
 }
 
-TEST_CASE("Orientation of point to segment") {
+TEST_CASE("Line Segment Orientation of point to segment") {
     const auto segment = LineSegment(Coordinate(1, 0), Coordinate(0, 1));
     const auto p1 = Coordinate(0.3, 0.2);
     const auto p2 = Coordinate(0.5, 0.5);
@@ -55,4 +55,16 @@ TEST_CASE("Orientation of point to segment") {
     REQUIRE(segment.orientation_of_point_to_segment(p1) == Orientation::COUNTER_CLOCKWISE);
     REQUIRE(segment.orientation_of_point_to_segment(p2) == Orientation::COLLINEAR);
     REQUIRE(segment.orientation_of_point_to_segment(p3) == Orientation::CLOCKWISE);
+}
+
+TEST_CASE("Line Segment On Segment") {
+    const auto segment = LineSegment(Coordinate(1, 0), Coordinate(0, 1));
+
+    REQUIRE(segment.on_segment(Coordinate(1, 0)));
+    REQUIRE(segment.on_segment(Coordinate(0, 1)));
+    REQUIRE(segment.on_segment(Coordinate(0.5, 0.5)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(2, -1)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(-1, 2)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(0, 0)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(1, 1)));
 }

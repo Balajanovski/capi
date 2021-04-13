@@ -4,10 +4,12 @@
 
 #include <algorithm>
 #include <fmt/format.h>
+#include <stdexcept>
 
 #include "vistree_generator.hpp"
 #include "geom/angle_sorter/angle_sorter.hpp"
 #include "constants/constants.hpp"
+#include "types/polyline/three_vertex_polyline.hpp"
 
 
 std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const Coordinate &observer, const std::vector<Polygon>& polygons, bool half_scan) {
@@ -22,15 +24,17 @@ std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const C
     AngleSorter::sort_counter_clockwise_around_observer(observer, vertices_sorted_clockwise_around_observer);
 
     auto open_edges = VistreeGenerator::OpenEdges();
-    const auto initial_scanline_vector = Coordinate(MAX_LONGITUDE, observer.get_latitude());
+    const auto initial_scanline_segment = LineSegment(observer, Coordinate(MAX_LONGITUDE, observer.get_latitude()));
+    const auto initial_scanline_vector = initial_scanline_segment.get_tangent_vector();
     auto line_segments = VistreeGenerator::all_line_segments(all_polygon_vertices_and_incident_segments);
     for (const auto& line_segment: line_segments) {
         if (observer == line_segment.get_endpoint_1() || observer == line_segment.get_endpoint_2()) {
             continue;
         }
 
-        const auto intersection = line_segment.intersection_with_segment(LineSegment(observer, initial_scanline_vector));
-        if (intersection.has_value() && !(line_segment.get_endpoint_1() - observer).parallel(initial_scanline_vector) && !(line_segment.get_endpoint_2() - observer).parallel(initial_scanline_vector)) {
+        const auto intersection = line_segment.intersection_with_segment(initial_scanline_segment);
+        if (intersection.has_value() && !(line_segment.get_endpoint_1() - observer).parallel(initial_scanline_vector) &&
+            !(line_segment.get_endpoint_2() - observer).parallel(initial_scanline_vector)) {
             open_edges.emplace((intersection.value() - observer).magnitude_squared(), std::make_unique<LineSegment>(line_segment));
         }
     }
@@ -38,10 +42,13 @@ std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const C
     std::vector<Coordinate> visible_vertices;
     for (const auto& current_vertex: vertices_sorted_clockwise_around_observer) {
         const auto scanline_segment = LineSegment(observer, current_vertex);
+        if (half_scan && initial_scanline_vector.cross_product_magnitude(scanline_segment.get_tangent_vector()) < 0) {
+            break;
+        }
+
         const auto& incident_segments = all_polygon_vertices_and_incident_segments.at(current_vertex);
         const auto clockwise_segments = VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::CLOCKWISE);
         const auto counter_clockwise_segments = VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::COUNTER_CLOCKWISE);
-        const auto collinear_segments = VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::COLLINEAR);
 
         VistreeGenerator::erase_segments_from_open_edges(clockwise_segments, open_edges);
 
@@ -87,10 +94,14 @@ VistreeGenerator::VertexToSegmentMapping VistreeGenerator::all_vertices_and_inci
 std::vector<LineSegment>
 VistreeGenerator::all_line_segments(const VertexToSegmentMapping &vertices_and_segments) {
     std::vector<LineSegment> segments;
+    segments.reserve(vertices_and_segments.size());
 
     for (const auto& vertex_and_segments : vertices_and_segments) {
-        segments.reserve(vertex_and_segments.second.size());
-        segments.insert(segments.end(), vertex_and_segments.second.begin(), vertex_and_segments.second.end());
+        if (vertex_and_segments.second.size() != 2) {
+            throw std::runtime_error("Vertex detected which does not have only two segments");
+        }
+
+        segments.push_back(vertex_and_segments.second[0]);
     }
 
     return segments;
@@ -134,13 +145,21 @@ bool VistreeGenerator::is_vertex_visible(const VistreeGenerator::OpenEdges &open
         // Essentially we build artificial walls based on the edges we know obstruct vision (those adjacent)
         // This will be a constant time operation as each vertex only has two adjacent edges
 
-        bool is_counter_clockwise_all_segments = true;
-        for (const auto& segment : vertices_and_segments.at(observer_coordinate)) {
-            is_counter_clockwise_all_segments = is_counter_clockwise_all_segments &&
-                    (segment.orientation_of_point_to_segment(vertex_in_question) == Orientation::COUNTER_CLOCKWISE);
+        auto barrier_polyline_vertices = std::vector<Coordinate>();
+        barrier_polyline_vertices.reserve(3);
+
+        const auto& vertex_segments = vertices_and_segments.at(observer_coordinate);
+        for (size_t i = 0; i < vertex_segments.size(); ++i) {
+            barrier_polyline_vertices.push_back(vertex_segments[i].get_endpoint_1());
+            if (i != 0) barrier_polyline_vertices.push_back(vertex_segments[i].get_endpoint_2());
         }
 
-        if (is_counter_clockwise_all_segments) {
+        if (barrier_polyline_vertices.size() != 3) {
+            throw std::runtime_error("Barrier polyline vertices unexpectedly does not consist of three vertices");
+        }
+
+        const auto barrier_polyline = ThreeVertexPolyline(barrier_polyline_vertices[0], barrier_polyline_vertices[1], barrier_polyline_vertices[2]);
+        if (!barrier_polyline.point_visible(vertex_in_question)) {
             return false;
         }
     }
@@ -148,7 +167,9 @@ bool VistreeGenerator::is_vertex_visible(const VistreeGenerator::OpenEdges &open
     if (!open_edges.empty()) {
         const auto& closest_edge = open_edges.begin()->second;
         const auto intersection = closest_edge->intersection_with_segment(LineSegment(observer_coordinate, vertex_in_question));
-        if (intersection.has_value()) {
+        if (intersection.has_value() &&
+            intersection.value() != closest_edge->get_endpoint_1() &&
+            intersection.value() != closest_edge->get_endpoint_2()) {
             return false;
         }
     }
