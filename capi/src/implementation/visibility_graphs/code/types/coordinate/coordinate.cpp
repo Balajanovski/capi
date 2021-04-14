@@ -10,6 +10,8 @@
 #include "constants/constants.hpp"
 #include "geom/fast_arctan/fast_arctan.hpp"
 
+const std::regex Coordinate::coordinate_regex = std::regex("^\\((-?[0-9]+(?:\\.[0-9]+)?),(-?[0-9]+(?:\\.[0-9]+)?)\\)$");
+
 double round_to_epsilon_tolerance(double val);
 
 Coordinate::Coordinate(double longitude, double latitude) {
@@ -118,7 +120,17 @@ double Coordinate::angle_to_horizontal() const {
 }
 
 std::string Coordinate::to_string_representation() const {
-    return fmt::format("Coordinate ({}, {})", _longitude, _latitude);
+    return fmt::format("({},{})", _longitude, _latitude);
+}
+
+Coordinate Coordinate::parse_from_string(const std::string &str) {
+    std::smatch matches;
+
+    if (std::regex_search(str, matches, Coordinate::coordinate_regex)) {
+        return Coordinate(std::stod(matches.str(1)), std::stod(matches.str(2)));
+    } else {
+        throw std::runtime_error(fmt::format("Could not parse a coordinate from {}", str));
+    }
 }
 
 std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {

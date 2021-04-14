@@ -47,7 +47,7 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def(py::self != py::self)
         .def("__repr__", &Polygon::to_string_representation);
 
-    py::class_<Graph>(m, "Graph")
+    py::class_<Graph>(m, "VisGraph")
         .def(py::init<>())
         .def("__repr__", &Graph::to_string_representation)
         .def("has_edge", &Graph::has_edge);

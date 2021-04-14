@@ -8,12 +8,15 @@
 #include <ostream>
 #include <optional>
 #include <string>
+#include <regex>
 
 #include "types/orientation/orientation.hpp"
 
 class Coordinate {
   public:
     Coordinate(double longitude, double latitude);
+
+    static Coordinate parse_from_string(const std::string& str);
 
     // Getters
     [[nodiscard]] double get_latitude() const;
@@ -39,6 +42,8 @@ class Coordinate {
     [[nodiscard]] double angle_to_horizontal() const;
     [[nodiscard]] std::string to_string_representation() const;
 private:
+    static const std::regex coordinate_regex;
+
     double _longitude;
     double _latitude;
 };
@@ -51,5 +56,6 @@ namespace std {
 }
 
 std::ostream& operator<<(std::ostream& outs, const Coordinate& coord);
+
 
 #endif // CAPI_COORDINATE_HPP

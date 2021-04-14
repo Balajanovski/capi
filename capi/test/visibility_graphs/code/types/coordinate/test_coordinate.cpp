@@ -4,6 +4,7 @@
 
 #include <catch.hpp>
 #include <cmath>
+#include <vector>
 
 #include "types/coordinate/coordinate.hpp"
 
@@ -145,4 +146,19 @@ TEST_CASE("Coordinate hash") {
 
     REQUIRE(std::hash<Coordinate>()(coord1) == std::hash<Coordinate>()(coord3));
     REQUIRE(std::hash<Coordinate>()(coord1) != std::hash<Coordinate>()(coord2));
+}
+
+TEST_CASE("Coordinate parse from string valid") {
+    const auto coordinates = std::vector<Coordinate>{
+        Coordinate(1.00001, 2.00001),
+        Coordinate(0, 0),
+        Coordinate(-10.2, -20.1),
+    };
+
+    for (const auto& coord: coordinates) {
+        const auto str_coord = coord.to_string_representation();
+        const auto parsed_coord = Coordinate::parse_from_string(str_coord);
+
+        REQUIRE(coord == parsed_coord);
+    }
 }

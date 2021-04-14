@@ -13,8 +13,6 @@
 
 #include "types/coordinate/coordinate.hpp"
 
-// TODO: GRAPH SERIALIZATION
-
 class Graph {
   public:
     Graph();
@@ -29,6 +27,9 @@ class Graph {
     bool operator!=(const Graph& other) const;
 
     [[nodiscard]] std::string to_string_representation() const;
+
+    void serialize_to_file(const std::string& path) const;
+    static Graph load_from_file(const std::string& path);
   private:
     static constexpr size_t NUM_COORDINATE_MUTEXES = 500;
 
