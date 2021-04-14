@@ -37,7 +37,7 @@ class PathInterpolator(IPathInterpolator):
         point_1 = VisGraphCoord(coord_1.longitude, coord_1.latitude)
         point_2 = VisGraphCoord(coord_2.longitude, coord_2.latitude)
 
-        return self._convert_to_points_list_to_coordinates(self._get_shortest_path(point_1, point_2))
+        return self._get_shortest_path(point_1, point_2)
 
     def _get_shortest_path(self, start: Coordinate, end: Coordinate) -> typing.Sequence[Coordinate]:
         path = self._graph.shortest_path(start, end)
@@ -50,8 +50,8 @@ class PathInterpolator(IPathInterpolator):
         )
 
         if self._get_path_length(meridian_path) < self._get_path_length(path):
-            return [VisGraphCoord(((point.x + 90) % 360) - 180, point.y) for point in meridian_path]
-        return self._convert_to_points_list_to_coordinates(path)
+            return [VisGraphCoord(((point.longitude + 90) % 360) - 180, point.latitude) for point in meridian_path]
+        return self._convert_visgraph_coords_list_to_coordinates(path)
 
     @staticmethod
     def _get_path_length(path: typing.Sequence[VisGraphCoord]) -> float:
@@ -61,7 +61,7 @@ class PathInterpolator(IPathInterpolator):
         return length
 
     @staticmethod
-    def _convert_to_points_list_to_coordinates(
+    def _convert_visgraph_coords_list_to_coordinates(
         points: typing.Sequence[VisGraphCoord],
     ) -> typing.Sequence[Coordinate]:
         return [Coordinate.construct(latitude=point.latitude, longitude=point.longitude) for point in points]
