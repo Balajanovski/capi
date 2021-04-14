@@ -1,5 +1,11 @@
 [build-system]
-requires = ["setuptools>=42", "wheel", "pybind11~=2.6.1", "cppimport>="]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "pybind11~=2.6.0",
+    "cmake",
+    "scikit-build",
+]
 build-backend = "setuptools.build_meta"
 
 [tool.isort]

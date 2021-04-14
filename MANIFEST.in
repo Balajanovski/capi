@@ -1,7 +1,3 @@
 include requirements.txt
 include capi/py.typed
 include README.md
-recursive-include imgs *
-
-recursive-exclude capi/test *
-recursive-exclude capi/test_common *

@@ -8,7 +8,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
-#include <string>
+#include <pybind11/stl.h>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
@@ -42,7 +42,7 @@ PYBIND11_MODULE(_vis_graph, m) {
 
     py::class_<Polygon>(m, "VisGraphPolygon")
         .def(py::init<const std::vector<Coordinate>&>())
-        .def_property_readonly_static("vertices", &Polygon::get_vertices)
+        .def_property_readonly("vertices", &Polygon::get_vertices)
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def("__repr__", &Polygon::to_string_representation);
@@ -51,6 +51,8 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def(py::init<>())
         .def("__repr__", &Graph::to_string_representation)
         .def("has_edge", &Graph::has_edge)
+        .def(py::self == py::self)
+        .def(py::self != py::self)
         .def("serialize_to_file", &Graph::serialize_to_file);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");

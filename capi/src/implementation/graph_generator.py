@@ -1,28 +1,26 @@
 import typing
 
-from capi.src.implementation.pyvisgraph.graph import Point
-from capi.src.implementation.pyvisgraph.vis_graph import VisGraph
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader
 from capi.src.interfaces.graph_generator import IGraphGenerator
 from capi.src.interfaces.shapefiles.shapefile_reader import IShapefileReader
+from capi.src.implementation.visibility_graphs import VisGraphCoord, generate_visgraph, VisGraphPolygon
 
 
 class GraphGenerator(IGraphGenerator):
-    def __init__(self, num_workers: int = 1, shapefile_reader: typing.Optional[IShapefileReader] = None):
-        self._num_workers = num_workers
+    def __init__(self, shapefile_reader: typing.Optional[IShapefileReader] = None):
         self._shapefile_reader = ShapefileReader() if shapefile_reader is None else shapefile_reader
 
     def generate(self, shape_file_path: str, output_path: str, meridian_crossing: bool = False) -> None:
         read_polygons = self._shapefile_reader.read(shape_file_path)
         unadjusted_polygons = [
-            [
+            VisGraphPolygon([
                 self._generate_point_with_meridian_adjustment(vertex.longitude, vertex.latitude, meridian_crossing)
                 for vertex in polygon.vertices
-            ]
+            ])
             for polygon in read_polygons
         ]
 
-        polygons: typing.List[typing.Sequence[Point]] = []
+        polygons: typing.List[VisGraphPolygon] = []
         for unadjusted_polygon in unadjusted_polygons:
             if self._is_polygon_crossing_meridian(unadjusted_polygon):
                 split_poly_1, split_poly_2 = self._split_polygon_crossing_meridian(unadjusted_polygon)
@@ -31,26 +29,25 @@ class GraphGenerator(IGraphGenerator):
             else:
                 polygons.append(unadjusted_polygon)
 
-        graph = VisGraph()
-        graph.build(polygons, workers=self._num_workers)
-        graph.save(output_path)
+        graph = generate_visgraph(polygons)
+        graph.serialize_to_file(output_path)
 
     @staticmethod
-    def _generate_point_with_meridian_adjustment(longitude: float, latitude: float, meridian_crossing: bool) -> Point:
+    def _generate_point_with_meridian_adjustment(longitude: float, latitude: float, meridian_crossing: bool) -> VisGraphCoord:
         if meridian_crossing:
-            return Point(
+            return VisGraphCoord(
                 ((longitude + 270) % 360) - 180,
                 latitude,
             )
-        return Point(longitude, latitude)
+        return VisGraphCoord(longitude, latitude)
 
     @staticmethod
-    def _is_polygon_crossing_meridian(polygon: typing.Sequence[Point]) -> bool:
-        if len(polygon) <= 2:
+    def _is_polygon_crossing_meridian(polygon: VisGraphPolygon) -> bool:
+        if len(polygon.vertices) <= 2:
             return False
 
-        for i in range(len(polygon) - 1):
-            longitudinal_distance = abs(polygon[i].x - polygon[i + 1].x)
+        for i in range(len(polygon.vertices) - 1):
+            longitudinal_distance = abs(polygon.vertices[i].x - polygon.vertices[i + 1].x)
 
             if longitudinal_distance > 180:
                 return True
@@ -59,17 +56,17 @@ class GraphGenerator(IGraphGenerator):
 
     @staticmethod
     def _split_polygon_crossing_meridian(
-        polygon: typing.Sequence[Point],
-    ) -> typing.Tuple[typing.Sequence[Point], typing.Sequence[Point]]:
-        polygons: typing.List[typing.List[Point]] = [[polygon[0]], []]
+        polygon: VisGraphPolygon,
+    ) -> typing.Tuple[VisGraphPolygon, VisGraphPolygon]:
+        polygons: typing.List[typing.List[VisGraphCoord]] = [[polygon.vertices[0]], []]
 
         curr_polygon_bucket_index = 0
-        for i in range(len(polygon) - 1):
-            if abs(polygon[i].x - polygon[i + 1].x) > 180:
+        for i in range(len(polygon.vertices) - 1):
+            if abs(polygon.vertices[i].x - polygon.vertices[i + 1].x) > 180:
                 curr_polygon_bucket_index = (curr_polygon_bucket_index + 1) % 2
-            polygons[curr_polygon_bucket_index].append(polygon[i + 1])
+            polygons[curr_polygon_bucket_index].append(polygon.vertices[i + 1])
 
-        return polygons[0], polygons[1]
+        return VisGraphPolygon(polygons[0]), VisGraphPolygon(polygons[1])
 
 
 if __name__ == "__main__":
@@ -77,7 +74,7 @@ if __name__ == "__main__":
 
     from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
-    gen = GraphGenerator(num_workers=24)
+    gen = GraphGenerator()
 
     gen.generate(
         os.path.join(TEST_FILES_DIR, "smaller.shp"),

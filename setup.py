@@ -20,15 +20,14 @@ with open("requirements.txt", "r") as handle:
 
 setup(
     name="capi",
-    version="2.0.0",
+    version="2.0.2",
     author="James Balajan",
     author_email="James.Balajan@wisetechglobal.com",
     description="Python library for performing coast aware path interpolation",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="http://tfs.wtg.zone:8080/tfs/CargoWise/DataScience/_git/capi",
-    package_dir={"": "capi/code"},
-    packages=[package for package in setuptools.find_packages(where="capi/code")],
+    packages=[f"capi.src.{package}" for package in setuptools.find_packages(where="capi/src")],
     install_requires=required,
     python_requires=">=3.6",
     zip_safe=False,
