@@ -47,7 +47,7 @@ class GraphGenerator(IGraphGenerator):
             return False
 
         for i in range(len(polygon.vertices) - 1):
-            longitudinal_distance = abs(polygon.vertices[i].x - polygon.vertices[i + 1].x)
+            longitudinal_distance = abs(polygon.vertices[i].longitude - polygon.vertices[i + 1].longitude)
 
             if longitudinal_distance > 180:
                 return True
@@ -62,7 +62,7 @@ class GraphGenerator(IGraphGenerator):
 
         curr_polygon_bucket_index = 0
         for i in range(len(polygon.vertices) - 1):
-            if abs(polygon.vertices[i].x - polygon.vertices[i + 1].x) > 180:
+            if abs(polygon.vertices[i].longitude - polygon.vertices[i + 1].longitude) > 180:
                 curr_polygon_bucket_index = (curr_polygon_bucket_index + 1) % 2
             polygons[curr_polygon_bucket_index].append(polygon.vertices[i + 1])
 

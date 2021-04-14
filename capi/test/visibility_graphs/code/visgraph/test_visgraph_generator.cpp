@@ -32,7 +32,7 @@ TEST_CASE("Visgraph Generator Normal Case") {
 
     const auto visgraph = VisgraphGenerator::generate(std::vector<Polygon> {poly1, poly2});
 
-    auto expectedVisGraph = Graph(11);
+    auto expectedVisGraph = Graph({poly1, poly2});
     add_edges(Coordinate(3, -1),
             {
         Coordinate(4, -2),
@@ -131,7 +131,7 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
 
     const auto visgraph = VisgraphGenerator::generate(std::vector<Polygon> {polygon});
 
-    auto expectedVisGraph = Graph(11);
+    auto expectedVisGraph = Graph({polygon});
     add_edges(Coordinate(1.5, -2), {
         Coordinate(-1, -1),
         Coordinate(0, 0),

@@ -5,13 +5,13 @@
 #include "vistree_generator.hpp"
 #include "visgraph_generator.hpp"
 
-VisgraphGenerator::VisgraphGenerator() {}
+VisgraphGenerator::VisgraphGenerator() = default;
 
 Graph VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
     const auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
-    auto visgraph = Graph(polygon_vertices.size());
+    auto visgraph = Graph(polygons);
 
-#pragma omp parallel for shared(visgraph, polygons) default(none)
+#pragma omp parallel for shared(visgraph, polygons, polygon_vertices) default(none)
     for (size_t i = 0; i < polygon_vertices.size(); ++i) { // NOLINT
         const auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], polygons, true);
 

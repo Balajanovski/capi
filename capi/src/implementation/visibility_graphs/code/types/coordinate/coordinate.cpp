@@ -14,6 +14,8 @@ const std::regex Coordinate::coordinate_regex = std::regex("^\\((-?[0-9]+(?:\\.[
 
 double round_to_epsilon_tolerance(double val);
 
+Coordinate::Coordinate(): _longitude(0.0), _latitude(0.0) {}
+
 Coordinate::Coordinate(double longitude, double latitude) {
     _longitude = longitude;
     _latitude = latitude;

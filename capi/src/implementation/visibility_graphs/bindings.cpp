@@ -48,11 +48,13 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def("__repr__", &Polygon::to_string_representation);
 
     py::class_<Graph>(m, "VisGraph")
-        .def(py::init<>())
+        .def(py::init<const std::vector<Polygon>&>())
         .def("__repr__", &Graph::to_string_representation)
         .def("has_edge", &Graph::has_edge)
+        .def("add_edge", &Graph::add_edge)
         .def(py::self == py::self)
         .def(py::self != py::self)
+        .def("shortest_path", &Graph::shortest_path)
         .def("serialize_to_file", &Graph::serialize_to_file);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");

@@ -26,14 +26,14 @@ TEST_CASE("Polygon Constructor Collinear : Line") {
     const auto polygon = Polygon({Coordinate(0, 0), Coordinate(1, 1)});
 
     REQUIRE(polygon.get_vertices().size() == 2);
-    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(1, 1), Coordinate(0, 0)}));
+    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(0, 0), Coordinate(1, 1)}));
 }
 
 TEST_CASE("Polygon Constructor Collinear : Line 2") {
     const auto polygon = Polygon({Coordinate(0, 0), Coordinate(0.5, 0.5), Coordinate(1, 1)});
 
     REQUIRE(polygon.get_vertices().size() == 2);
-    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(1, 1), Coordinate(0, 0)}));
+    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(0, 0), Coordinate(1, 1)}));
 }
 
 TEST_CASE("Polygon Constructor Collinear : Triangle") {

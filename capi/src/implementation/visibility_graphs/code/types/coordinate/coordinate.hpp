@@ -14,6 +14,7 @@
 
 class Coordinate {
   public:
+    Coordinate();
     Coordinate(double longitude, double latitude);
 
     static Coordinate parse_from_string(const std::string& str);

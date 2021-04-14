@@ -10,14 +10,15 @@
 #include <mutex>
 #include <array>
 #include <string>
+#include <vector>
 
 #include "types/coordinate/coordinate.hpp"
+#include "types/polygon/polygon.hpp"
 
 class Graph {
   public:
-    Graph();
+    explicit Graph(const std::vector<Polygon>& polygons);
     Graph(const Graph& other_graph);
-    explicit Graph(size_t num_vertices);
 
     void add_edge(const Coordinate& a, const Coordinate& b);
     void add_directed_edge(const Coordinate& a, const Coordinate& b);
@@ -30,11 +31,14 @@ class Graph {
 
     void serialize_to_file(const std::string& path) const;
     static Graph load_from_file(const std::string& path);
+
+    std::vector<Coordinate> shortest_path(const Coordinate& source, const Coordinate& destination) const;
   private:
     static constexpr size_t NUM_COORDINATE_MUTEXES = 500;
+    std::array<std::mutex, NUM_COORDINATE_MUTEXES> _coordinate_bucket_access_mutexes;
 
     std::unordered_map<Coordinate, std::unordered_set<Coordinate>> _neighbors;
-    std::array<std::mutex, NUM_COORDINATE_MUTEXES> _coordinate_bucket_access_mutexes;
+    std::vector<Polygon> _polygons;
 };
 
 std::ostream& operator<<(std::ostream& outs, const Graph& graph);

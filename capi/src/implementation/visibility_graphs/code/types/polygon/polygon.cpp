@@ -25,6 +25,10 @@ std::vector<Coordinate> Polygon::preprocess_vertices(const std::vector<Coordinat
 
 std::vector<Coordinate>
 Polygon::normalize_vertex_orientation_to_counter_clockwise(const std::vector<Coordinate> &vertices) {
+    if (vertices.size() <= 2) {
+        return vertices;
+    }
+
     double winding_sum = 0;
     long num_vertices = vertices.size();
 #pragma omp simd reduction(+:winding_sum)
