@@ -50,9 +50,12 @@ PYBIND11_MODULE(_vis_graph, m) {
     py::class_<Graph>(m, "VisGraph")
         .def(py::init<>())
         .def("__repr__", &Graph::to_string_representation)
-        .def("has_edge", &Graph::has_edge);
+        .def("has_edge", &Graph::has_edge)
+        .def("serialize_to_file", &Graph::serialize_to_file);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
+
+    m.def("load_graph_from_file", &Graph::load_from_file, "Loads serialized graph from file");
 
 
 #ifdef VERSION_INFO
