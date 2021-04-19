@@ -12,9 +12,6 @@
 
 #include "visgraph/vistree_generator.hpp"
 #include "graph.hpp"
-#include "serialization/to_bytes_array.hpp"
-
-void write_byte_array_to_file(std::ostream& outs, const std::vector<uint8_t>& bytes);
 
 Graph::Graph(const std::vector<Polygon>& polygons): _polygons(polygons) {
     size_t num_vertices = 0;
@@ -275,9 +272,4 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate& source, const Coo
 
 std::ostream& operator<<(std::ostream& outs, const Graph& graph) {
     return outs << graph.to_string_representation();
-}
-
-void write_byte_array_to_file(std::ostream& outs, const std::vector<uint8_t>& bytes) {
-    outs.write((char *) &bytes[0], bytes.size());
-    outs.flush();
 }
