@@ -12,6 +12,9 @@
 
 #include "visgraph/vistree_generator.hpp"
 #include "graph.hpp"
+#include "serialization/to_bytes_array.hpp"
+
+void write_byte_array_to_file(std::ostream& outs, const std::vector<uint8_t>& bytes);
 
 Graph::Graph(const std::vector<Polygon>& polygons): _polygons(polygons) {
     size_t num_vertices = 0;
@@ -96,25 +99,32 @@ void Graph::serialize_to_file(const std::string& path) const {
 
     auto file_stream = std::ofstream(path);
     if (file_stream.is_open()) {
-        file_stream << num_polygons << '\n';
+        file_stream.write((char *) &num_polygons, sizeof(num_polygons));
+        file_stream.flush();
         for (const auto& polygon: _polygons) {
-            file_stream << polygon.get_vertices().size() << ' ';
-            for (const auto& vertex: polygon.get_vertices()) {
-                file_stream << vertex.to_string_representation() << ' ';
+            const auto num_vertices_in_polygon = polygon.get_vertices().size();
+            file_stream.write((char *)&num_vertices_in_polygon, sizeof(num_vertices_in_polygon));
+            file_stream.flush();
+            for (const auto &vertex : polygon.get_vertices()) {
+                const auto longitude = vertex.get_longitude();
+                const auto latitude = vertex.get_latitude();
+
+                file_stream.write((char *)&longitude, sizeof(longitude));
+                file_stream.write((char *)&latitude, sizeof(latitude));
+                file_stream.flush();
             }
-            file_stream << '\n';
         }
 
         for (size_t i = 0; i < num_vertices; ++i) {
-            for (size_t j = 0; j <= i; ++j) {
-                file_stream << (adjacency_matrix[i][j] ? '1' : '0');
+            for (size_t j = 0; j <= i / 8 + (i % 8 != 0); ++j) {
+                uint8_t adjacency_encoding = 0x0;
 
-                if (j < i) {
-                    file_stream << ' ';
+                for (size_t l = j*8; l <= std::min((j+1)*8 - 1, i); ++l) {
+                    adjacency_encoding |= (static_cast<uint8_t>(adjacency_matrix[i][l]) << (l - j*8));
                 }
-            }
 
-            file_stream << '\n';
+                file_stream << static_cast<char>(adjacency_encoding);
+            }
         }
 
         file_stream.close();
@@ -127,28 +137,30 @@ Graph Graph::load_from_file(const std::string &path) {
     auto file_stream = std::ifstream(path);
     auto file_read_str = std::string();
     if (file_stream.is_open()) {
-        if (!getline(file_stream, file_read_str)) {
+        size_t num_polygons;
+        if (!file_stream.read((char *) &num_polygons, sizeof(num_polygons))) {
             throw std::runtime_error("Num polygon header not present");
         }
-        const auto num_polygons = std::stoul(file_read_str);
 
         auto all_vertices = std::vector<Coordinate>();
         auto polygons = std::vector<Polygon>();
         polygons.reserve(num_polygons);
         for (size_t i = 0; i < num_polygons; ++i) {
-            if (!(file_stream >> file_read_str)) {
+            size_t num_vertices = 0;
+            if (!file_stream.read((char *) &num_vertices, sizeof(num_vertices))) {
                 throw std::runtime_error(fmt::format("{}th polygon missing num vertices", i));
             }
-            const auto num_vertices = std::stoul(file_read_str);
 
             auto vertices = std::vector<Coordinate>();
             vertices.reserve(num_vertices);
             for (size_t j = 0; j < num_vertices; ++j) {
-                if (!(file_stream >> file_read_str)) {
+                double longitude, latitude;
+                if (!(file_stream.read((char *) &longitude, sizeof(longitude))) ||
+                    !(file_stream.read((char *) &latitude, sizeof(latitude)))) {
                     throw std::runtime_error(fmt::format("{}th vertex of {}th polygon not found", j, i));
                 }
 
-                const auto coord = Coordinate::parse_from_string(file_read_str);
+                const auto coord = Coordinate(longitude, latitude);
                 vertices.push_back(coord);
                 all_vertices.push_back(coord);
             }
@@ -159,14 +171,16 @@ Graph Graph::load_from_file(const std::string &path) {
         auto graph = Graph(polygons);
 
         for (size_t i = 0; i < all_vertices.size(); ++i) {
-            for (size_t j = 0; j <= i; ++j) {
-                if (!(file_stream >> file_read_str)) {
-                    throw std::runtime_error(fmt::format("{}th row {}th column adjacency matrix entry not found", i, j));
+            for (size_t j = 0; j <= i / 8 + (i % 8 != 0); ++j) {
+                uint8_t encoded_adjacency;
+                if (!(file_stream.read((char *) &encoded_adjacency, sizeof(encoded_adjacency)))) {
+                    throw std::runtime_error(fmt::format("{}th row {}th column adjacency matrix entry not found", i, j*8));
                 }
 
-                const auto adjacency_matrix_entry = static_cast<bool>(std::stoi(file_read_str));
-                if (adjacency_matrix_entry) {
-                    graph.add_edge(all_vertices[i], all_vertices[j]);
+                for (int l = 0; l < 8; ++l) {
+                    if ((encoded_adjacency >> l) & 0x1) {
+                        graph.add_edge(all_vertices[i], all_vertices[j*8 + l]);
+                    }
                 }
             }
         }
@@ -261,4 +275,9 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate& source, const Coo
 
 std::ostream& operator<<(std::ostream& outs, const Graph& graph) {
     return outs << graph.to_string_representation();
+}
+
+void write_byte_array_to_file(std::ostream& outs, const std::vector<uint8_t>& bytes) {
+    outs.write((char *) &bytes[0], bytes.size());
+    outs.flush();
 }

@@ -139,7 +139,7 @@ bool VistreeGenerator::is_vertex_visible(const VistreeGenerator::OpenEdges &open
                                          const Coordinate &vertex_in_question) {
     if (vertex_in_question == observer_coordinate) {
         return false;
-    } if (vertices_and_segments.find(observer_coordinate) != vertices_and_segments.end()) {
+    } if (vertices_and_segments.find(observer_coordinate) != vertices_and_segments.end() && vertices_and_segments.size() > 2) {
         // We perform this check to stop our observer coordinate (if it is a vertex of a polygon)
         // from seeing vertices from inside the polygon
         // Essentially we build artificial walls based on the edges we know obstruct vision (those adjacent)

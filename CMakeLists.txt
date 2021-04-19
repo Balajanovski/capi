@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13...3.18)
 project(capi VERSION "2.0.2")
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
+#set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)

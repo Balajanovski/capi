@@ -76,6 +76,7 @@ if __name__ == "__main__":
 
     gen = GraphGenerator()
 
+    """
     gen.generate(
         os.path.join(TEST_FILES_DIR, "smaller.shp"),
         os.path.join(TEST_FILES_DIR, "smaller_graph.pkl"),
@@ -86,13 +87,16 @@ if __name__ == "__main__":
         os.path.join(TEST_FILES_DIR, "smaller_meridian_graph.pkl"),
         meridian_crossing=True,
     )
+    """
     gen.generate(
-        os.path.join(TEST_FILES_DIR, "GSHHS_l_L1.shp"),
-        os.path.join(TEST_FILES_DIR, "l_graph.pkl"),
+        os.path.join(TEST_FILES_DIR, "GSHHS_c_L1.shp"),
+        os.path.join(TEST_FILES_DIR, "graph.pkl"),
         meridian_crossing=False,
     )
+    """
     gen.generate(
-        os.path.join(TEST_FILES_DIR, "GSHHS_l_L1.shp"),
-        os.path.join(TEST_FILES_DIR, "l_meridian_graph.pkl"),
+        os.path.join(TEST_FILES_DIR, "GSHHS_c_L1.shp"),
+        os.path.join(TEST_FILES_DIR, "meridian_graph.pkl"),
         meridian_crossing=True,
     )
+    """

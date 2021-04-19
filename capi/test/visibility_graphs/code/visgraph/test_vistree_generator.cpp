@@ -253,3 +253,20 @@ TEST_CASE("Vistree Generator get visible vertices from concave root 3") {
 
     REQUIRE(visible_vertices == expected_vertices);
 }
+
+TEST_CASE("Vistree Generator collinear") {
+    const auto polygon = Polygon({
+        Coordinate(0.0, 0.0),
+        Coordinate(2.0, 2.0),
+    });
+    const auto root = Coordinate(0.0, 0.0);
+
+    auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon> {polygon});
+    auto expected_vertices = std::vector<Coordinate>{
+        Coordinate(2, 2),
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}
