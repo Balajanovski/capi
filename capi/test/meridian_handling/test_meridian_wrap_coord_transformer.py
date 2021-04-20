@@ -4,9 +4,9 @@ import unittest
 import hypothesis
 import hypothesis.strategies as st
 
+from capi.src.hypothesis_strategies.coordinate import coordinate_strategy
 from capi.src.implementation.dtos.coordinate import Coordinate
 from capi.src.implementation.meridian_handling.meridian_wrap_coord_transformer import MeridianWrapCoordTransformer
-from capi.src.hypothesis_strategies.coordinate import coordinate_strategy
 
 
 class TestMeridianWrapCoordTransformer(unittest.TestCase):

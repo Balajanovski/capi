@@ -4,7 +4,7 @@ from haversine import haversine  # type: ignore
 
 from capi.src.implementation.dtos.coordinate import Coordinate
 from capi.src.implementation.intersection_prechecker_factory import IntersectionPrecheckerFactory
-from capi.src.implementation.visibility_graphs import load_graph_from_file, VisGraph, VisGraphCoord
+from capi.src.implementation.visibility_graphs import VisGraph, VisGraphCoord, load_graph_from_file
 from capi.src.interfaces.intersection_prechecker_factory import IIntersectionPrecheckerFactory
 from capi.src.interfaces.path_interpolator import IPathInterpolator
 
@@ -42,7 +42,7 @@ class PathInterpolator(IPathInterpolator):
     def _get_shortest_path(self, start: Coordinate, end: Coordinate) -> typing.Sequence[Coordinate]:
         path = self._graph.shortest_path(start, end)
         if self._meridian_crossing_graph is None:
-            return path
+            return self._convert_visgraph_coords_list_to_coordinates(path)
 
         meridian_path = self._meridian_crossing_graph.shortest_path(
             VisGraphCoord(((start.longitude + 270) % 360) - 180, start.latitude),
@@ -50,7 +50,10 @@ class PathInterpolator(IPathInterpolator):
         )
 
         if self._get_path_length(meridian_path) < self._get_path_length(path):
-            return [VisGraphCoord(((point.longitude + 90) % 360) - 180, point.latitude) for point in meridian_path]
+            return [
+                Coordinate(longitude=((point.longitude + 90) % 360) - 180, latitude=point.latitude)
+                for point in meridian_path
+            ]
         return self._convert_visgraph_coords_list_to_coordinates(path)
 
     @staticmethod

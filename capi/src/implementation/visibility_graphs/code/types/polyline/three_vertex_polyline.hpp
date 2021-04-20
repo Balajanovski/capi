@@ -12,16 +12,16 @@
 #include "types/orientation/orientation.hpp"
 
 class ThreeVertexPolyline {
-public:
+  public:
     ThreeVertexPolyline(Coordinate v1, Coordinate v2, Coordinate v3);
 
-    [[nodiscard]] bool point_visible(const Coordinate& coordinate) const;
+    [[nodiscard]] bool point_visible(const Coordinate &coordinate) const;
     [[nodiscard]] bool is_reflex() const;
-private:
+
+  private:
     Coordinate _v1;
     Coordinate _v2;
     Coordinate _v3;
 };
 
-
-#endif //CAPI_THREE_VERTEX_POLYLINE_HPP
+#endif // CAPI_THREE_VERTEX_POLYLINE_HPP

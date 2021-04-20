@@ -38,4 +38,3 @@ setup(
     ],
     cmake_install_dir="capi/src/implementation/visibility_graphs",
 )
-
