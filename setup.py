@@ -19,11 +19,11 @@ with open("requirements.txt", "r") as handle:
     required = handle.read().splitlines()
 
 setup(
-    name="capi",
+    name="capi-vis",
     version="2.0.2",
     author="James Balajan",
     author_email="James.Balajan@wisetechglobal.com",
-    description="Python library for performing coast aware path interpolation",
+    description="Python library for performing coast aware path interpolation using visibility graphs",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Balajanovski/capi",
