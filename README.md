@@ -2,7 +2,7 @@
 
 ## What is CAPI?
 
-CAPI is a library which aims to provide sensible interpolations of paths around obstacles
+CAPI is a Python library which aims to provide sensible interpolations of paths around obstacles
 represented as polygons. For instance, when we have two points in the path of a vessel, and we wish
 to infer the ship's trajectory between them, we definitely do not want the inferred path to cross over land.
 So, we take the shortest path which does not violate this constraint.
