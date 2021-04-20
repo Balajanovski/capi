@@ -37,4 +37,5 @@ setup(
         "Operating System :: OS Independent",
     ],
     cmake_install_dir="capi/src/implementation/visibility_graphs",
+    download_url="https://github.com/Balajanovski/capi/archive/refs/tags/2.0.2.tar.gz",
 )
