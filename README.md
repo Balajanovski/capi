@@ -15,3 +15,18 @@ So, we take the shortest path which does not violate this constraint.
 CAPI comes with two parts. Firstly, a visibility graph generator, which turns a vector representation of all
 the obstacles (such as a shapefile for countries), into a visibility graph. Secondly, CAPI comes with a path searcher,
 which uses A* to traverse the generated visibility graph and come up with the sensible interpolation.
+
+## Is CAPI fast?
+
+That's up to you to decide. However, we have taken care to make CAPI as fast as it can be. The visibility graph
+computation and shortest path calculation gruntwork are all implemented in C++. OpenMP is used to improve concurrency for
+the visibility graph computation.
+
+## C++ Dependencies
+
+- OpenMP
+- TBB (Thread Building Blocks)
+
+## CAPI History
+
+- CAPI was created as a project for my work at Wisetech Global in 2021.

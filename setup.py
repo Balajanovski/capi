@@ -26,7 +26,7 @@ setup(
     description="Python library for performing coast aware path interpolation",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="http://tfs.wtg.zone:8080/tfs/CargoWise/DataScience/_git/capi",
+    url="https://github.com/Balajanovski/capi",
     packages=[f"capi.src.{package}" for package in setuptools.find_packages(where="capi/src")],
     install_requires=required,
     python_requires=">=3.6",
