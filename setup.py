@@ -20,7 +20,7 @@ with open("requirements.txt", "r") as handle:
 
 setup(
     name="capi-vis",
-    version="2.0.2",
+    version="2.0.3",
     author="James Balajan",
     author_email="James.Balajan@wisetechglobal.com",
     description="Python library for performing coast aware path interpolation using visibility graphs",
@@ -37,5 +37,4 @@ setup(
         "Operating System :: OS Independent",
     ],
     cmake_install_dir="capi/src/implementation/visibility_graphs",
-    download_url="https://github.com/Balajanovski/capi/archive/refs/tags/2.0.2.tar.gz",
 )
