@@ -7,7 +7,7 @@ python:
 env:
   global:
     - OMP_NUM_THREADS=4
-    - LINUX_DIST=trusty
+    - LINUX_DIST=bionic
 
 before_install:
   - sudo apt-get update -yqq
