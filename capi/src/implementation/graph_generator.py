@@ -76,7 +76,6 @@ class GraphGenerator(IGraphGenerator):
 if __name__ == "__main__":
     import os
 
-    from capi.src.implementation.visibility_graphs import load_graph_from_file
     from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
     gen = GraphGenerator()
@@ -101,20 +100,3 @@ if __name__ == "__main__":
         os.path.join(TEST_FILES_DIR, "graph.pkl"),
         meridian_crossing=False,
     )
-
-    """
-    import folium
-
-    map = folium.Map(location=[0, 0], zoom_start=0)
-
-    g = load_graph_from_file(os.path.join(TEST_FILES_DIR, "graph.pkl"))
-    vertex = VisGraphCoord(0, 38.931832)
-    for neighbor in g.get_neighbors(vertex):
-        folium.PolyLine([(vertex.latitude, vertex.longitude), (neighbor.latitude, neighbor.longitude)], color="red", weight=2.5, opacity=1).add_to(map)
-
-    for polygon in g.polygons:
-        points = [(vertex.latitude, vertex.longitude) for vertex in polygon.vertices]
-        folium.Polygon(points, color="green", weight=2.5, opacity=1).add_to(map)
-
-    map.save(os.path.join(TEST_FILES_DIR, "index.html"))
-    """

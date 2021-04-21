@@ -13,7 +13,15 @@
 #include "graph.hpp"
 #include "visgraph/vistree_generator.hpp"
 
-#define BITS_IN_A_BYTE 8
+#define BITS_IN_A_BYTE 8u
+
+void serialize_to_stream(std::ostream& stream, double val);
+void serialize_to_stream(std::ostream& stream, uint64_t val);
+void serialize_to_stream(std::ostream& stream, uint8_t val);
+
+bool deserialize_from_stream(std::istream& stream, double& val);
+bool deserialize_from_stream(std::istream& stream, uint64_t& val);
+bool deserialize_from_stream(std::istream& stream, uint8_t& val);
 
 Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {}
 
@@ -78,9 +86,9 @@ bool Graph::operator==(const Graph &other) const {
 bool Graph::operator!=(const Graph &other) const { return !(*this == other); }
 
 void Graph::serialize_to_file(const std::string &path) const {
-    const size_t num_polygons = _polygons.size();
+    const uint64_t num_polygons = _polygons.size();
     const auto vertices = get_vertices();
-    const size_t num_vertices = vertices.size();
+    const uint64_t num_vertices = vertices.size();
 
     auto adjacency_matrix = std::vector<std::vector<bool>>(num_vertices, std::vector<bool>(num_vertices, false));
     for (size_t i = 0; i < num_vertices; ++i) {
@@ -100,19 +108,16 @@ void Graph::serialize_to_file(const std::string &path) const {
 
     auto file_stream = std::ofstream(path);
     if (file_stream.is_open()) {
-        file_stream.write((char *)&num_polygons, sizeof(num_polygons));
-        file_stream.flush();
+        serialize_to_stream(file_stream, num_polygons);
         for (const auto &polygon : _polygons) {
-            const size_t num_vertices_in_polygon = polygon.get_vertices().size();
-            file_stream.write((char *)&num_vertices_in_polygon, sizeof(num_vertices_in_polygon));
-            file_stream.flush();
+            const uint64_t num_vertices_in_polygon = polygon.get_vertices().size();
+            serialize_to_stream(file_stream, num_vertices_in_polygon);
             for (const auto &vertex : polygon.get_vertices()) {
                 const double longitude = vertex.get_longitude();
                 const double latitude = vertex.get_latitude();
 
-                file_stream.write((char *)&longitude, sizeof(longitude));
-                file_stream.write((char *)&latitude, sizeof(latitude));
-                file_stream.flush();
+                serialize_to_stream(file_stream, longitude);
+                serialize_to_stream(file_stream, latitude);
             }
         }
 
@@ -124,7 +129,7 @@ void Graph::serialize_to_file(const std::string &path) const {
                     adjacency_encoding |= (static_cast<uint8_t>(adjacency_matrix[i][l]) << (l - j * BITS_IN_A_BYTE));
                 }
 
-                file_stream << static_cast<char>(adjacency_encoding);
+                serialize_to_stream(file_stream, adjacency_encoding);
             }
         }
 
@@ -138,8 +143,8 @@ Graph Graph::load_from_file(const std::string &path) {
     auto file_stream = std::ifstream(path);
     auto file_read_str = std::string();
     if (file_stream.is_open()) {
-        size_t num_polygons;
-        if (!file_stream.read((char *)&num_polygons, sizeof(num_polygons))) {
+        uint64_t num_polygons;
+        if (!deserialize_from_stream(file_stream, num_polygons)) {
             throw std::runtime_error("Num polygon header not present");
         }
 
@@ -147,8 +152,8 @@ Graph Graph::load_from_file(const std::string &path) {
         auto polygons = std::vector<Polygon>();
         polygons.reserve(num_polygons);
         for (size_t i = 0; i < num_polygons; ++i) {
-            size_t num_vertices = 0;
-            if (!file_stream.read((char *)&num_vertices, sizeof(num_vertices))) {
+            uint64_t num_vertices;
+            if (!deserialize_from_stream(file_stream, num_vertices)) {
                 throw std::runtime_error(fmt::format("{}th polygon missing num vertices", i));
             }
 
@@ -156,8 +161,8 @@ Graph Graph::load_from_file(const std::string &path) {
             vertices.reserve(num_vertices);
             for (size_t j = 0; j < num_vertices; ++j) {
                 double longitude, latitude;
-                if (!(file_stream.read((char *)&longitude, sizeof(longitude))) ||
-                    !(file_stream.read((char *)&latitude, sizeof(latitude)))) {
+                if (!deserialize_from_stream(file_stream, longitude) ||
+                    !deserialize_from_stream(file_stream, latitude)) {
                     throw std::runtime_error(fmt::format("{}th vertex of {}th polygon not found", j, i));
                 }
 
@@ -175,7 +180,7 @@ Graph Graph::load_from_file(const std::string &path) {
         for (size_t i = 0; i < num_vertices; ++i) {
             for (size_t j = 0; j < i / BITS_IN_A_BYTE + (i % BITS_IN_A_BYTE != 0); ++j) {
                 uint8_t encoded_adjacency;
-                if (!(file_stream.read((char *)&encoded_adjacency, sizeof(encoded_adjacency)))) {
+                if (!deserialize_from_stream(file_stream, encoded_adjacency)) {
                     throw std::runtime_error(
                         fmt::format("{}th row {}th column adjacency matrix entry not found", i, j * 8));
                 }
@@ -317,5 +322,49 @@ std::vector<Coordinate> Graph::get_vertices() const {
 std::vector<Polygon> Graph::get_polygons() const { return _polygons; }
 
 std::ostream &operator<<(std::ostream &outs, const Graph &graph) { return outs << graph.to_string_representation(); }
+
+void serialize_to_stream(std::ostream& stream, double val) {
+    uint64_t val_bytes = 0x0;
+    std::memcpy(&val_bytes, &val, sizeof(val_bytes));
+    serialize_to_stream(stream, val_bytes);
+}
+
+void serialize_to_stream(std::ostream& stream, uint64_t val) {
+    for (int byte_num = 0; byte_num < 8; ++byte_num) {
+        uint8_t byte = (val >> (byte_num * BITS_IN_A_BYTE)) & 0xFFu;
+        stream.write((char*) &byte, 1);
+    }
+}
+
+void serialize_to_stream(std::ostream& stream, uint8_t val) {
+    stream.write((char*) &val, 1);
+}
+
+bool deserialize_from_stream(std::istream& stream, double& val) {
+    uint64_t val_bytes;
+    if (!deserialize_from_stream(stream, val_bytes)) {
+        return false;
+    }
+    std::memcpy(&val, &val_bytes, sizeof(val));
+
+    return true;
+}
+
+bool deserialize_from_stream(std::istream& stream, uint64_t& val) {
+    val = 0x0;
+    for (int byte_num = 0; byte_num < 8; ++byte_num) {
+        uint8_t curr_byte;
+        if (!deserialize_from_stream(stream, curr_byte)) {
+            return false;
+        }
+        val |= (static_cast<uint64_t>(curr_byte) << (byte_num * BITS_IN_A_BYTE));
+    }
+
+    return true;
+}
+
+bool deserialize_from_stream(std::istream& stream, uint8_t& val) {
+    return static_cast<bool>(stream.read((char *) &val, 1));
+}
 
 #undef BITS_IN_A_BYTE
