@@ -1,5 +1,7 @@
 # Coast Aware Path Interpolator (CAPI)
 
+![](https://travis-ci.com/Balajanovski/capi.svg?branch=main)
+
 ## What is CAPI?
 
 CAPI is a Python library which aims to provide sensible interpolations of paths around obstacles
