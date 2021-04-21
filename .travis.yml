@@ -23,8 +23,6 @@ install:
   - pip install --no-cache-dir pygeos --no-binary pygeos
   - pip install --no-cache-dir -r requirements_test.txt
   - python setup.py install
-  - cmake . --target capi_test
-  - make
 script:
-  - ./capi_test
+  - ls
   - python run_tests.py
