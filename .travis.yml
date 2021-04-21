@@ -22,7 +22,9 @@ install:
   - pip install --no-cache-dir shapely==1.8a1 --no-binary shapely
   - pip install --no-cache-dir pygeos --no-binary pygeos
   - pip install --no-cache-dir -r requirements_test.txt
-  - python setup.py install
-  - rm -r capi/src
+  - cmake .
+  - make
+  - cp _vis_graph.*.so capi/src/implementation/visibility_graphs/
 script:
+  - ./capi_test
   - python run_tests.py
