@@ -23,6 +23,6 @@ install:
   - pip install --no-cache-dir pygeos --no-binary pygeos
   - pip install --no-cache-dir -r requirements_test.txt
   - python setup.py install
+  - rm -r capi/src
 script:
-  - ls capi/src/implementation/visibility_graphs
   - python run_tests.py
