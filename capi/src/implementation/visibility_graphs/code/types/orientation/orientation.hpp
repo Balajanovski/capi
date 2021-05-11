@@ -12,4 +12,4 @@ enum Orientation {
     COLLINEAR = 0x3,
 };
 
-#endif // CAPI_ORIENTATION_HPP
+#endif //CAPI_ORIENTATION_HPP

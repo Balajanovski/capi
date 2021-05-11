@@ -3,7 +3,7 @@ project(capi VERSION "2.0.2")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
-set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
+#set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
@@ -48,10 +48,15 @@ include_directories(${VIS_GRAPH_IMPL_DIR}/code)
 include_directories(${CPP_LIBS_DIR}/fmt/include)
 file(GLOB_RECURSE FMT_SOURCE "${CPP_LIBS_DIR}/fmt/*.cc" "${CPP_LIBS_DIR}/fmt/*.h")
 
+# Get mio library
+include_directories(${CPP_LIBS_DIR}/mio)
+file(GLOB_RECURSE MIO_SOURCE "${CPP_LIBS_DIR}/mio/*.hpp" "${CPP_LIBS_DIR}/mio/*.cpp")
+
 # Create python module
 pybind11_add_module(${PY_MODULE_TARGET} MODULE
         ${VIS_GRAPH_IMPLEMENTATION_FILES}
         ${FMT_SOURCE}
+        ${MIO_SOURCE}
         ${VIS_GRAPH_IMPL_DIR}/bindings.cpp)
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE OpenMP::OpenMP_CXX tbb)
@@ -69,6 +74,7 @@ add_executable(${TEST_TARGET}
         ${TEST_FILES}
         ${VIS_GRAPH_IMPLEMENTATION_FILES}
         ${CATCH_SOURCE}
+        ${MIO_SOURCE}
         ${FMT_SOURCE})
 
 target_link_libraries(${TEST_TARGET} PRIVATE OpenMP::OpenMP_CXX tbb)

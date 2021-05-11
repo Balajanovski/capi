@@ -6,13 +6,13 @@
 
 #include "angle_sorter.hpp"
 
-void AngleSorter::sort_counter_clockwise_around_observer(const Coordinate &observer,
-                                                         std::vector<Coordinate> &vertices) {
+
+void AngleSorter::sort_counter_clockwise_around_observer(const Coordinate &observer, std::vector<Coordinate> &vertices) {
     if (vertices.empty()) {
         return;
     }
 
-    const auto cmp = [&](const Coordinate &c1, const Coordinate &c2) -> bool {
+    const auto cmp = [&](const Coordinate& c1, const Coordinate& c2) -> bool {
         if (c1 == observer) {
             return true;
         } else if (c2 == observer) {

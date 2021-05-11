@@ -8,40 +8,23 @@ from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 
 class TestGraphGenerator(unittest.TestCase):
-    def test_generate_non_meridian_spanning(self):
-        expected_graph_path = os.path.join(TEST_FILES_DIR, "smaller_graph.pkl")
+    def test_generate(self):
+        expected_graph_path = os.path.join(TEST_FILES_DIR, "smaller_graph")
 
         with TemporaryDirectory() as temp_dir:
-            output_graph_path = os.path.join(temp_dir, "out_smaller_graph.pkl")
+            output_graph_path = os.path.join(temp_dir, "out_smaller_graph")
 
-            expected_graph = load_graph_from_file(expected_graph_path)
+            expected_normal_graph = load_graph_from_file(os.path.join(expected_graph_path, "default"))
+            expected_meridian_spanning_graph = load_graph_from_file(os.path.join(expected_graph_path, "meridian"))
 
             generator = GraphGenerator()
             generator.generate(
                 os.path.join(TEST_FILES_DIR, "smaller.shp"),
                 output_graph_path,
-                meridian_crossing=False,
             )
 
-            actual_graph = load_graph_from_file(output_graph_path)
+            actual_normal_graph = load_graph_from_file(os.path.join(output_graph_path, "default"))
+            actual_meridian_spanning_graph = load_graph_from_file(os.path.join(output_graph_path, "meridian"))
 
-        self.assertEqual(expected_graph, actual_graph)
-
-    def test_generate_meridian_spanning(self):
-        expected_graph_path = os.path.join(TEST_FILES_DIR, "smaller_meridian_graph.pkl")
-
-        with TemporaryDirectory() as temp_dir:
-            output_graph_path = os.path.join(temp_dir, "out_meridian_smaller_graph.pkl")
-
-            expected_graph = load_graph_from_file(expected_graph_path)
-
-            generator = GraphGenerator()
-            generator.generate(
-                os.path.join(TEST_FILES_DIR, "smaller.shp"),
-                output_graph_path,
-                meridian_crossing=True,
-            )
-
-            actual_graph = load_graph_from_file(output_graph_path)
-
-        self.assertEqual(expected_graph, actual_graph)
+        self.assertEqual(expected_normal_graph, actual_normal_graph)
+        self.assertEqual(expected_meridian_spanning_graph, actual_meridian_spanning_graph)

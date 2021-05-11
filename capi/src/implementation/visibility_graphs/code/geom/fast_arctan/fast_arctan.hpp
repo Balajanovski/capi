@@ -7,4 +7,4 @@
 
 double fast_arctan(double x);
 
-#endif // CAPI_FAST_ARCTAN_HPP
+#endif //CAPI_FAST_ARCTAN_HPP
