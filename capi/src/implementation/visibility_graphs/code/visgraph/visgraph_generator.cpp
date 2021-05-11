@@ -8,7 +8,7 @@
 VisgraphGenerator::VisgraphGenerator() = default;
 
 Graph VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
-    const auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
+    auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
     auto visgraph = Graph(polygons);
 
 #pragma omp parallel for shared(visgraph, polygons, polygon_vertices) default(none)

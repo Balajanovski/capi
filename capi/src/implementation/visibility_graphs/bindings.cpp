@@ -55,6 +55,9 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def("shortest_path", &Graph::shortest_path)
+        .def_property_readonly("vertices", &Graph::get_vertices)
+        .def_property_readonly("polygons", &Graph::get_polygons)
+        .def("get_neighbors", &Graph::get_neighbors)
         .def("serialize_to_file", &Graph::serialize_to_file);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");

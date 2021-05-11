@@ -34,8 +34,8 @@ std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const C
         }
 
         const auto intersection = line_segment.intersection_with_segment(initial_scanline_segment);
-        if (intersection.has_value() && !(line_segment.get_endpoint_1() - observer).parallel(initial_scanline_vector) &&
-            !(line_segment.get_endpoint_2() - observer).parallel(initial_scanline_vector)) {
+        if (intersection.has_value() && !initial_scanline_segment.on_segment(line_segment.get_endpoint_1()) &&
+            !initial_scanline_segment.on_segment(line_segment.get_endpoint_2())) {
             open_edges.emplace((intersection.value() - observer).magnitude_squared(),
                                std::make_unique<LineSegment>(line_segment));
         }
@@ -178,8 +178,7 @@ bool VistreeGenerator::is_vertex_visible(const VistreeGenerator::OpenEdges &open
         const auto &closest_edge = open_edges.begin()->second;
         const auto intersection =
             closest_edge->intersection_with_segment(LineSegment(observer_coordinate, vertex_in_question));
-        if (intersection.has_value() && intersection.value() != closest_edge->get_endpoint_1() &&
-            intersection.value() != closest_edge->get_endpoint_2()) {
+        if (intersection.has_value()) {
             return false;
         }
     }

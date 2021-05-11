@@ -8,6 +8,7 @@
 #include <array>
 #include <mutex>
 #include <string>
+#include <tbb/concurrent_hash_map.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -17,7 +18,7 @@
 
 class Graph {
   public:
-    explicit Graph(const std::vector<Polygon> &polygons);
+    explicit Graph(std::vector<Polygon> polygons);
     Graph(const Graph &other_graph);
 
     void add_edge(const Coordinate &a, const Coordinate &b);
@@ -32,13 +33,20 @@ class Graph {
     void serialize_to_file(const std::string &path) const;
     static Graph load_from_file(const std::string &path);
 
-    std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination) const;
+    [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination) const;
+
+    [[nodiscard]] std::vector<Coordinate> get_neighbors(const Coordinate &vertex) const;
+    [[nodiscard]] std::vector<Coordinate> get_vertices() const;
+    [[nodiscard]] std::vector<Polygon> get_polygons() const;
 
   private:
-    static constexpr size_t NUM_COORDINATE_MUTEXES = 500;
-    std::array<std::mutex, NUM_COORDINATE_MUTEXES> _coordinate_bucket_access_mutexes;
+    struct CoordinateHashCompare {
+        static size_t hash(const Coordinate &c) { return std::hash<Coordinate>()(c); }
 
-    std::unordered_map<Coordinate, std::unordered_set<Coordinate>> _neighbors;
+        static bool equal(const Coordinate &lhs, const Coordinate &rhs) { return lhs == rhs; }
+    };
+
+    tbb::concurrent_hash_map<Coordinate, std::unordered_set<Coordinate>, CoordinateHashCompare> _neighbors;
     std::vector<Polygon> _polygons;
 };
 
