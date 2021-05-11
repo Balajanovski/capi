@@ -5,14 +5,12 @@
 #ifndef CAPI_ANGLE_SORTER_HPP
 #define CAPI_ANGLE_SORTER_HPP
 
-#include <vector>
 #include "types/coordinate/coordinate.hpp"
-
+#include <vector>
 
 class AngleSorter {
-public:
-    static void sort_counter_clockwise_around_observer(const Coordinate& observer, std::vector<Coordinate>& vertices);
+  public:
+    static void sort_counter_clockwise_around_observer(const Coordinate &observer, std::vector<Coordinate> &vertices);
 };
 
-
-#endif //CAPI_ANGLE_SORTER_HPP
+#endif // CAPI_ANGLE_SORTER_HPP

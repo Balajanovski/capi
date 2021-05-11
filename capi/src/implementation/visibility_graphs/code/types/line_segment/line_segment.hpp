@@ -17,14 +17,15 @@ class LineSegment {
 
     [[nodiscard]] Coordinate get_endpoint_1() const;
     [[nodiscard]] Coordinate get_endpoint_2() const;
-    [[nodiscard]] Coordinate get_adjacent_to(const Coordinate& point) const;
-    [[nodiscard]] std::optional<Coordinate> intersection_with_segment(const LineSegment& line_segment) const;
+    [[nodiscard]] Coordinate get_adjacent_to(const Coordinate &point) const;
+    [[nodiscard]] std::optional<Coordinate> intersection_with_segment(const LineSegment &line_segment) const;
     [[nodiscard]] Coordinate get_tangent_vector() const;
-    [[nodiscard]] Orientation orientation_of_point_to_segment(const Coordinate& point) const;
-    [[nodiscard]] bool on_segment(const Coordinate& point) const;
+    [[nodiscard]] Orientation orientation_of_point_to_segment(const Coordinate &point) const;
+    [[nodiscard]] bool on_segment(const Coordinate &point) const;
 
-    bool operator==(const LineSegment& other) const;
-    bool operator!=(const LineSegment& other) const;
+    bool operator==(const LineSegment &other) const;
+    bool operator!=(const LineSegment &other) const;
+
   private:
     Coordinate _endpoint_1;
     Coordinate _endpoint_2;

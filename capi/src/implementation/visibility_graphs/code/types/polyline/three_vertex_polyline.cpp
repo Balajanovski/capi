@@ -8,7 +8,7 @@
 #include "constants/constants.hpp"
 #include "three_vertex_polyline.hpp"
 
-ThreeVertexPolyline::ThreeVertexPolyline(Coordinate v1, Coordinate v2, Coordinate v3): _v1(v1), _v2(v2), _v3(v3) {
+ThreeVertexPolyline::ThreeVertexPolyline(Coordinate v1, Coordinate v2, Coordinate v3) : _v1(v1), _v2(v2), _v3(v3) {
     if ((v2 - v1).parallel(v3 - v2)) {
         throw std::runtime_error("Cannot have collinear polyline");
     }
@@ -28,9 +28,12 @@ bool ThreeVertexPolyline::point_visible(const Coordinate &coordinate) const {
      * When the angle is reflex we instead check lambda_1, lambda_2 <= 0
      */
 
-    const auto determinant = (vec_1.get_longitude() * vec_2.get_latitude()) - (vec_1.get_latitude() * vec_2.get_longitude());
-    const auto lambda_1 = ((vec_3.get_longitude() * vec_2.get_latitude()) - (vec_3.get_latitude() * vec_2.get_longitude())) / determinant;
-    const auto lambda_2 = ((vec_1.get_longitude() * vec_3.get_latitude()) - (vec_1.get_latitude() * vec_3.get_longitude())) / determinant;
+    const auto determinant =
+        (vec_1.get_longitude() * vec_2.get_latitude()) - (vec_1.get_latitude() * vec_2.get_longitude());
+    const auto lambda_1 =
+        ((vec_3.get_longitude() * vec_2.get_latitude()) - (vec_3.get_latitude() * vec_2.get_longitude())) / determinant;
+    const auto lambda_2 =
+        ((vec_1.get_longitude() * vec_3.get_latitude()) - (vec_1.get_latitude() * vec_3.get_longitude())) / determinant;
 
     if (!reflex) {
         return !(lambda_1 > EPSILON_TOLERANCE_SQUARED && lambda_2 > EPSILON_TOLERANCE_SQUARED);

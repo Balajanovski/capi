@@ -6,13 +6,13 @@
 // Created by James.Balajan on 30/03/2021.
 //
 
-#include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "datastructures/graph/graph.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
-#include "datastructures/graph/graph.hpp"
 #include "visgraph/visgraph_generator.hpp"
 
 #define STRINGIFY(x) #x
@@ -41,14 +41,14 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def("magnitude", &Coordinate::magnitude);
 
     py::class_<Polygon>(m, "VisGraphPolygon")
-        .def(py::init<const std::vector<Coordinate>&>())
+        .def(py::init<const std::vector<Coordinate> &>())
         .def_property_readonly("vertices", &Polygon::get_vertices)
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def("__repr__", &Polygon::to_string_representation);
 
     py::class_<Graph>(m, "VisGraph")
-        .def(py::init<const std::vector<Polygon>&>())
+        .def(py::init<const std::vector<Polygon> &>())
         .def("__repr__", &Graph::to_string_representation)
         .def("has_edge", &Graph::has_edge)
         .def("add_edge", &Graph::add_edge)
@@ -60,7 +60,6 @@ PYBIND11_MODULE(_vis_graph, m) {
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
 
     m.def("load_graph_from_file", &Graph::load_from_file, "Loads serialized graph from file");
-
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
