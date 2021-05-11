@@ -20,6 +20,10 @@ void serialize_to_mmap(mio::mmap_sink& mmap, uint64_t val, size_t offset);
 void serialize_to_mmap(mio::mmap_sink& mmap, double val, size_t offset);
 void serialize_to_mmap(mio::mmap_sink& mmap, uint8_t val, size_t offset);
 
+uint64_t deserialize_8_bytes_from_mmap(const mio::mmap_source& mmap, size_t offset);
+double deserialize_double_from_mmap(const mio::mmap_source& mmap, size_t offset);
+uint8_t deserialize_byte_from_mmap(const mio::mmap_source& mmap, size_t offset);
+
 void allocate_file(const std::string& path, size_t num_bytes);
 void handle_mmap_error(const std::error_code& error);
 
@@ -38,11 +42,22 @@ void GraphSerializer::serialize_to_file(const Graph& graph, const std::string &p
     const auto poly_offset = serialize_polygon_vertices_to_mmap(rw_mmap, graph, sizeof(num_polygons));
     serialize_adjacency_matrix_to_mmap(rw_mmap, graph, poly_offset);
 
-    allocate_file(path, num_bytes_for_graph);
+    rw_mmap.sync(error);
+    if (error) { handle_mmap_error(error); }
 }
 
 Graph GraphSerializer::deserialize_from_file(const std::string &path) {
+    std::error_code error;
+    auto r_mmap = mio::make_mmap_source(path, 0, mio::map_entire_file, error);
+    if (error) { handle_mmap_error(error); }
 
+    const auto num_polygons = deserialize_8_bytes_from_mmap(r_mmap, 0);
+
+    Graph graph;
+    const auto poly_offset = deserialize_polygon_vertices_from_mmap(r_mmap, graph, num_polygons, sizeof(num_polygons));
+    deserialize_adjacency_matrix_from_mmap(r_mmap, graph, poly_offset);
+
+    return graph;
 }
 
 size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink& mmap, const Graph &graph, size_t offset) {
@@ -104,6 +119,59 @@ size_t GraphSerializer::serialize_adjacency_matrix_to_mmap(mio::mmap_sink& mmap,
     return adjacency_matrix_byte_offsets.back();
 }
 
+size_t GraphSerializer::deserialize_polygon_vertices_from_mmap(const mio::mmap_source &mmap, Graph &graph,
+                                                               uint64_t num_polygons,
+                                                               size_t offset) {
+    auto polygons = std::vector<Polygon>(num_polygons);
+
+    size_t curr_offset = offset;
+    for (size_t i = 0; i < num_polygons; ++i) {
+        const auto num_vertices = deserialize_8_bytes_from_mmap(mmap, curr_offset);
+
+        auto vertices = std::vector<Coordinate>(num_vertices);
+#pragma omp parallel for shared(num_vertices, mmap, vertices, curr_offset, i) default(none)
+        for (size_t j = 0; j < num_vertices; ++j) {
+            const auto longitude = deserialize_double_from_mmap(mmap,
+                                                                curr_offset + sizeof(num_vertices) + (j * 2 * sizeof(double)));
+            const auto latitude = deserialize_double_from_mmap(mmap, curr_offset + sizeof(num_vertices) + ((j * 2 + 1) * sizeof(double)));
+            vertices[i] = Coordinate(longitude, latitude);
+        }
+
+        curr_offset += (num_vertices * 2 * sizeof(double));
+
+        polygons[i] = Polygon(vertices);
+    }
+
+    graph = Graph(polygons);
+
+    return curr_offset;
+}
+
+size_t GraphSerializer::deserialize_adjacency_matrix_from_mmap(const mio::mmap_source &mmap, Graph &graph,
+                                                               size_t offset) {
+    const auto num_vertices = graph.get_vertices().size();
+    const auto& vertices = graph.get_vertices();
+    auto adjacency_matrix_byte_offsets = std::vector<size_t>(num_vertices+1);
+    adjacency_matrix_byte_offsets[0] = offset;
+    for (size_t i = 1; i <= num_vertices; ++i) {
+        adjacency_matrix_byte_offsets[i] = adjacency_matrix_byte_offsets[i-1] + CEIL_DIV(i-1, BITS_IN_A_BYTE);
+    }
+
+    for (size_t i = 0; i < num_vertices; ++i) {
+        for (size_t j = 0; j < CEIL_DIV(i, BITS_IN_A_BYTE); ++j) {
+            const auto encoded_adjacency = deserialize_byte_from_mmap(mmap, adjacency_matrix_byte_offsets[i] + (j * sizeof(uint8_t)));
+
+            for (size_t l = 0; l < std::min(static_cast<size_t>(BITS_IN_A_BYTE), num_vertices - (j * BITS_IN_A_BYTE)); ++l) {
+                if ((encoded_adjacency >> l) & 0x1) {
+                    graph.add_edge(vertices[i], vertices[j * BITS_IN_A_BYTE + l]);
+                }
+            }
+        }
+    }
+
+    return adjacency_matrix_byte_offsets.back();
+}
+
 size_t GraphSerializer::calculate_number_of_bytes_for_graph(const Graph& graph) {
     const auto num_polygons = graph.get_polygons().size();
     const auto num_vertices = graph.get_vertices().size();
@@ -138,6 +206,27 @@ inline void serialize_to_mmap(mio::mmap_sink& mmap, double val, size_t offset) {
 
 inline void serialize_to_mmap(mio::mmap_sink& mmap, uint8_t val, size_t offset) {
     mmap[offset] = val;
+}
+
+inline uint64_t deserialize_8_bytes_from_mmap(const mio::mmap_source& mmap, size_t offset) {
+    uint64_t val = 0x0;
+    for (int i = 0; i < 8; ++i) {
+        val |= (static_cast<uint64_t>(deserialize_byte_from_mmap(mmap, offset + i)) << (i * BITS_IN_A_BYTE));
+    }
+    return val;
+}
+
+inline double deserialize_double_from_mmap(const mio::mmap_source& mmap, size_t offset) {
+    uint64_t bytes_val = deserialize_8_bytes_from_mmap(mmap, offset);
+
+    double val;
+    std::memcpy(&val, &bytes_val, sizeof(val));
+
+    return val;
+}
+
+inline uint8_t deserialize_byte_from_mmap(const mio::mmap_source& mmap, size_t offset) {
+    return mmap[offset];
 }
 
 inline void allocate_file(const std::string& path, size_t num_bytes) {

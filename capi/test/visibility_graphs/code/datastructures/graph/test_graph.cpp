@@ -28,53 +28,41 @@ TEST_CASE("Graph Add Edge") {
     REQUIRE(graph.has_edge(coord4, coord2));
 }
 
-TEST_CASE("Graph serialize") {
+TEST_CASE("Graph get_vertices") {
     const auto coord1 = Coordinate(1, 2);
     const auto coord2 = Coordinate(2, 1);
     const auto coord3 = Coordinate(1, 1);
-    const auto coord4 = Coordinate(10, 2);
 
-    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2}), Polygon({coord3, coord4})});
+    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3})});
 
-    graph.add_edge(coord1, coord2);
-    graph.add_edge(coord1, coord3);
-    graph.add_edge(coord3, coord4);
-
-    char tmp_name[L_tmpnam];
-    tmpnam(tmp_name);
-
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
-
-    remove(tmp_name);
-
-    REQUIRE(graph == deserialized_graph);
+    REQUIRE(std::find(graph.get_vertices().begin(), graph.get_vertices().end(), coord1) != graph.get_vertices().end());
+    REQUIRE(std::find(graph.get_vertices().begin(), graph.get_vertices().end(), coord2) != graph.get_vertices().end());
+    REQUIRE(std::find(graph.get_vertices().begin(), graph.get_vertices().end(), coord3) != graph.get_vertices().end());
 }
 
-TEST_CASE("Graph serialize 2") {
-    const auto poly1 = Polygon({
-        Coordinate(1, 0),
-        Coordinate(0, 1),
-        Coordinate(-1, 0),
-    });
+TEST_CASE("Graph get_neighbors") {
+    const auto coord1 = Coordinate(1, 2);
+    const auto coord2 = Coordinate(2, 1);
+    const auto coord3 = Coordinate(1, 1);
 
-    const auto poly2 = Polygon({
-        Coordinate(4, 0),
-        Coordinate(3, 1),
-        Coordinate(2, 0),
-    });
+    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3})});
 
-    const auto graph = VisgraphGenerator::generate({poly1, poly2});
+    graph.add_edge(coord1, coord2);
 
-    char tmp_name[L_tmpnam];
-    tmpnam(tmp_name);
+    REQUIRE(graph.get_neighbors(coord1) == std::vector<Coordinate>{coord2});
+    REQUIRE(graph.get_neighbors(coord2) == std::vector<Coordinate>{coord1});
+}
 
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
+TEST_CASE("Graph get_polygons") {
+    const auto coord1 = Coordinate(1, 2);
+    const auto coord2 = Coordinate(2, 1);
+    const auto coord3 = Coordinate(1, 1);
+    const auto polygon = Polygon({coord1, coord2, coord3});
+    const auto polygons = std::vector<Polygon>{polygon};
 
-    remove(tmp_name);
+    auto graph = Graph(polygons);
 
-    REQUIRE(graph == deserialized_graph);
+    REQUIRE(graph.get_polygons() == polygons);
 }
 
 TEST_CASE("Graph shortest path") {
@@ -99,5 +87,5 @@ TEST_CASE("Graph shortest path") {
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{ Coordinate(-2, 0), Coordinate(1, 0), Coordinate(3, 1) });
+    REQUIRE(shortest_path_ab == std::vector<Coordinate>{ Coordinate(-2, 0), Coordinate(-1, 0), Coordinate(1, 0), Coordinate(3, 1) });
 }
