@@ -293,6 +293,20 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
 
     return path;
 }
+
+bool Graph::are_adjacent(const Coordinate &vert1, const Coordinate &vert2) const {
+    auto are_verts_adjacent = false;
+
+    decltype(_neighbors)::const_accessor accessor;
+    const auto found = _neighbors.find(accessor, vert1);
+    if (found && accessor->second.find(vert2) != accessor->second.end()) {
+        are_verts_adjacent = true;
+    }
+    accessor.release();
+
+    return are_verts_adjacent;
+}
+
 std::vector<Coordinate> Graph::get_neighbors(const Coordinate &vertex) const {
     decltype(_neighbors)::const_accessor accessor;
     const auto found_neighbors = _neighbors.find(accessor, vertex);

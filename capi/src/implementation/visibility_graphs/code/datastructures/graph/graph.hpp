@@ -35,6 +35,8 @@ class Graph {
 
     [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination) const;
 
+    [[nodiscard]] bool are_adjacent(const Coordinate& vert1, const Coordinate& vert2) const;
+
     [[nodiscard]] std::vector<Coordinate> get_neighbors(const Coordinate &vertex) const;
     [[nodiscard]] std::vector<Coordinate> get_vertices() const;
     [[nodiscard]] std::vector<Polygon> get_polygons() const;
