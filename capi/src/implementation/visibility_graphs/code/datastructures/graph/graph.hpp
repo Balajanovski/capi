@@ -18,6 +18,7 @@
 
 class Graph {
   public:
+    Graph();
     explicit Graph(std::vector<Polygon> polygons);
     Graph(const Graph &other_graph);
 
@@ -30,10 +31,9 @@ class Graph {
 
     [[nodiscard]] std::string to_string_representation() const;
 
-    void serialize_to_file(const std::string &path) const;
-    static Graph load_from_file(const std::string &path);
-
     [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination) const;
+
+    [[nodiscard]] bool are_adjacent(const Coordinate &vert1, const Coordinate &vert2) const;
 
     [[nodiscard]] std::vector<Coordinate> get_neighbors(const Coordinate &vertex) const;
     [[nodiscard]] std::vector<Coordinate> get_vertices() const;

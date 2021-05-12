@@ -13,6 +13,7 @@
 
 class Polygon {
   public:
+    Polygon();
     Polygon(std::initializer_list<Coordinate> vertices);
     explicit Polygon(const std::vector<Coordinate> &vertices);
 

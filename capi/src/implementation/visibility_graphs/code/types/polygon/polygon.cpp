@@ -9,6 +9,8 @@
 
 #include "polygon.hpp"
 
+Polygon::Polygon() = default;
+
 Polygon::Polygon(std::initializer_list<Coordinate> vertices) : _vertices(Polygon::preprocess_vertices(vertices)) {}
 
 Polygon::Polygon(const std::vector<Coordinate> &vertices) : _vertices(Polygon::preprocess_vertices(vertices)) {}

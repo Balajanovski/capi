@@ -14,6 +14,7 @@
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
 #include "visgraph/visgraph_generator.hpp"
+#include "serialization/graph_serializer.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -57,12 +58,12 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def("shortest_path", &Graph::shortest_path)
         .def_property_readonly("vertices", &Graph::get_vertices)
         .def_property_readonly("polygons", &Graph::get_polygons)
-        .def("get_neighbors", &Graph::get_neighbors)
-        .def("serialize_to_file", &Graph::serialize_to_file);
+        .def("get_neighbors", &Graph::get_neighbors);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
 
-    m.def("load_graph_from_file", &Graph::load_from_file, "Loads serialized graph from file");
+    m.def("load_graph_from_file", &GraphSerializer::deserialize_from_file, "Loads serialized graph from file");
+    m.def("save_graph_to_file", &GraphSerializer::serialize_to_file, "Serializes graph to file");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

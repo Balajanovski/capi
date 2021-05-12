@@ -12,7 +12,7 @@ def main():
         "--pylint",
         "--mypy",
     ]
-    run_command(["pytest", *options, "capi/test"])
+    run_command(["python3", "-m", "pytest", *options, "capi/test"])
 
 
 if __name__ == "__main__":

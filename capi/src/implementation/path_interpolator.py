@@ -1,3 +1,4 @@
+import os
 import typing
 
 from haversine import haversine  # type: ignore
@@ -14,14 +15,10 @@ class PathInterpolator(IPathInterpolator):
         self,
         shapefile_file_path: str,
         visibility_graph_file_path: str,
-        meridian_crossing_visibility_graph_file_path: typing.Optional[str] = None,
         intersection_prechecker_factory: typing.Optional[IIntersectionPrecheckerFactory] = None,
     ):
-        self._graph = load_graph_from_file(visibility_graph_file_path)
-
-        self._meridian_crossing_graph: typing.Optional[VisGraph] = None
-        if meridian_crossing_visibility_graph_file_path is not None:
-            self._meridian_crossing_graph = load_graph_from_file(meridian_crossing_visibility_graph_file_path)
+        self._graph = load_graph_from_file(os.path.join(visibility_graph_file_path, "default"))
+        self._meridian_crossing_graph = load_graph_from_file(os.path.join(visibility_graph_file_path, "meridian"))
 
         _intersection_prechecker_factory = (
             IntersectionPrecheckerFactory()
@@ -41,9 +38,6 @@ class PathInterpolator(IPathInterpolator):
 
     def _get_shortest_path(self, start: Coordinate, end: Coordinate) -> typing.Sequence[Coordinate]:
         path = self._graph.shortest_path(start, end)
-        if self._meridian_crossing_graph is None:
-            return self._convert_visgraph_coords_list_to_coordinates(path)
-
         meridian_path = self._meridian_crossing_graph.shortest_path(
             VisGraphCoord(((start.longitude + 270) % 360) - 180, start.latitude),
             VisGraphCoord(((end.longitude + 270) % 360) - 180, end.latitude),

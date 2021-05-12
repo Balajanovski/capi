@@ -2,14 +2,14 @@
 // Created by James.Balajan on 31/03/2021.
 //
 
-#include <catch.hpp>
-#include <stdexcept>
-#include <cstdio>
 #include <algorithm>
+#include <catch.hpp>
+#include <cstdio>
+#include <stdexcept>
 
+#include "datastructures/graph/graph.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
-#include "datastructures/graph/graph.hpp"
 #include "visgraph/visgraph_generator.hpp"
 
 TEST_CASE("Graph Add Edge") {
@@ -65,33 +65,10 @@ TEST_CASE("Graph get_polygons") {
     REQUIRE(graph.get_polygons() == polygons);
 }
 
-TEST_CASE("Graph serialize") {
-    const auto coord1 = Coordinate(1, 2);
-    const auto coord2 = Coordinate(2, 1);
-    const auto coord3 = Coordinate(1, 1);
-    const auto coord4 = Coordinate(10, 2);
-
-    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2}), Polygon({coord3, coord4})});
-
-    graph.add_edge(coord1, coord2);
-    graph.add_edge(coord1, coord3);
-    graph.add_edge(coord3, coord4);
-
-    char tmp_name[L_tmpnam];
-    tmpnam(tmp_name);
-
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
-
-    remove(tmp_name);
-
-    REQUIRE(graph == deserialized_graph);
-}
-
-TEST_CASE("Graph serialize 2") {
+TEST_CASE("Graph shortest path") {
     const auto poly1 = Polygon({
         Coordinate(1, 0),
-        Coordinate(0, 1),
+        Coordinate(0, 1.5),
         Coordinate(-1, 0),
     });
 
@@ -102,70 +79,6 @@ TEST_CASE("Graph serialize 2") {
     });
 
     const auto graph = VisgraphGenerator::generate({poly1, poly2});
-
-    char tmp_name[L_tmpnam];
-    tmpnam(tmp_name);
-
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
-
-    remove(tmp_name);
-
-    REQUIRE(graph == deserialized_graph);
-}
-
-TEST_CASE("Graph serialize 3") {
-    const auto coord1 = Coordinate(1, 2);
-    const auto coord2 = Coordinate(2, 1);
-    const auto coord3 = Coordinate(2, -1);
-    const auto coord4 = Coordinate(1, -2);
-    const auto coord5 = Coordinate(-1, -2);
-    const auto coord6 = Coordinate(-2, -1);
-    const auto coord7 = Coordinate(-2, 1);
-    const auto coord8 = Coordinate(-1, 2);
-
-    auto graph = Graph(std::vector<Polygon>{
-        Polygon({
-            coord1,
-            coord2,
-            coord3,
-            coord4,
-            coord5,
-            coord6,
-            coord7,
-            coord8,
-        })
-    });
-
-    graph.add_edge(coord1, coord2);
-    graph.add_edge(coord1, coord3);
-    graph.add_edge(coord3, coord4);
-
-    char tmp_name[L_tmpnam];
-    tmpnam(tmp_name);
-
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
-
-    remove(tmp_name);
-
-    REQUIRE(graph == deserialized_graph);
-}
-
-TEST_CASE("Graph shortest path") {
-    const auto poly1 = Polygon({
-                                   Coordinate(1, 0),
-                                   Coordinate(0, 1.5),
-                                   Coordinate(-1, 0),
-                               });
-
-    const auto poly2 = Polygon({
-                                   Coordinate(4, 0),
-                                   Coordinate(3, 1),
-                                   Coordinate(2, 0),
-                               });
-
-    const auto graph = VisgraphGenerator::generate({poly1, poly2});
     const auto a = Coordinate(-2, 0);
     const auto b = Coordinate(3, 1);
 
@@ -174,5 +87,6 @@ TEST_CASE("Graph shortest path") {
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{ Coordinate(-2, 0), Coordinate(-1, 0), Coordinate(1, 0), Coordinate(3, 1) });
+    REQUIRE(shortest_path_ab ==
+            std::vector<Coordinate>{Coordinate(-2, 0), Coordinate(-1, 0), Coordinate(1, 0), Coordinate(3, 1)});
 }
