@@ -31,14 +31,10 @@ TEST_CASE("Visgraph Generator Normal Case") {
     });
 
     const auto visgraph = VisgraphGenerator::generate(std::vector<Polygon>{poly1, poly2});
-    const auto full_range_visgraph = VisgraphGenerator::generate_with_shuffled_range(std::vector<Polygon>{poly1, poly2},
-                                                                 0,
-                                                                 poly1.get_vertices().size() + poly2.get_vertices().size(),
-                                                                 42);
-    const auto not_full_range_visgraph = VisgraphGenerator::generate_with_shuffled_range(std::vector<Polygon>{poly1, poly2},
-                                                                                         0,
-                                                                                         1,
-                                                                                         42);
+    const auto full_range_visgraph = VisgraphGenerator::generate_with_shuffled_range(
+        std::vector<Polygon>{poly1, poly2}, 0, poly1.get_vertices().size() + poly2.get_vertices().size(), 42);
+    const auto not_full_range_visgraph =
+        VisgraphGenerator::generate_with_shuffled_range(std::vector<Polygon>{poly1, poly2}, 0, 1, 42);
 
     auto expectedVisGraph = Graph({poly1, poly2});
     add_edges(Coordinate(3, -1),

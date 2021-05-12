@@ -7,5 +7,7 @@ class IGraphGenerator(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def generate_for_vertex_range(self, shape_file_path: str, output_path: str, current_split_num: int, num_splits: int, seed: int) -> None:
+    def generate_for_vertex_range(
+        self, shape_file_path: str, output_path: str, current_split_num: int, num_splits: int, seed: int
+    ) -> None:
         pass

@@ -4,9 +4,9 @@ from functools import reduce
 
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader
 from capi.src.implementation.visibility_graphs import (
+    VisGraph,
     VisGraphCoord,
     VisGraphPolygon,
-    VisGraph,
     generate_visgraph,
     generate_visgraph_with_shuffled_range,
     save_graph_to_file,
@@ -32,7 +32,9 @@ class GraphGenerator(IGraphGenerator):
 
             save_graph_to_file(graph, curr_file_output_path)
 
-    def generate_for_vertex_range(self, shape_file_path: str, output_path: str, current_split_num: int, num_splits: int, seed: int) -> None:
+    def generate_for_vertex_range(
+        self, shape_file_path: str, output_path: str, current_split_num: int, num_splits: int, seed: int
+    ) -> None:
         os.mkdir(output_path)
 
         for meridian_crossing in [False, True]:
@@ -44,13 +46,15 @@ class GraphGenerator(IGraphGenerator):
             split_size = num_vertices // num_splits
 
             split_start = split_size * current_split_num
-            split_end = (split_size * (current_split_num + 1)) if current_split_num < num_splits-1 else num_vertices
+            split_end = (split_size * (current_split_num + 1)) if current_split_num < num_splits - 1 else num_vertices
 
             graph = generate_visgraph_with_shuffled_range(polygons, split_start, split_end, seed)
 
             save_graph_to_file(graph, curr_file_output_path)
 
-    def _split_meridian_crossing_polygons(self, unadjusted_polygons: typing.Sequence[VisGraphPolygon]) -> typing.Sequence[VisGraphPolygon]:
+    def _split_meridian_crossing_polygons(
+        self, unadjusted_polygons: typing.Sequence[VisGraphPolygon]
+    ) -> typing.Sequence[VisGraphPolygon]:
         polygons: typing.List[VisGraphPolygon] = []
         for unadjusted_polygon in unadjusted_polygons:
             if self._is_polygon_crossing_meridian(unadjusted_polygon):
@@ -62,14 +66,14 @@ class GraphGenerator(IGraphGenerator):
 
         return polygons
 
-    def _read_polygons_from_shapefile(self, shape_file_path: str, meridian_crossing: bool) -> typing.Sequence[VisGraphPolygon]:
+    def _read_polygons_from_shapefile(
+        self, shape_file_path: str, meridian_crossing: bool
+    ) -> typing.Sequence[VisGraphPolygon]:
         read_polygons = self._shapefile_reader.read(shape_file_path)
         unadjusted_polygons = [
             VisGraphPolygon(
                 [
-                    self._generate_point_with_meridian_adjustment(
-                        vertex.longitude, vertex.latitude, meridian_crossing
-                    )
+                    self._generate_point_with_meridian_adjustment(vertex.longitude, vertex.latitude, meridian_crossing)
                     for vertex in polygon.vertices
                 ]
             )

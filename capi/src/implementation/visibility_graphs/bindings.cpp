@@ -11,10 +11,10 @@
 #include <pybind11/stl.h>
 
 #include "datastructures/graph/graph.hpp"
+#include "serialization/graph_serializer.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
 #include "visgraph/visgraph_generator.hpp"
-#include "serialization/graph_serializer.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
