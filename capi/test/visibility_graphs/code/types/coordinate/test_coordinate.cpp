@@ -155,7 +155,7 @@ TEST_CASE("Coordinate parse from string valid") {
         Coordinate(-10.2, -20.1),
     };
 
-    for (const auto& coord: coordinates) {
+    for (const auto &coord : coordinates) {
         const auto str_coord = coord.to_string_representation();
         const auto parsed_coord = Coordinate::parse_from_string(str_coord);
 

@@ -2,14 +2,14 @@
 // Created by James.Balajan on 31/03/2021.
 //
 
-#include <catch.hpp>
-#include <stdexcept>
-#include <cstdio>
 #include <algorithm>
+#include <catch.hpp>
+#include <cstdio>
+#include <stdexcept>
 
+#include "datastructures/graph/graph.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
-#include "datastructures/graph/graph.hpp"
 #include "visgraph/visgraph_generator.hpp"
 
 TEST_CASE("Graph Add Edge") {
@@ -67,16 +67,16 @@ TEST_CASE("Graph get_polygons") {
 
 TEST_CASE("Graph shortest path") {
     const auto poly1 = Polygon({
-                                   Coordinate(1, 0),
-                                   Coordinate(0, 1.5),
-                                   Coordinate(-1, 0),
-                               });
+        Coordinate(1, 0),
+        Coordinate(0, 1.5),
+        Coordinate(-1, 0),
+    });
 
     const auto poly2 = Polygon({
-                                   Coordinate(4, 0),
-                                   Coordinate(3, 1),
-                                   Coordinate(2, 0),
-                               });
+        Coordinate(4, 0),
+        Coordinate(3, 1),
+        Coordinate(2, 0),
+    });
 
     const auto graph = VisgraphGenerator::generate({poly1, poly2});
     const auto a = Coordinate(-2, 0);
@@ -87,5 +87,6 @@ TEST_CASE("Graph shortest path") {
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{ Coordinate(-2, 0), Coordinate(-1, 0), Coordinate(1, 0), Coordinate(3, 1) });
+    REQUIRE(shortest_path_ab ==
+            std::vector<Coordinate>{Coordinate(-2, 0), Coordinate(-1, 0), Coordinate(1, 0), Coordinate(3, 1)});
 }
