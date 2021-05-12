@@ -4,9 +4,10 @@
 
 #include <catch.hpp>
 
-#include "datastructures/graph/graph.hpp"
 #include "types/polygon/polygon.hpp"
+#include "datastructures/graph/graph.hpp"
 #include "serialization/graph_serializer.hpp"
+#include "visgraph/visgraph_generator.hpp"
 
 TEST_CASE("Graph serialize") {
     const auto coord1 = Coordinate(1, 2);
@@ -23,8 +24,8 @@ TEST_CASE("Graph serialize") {
     char tmp_name[L_tmpnam];
     tmpnam(tmp_name);
 
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
+    GraphSerializer::serialize_to_file(graph, tmp_name);
+    const auto deserialized_graph = GraphSerializer::deserialize_from_file(tmp_name);
 
     remove(tmp_name);
 
@@ -49,8 +50,8 @@ TEST_CASE("Graph serialize 2") {
     char tmp_name[L_tmpnam];
     tmpnam(tmp_name);
 
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
+    GraphSerializer::serialize_to_file(graph, tmp_name);
+    const auto deserialized_graph = GraphSerializer::deserialize_from_file(tmp_name);
 
     remove(tmp_name);
 
@@ -87,8 +88,8 @@ TEST_CASE("Graph serialize 3") {
     char tmp_name[L_tmpnam];
     tmpnam(tmp_name);
 
-    graph.serialize_to_file(tmp_name);
-    const auto deserialized_graph = Graph::load_from_file(tmp_name);
+    GraphSerializer::serialize_to_file(graph, tmp_name);
+    const auto deserialized_graph = GraphSerializer::deserialize_from_file(tmp_name);
 
     remove(tmp_name);
 
