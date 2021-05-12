@@ -6,7 +6,6 @@
 
 #include "datastructures/graph/graph.hpp"
 #include "serialization/graph_serializer.hpp"
-#include "types/polygon/polygon.hpp"
 #include "visgraph/visgraph_generator.hpp"
 
 TEST_CASE("Graph serialize") {
