@@ -16,6 +16,10 @@ class VisgraphGenerator {
     explicit VisgraphGenerator();
 
     [[nodiscard]] static Graph generate(const std::vector<Polygon> &polygons);
+    [[nodiscard]] static Graph generate_with_shuffled_range(const std::vector<Polygon> &polygons,
+                                                            size_t range_start,
+                                                            size_t range_end,
+                                                            unsigned int seed);
 
   private:
     static std::vector<Coordinate> polygon_vertices(const std::vector<Polygon> &polygons);
