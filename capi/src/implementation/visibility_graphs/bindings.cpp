@@ -11,10 +11,10 @@
 #include <pybind11/stl.h>
 
 #include "datastructures/graph/graph.hpp"
+#include "serialization/graph_serializer.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
 #include "visgraph/visgraph_generator.hpp"
-#include "serialization/graph_serializer.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -61,6 +61,8 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def("get_neighbors", &Graph::get_neighbors);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
+    m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,
+          "Generates a visgraph from the supplied polygons using only a certain range of vertices (after shuffling)");
 
     m.def("load_graph_from_file", &GraphSerializer::deserialize_from_file, "Loads serialized graph from file");
     m.def("save_graph_to_file", &GraphSerializer::serialize_to_file, "Serializes graph to file");
