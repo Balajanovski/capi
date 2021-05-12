@@ -2,7 +2,7 @@ import os
 import typing
 
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader
-from capi.src.implementation.visibility_graphs import VisGraphCoord, VisGraphPolygon, generate_visgraph
+from capi.src.implementation.visibility_graphs import VisGraphCoord, VisGraphPolygon, generate_visgraph, save_graph_to_file
 from capi.src.interfaces.graph_generator import IGraphGenerator
 from capi.src.interfaces.shapefiles.shapefile_reader import IShapefileReader
 
@@ -40,7 +40,8 @@ class GraphGenerator(IGraphGenerator):
                     polygons.append(unadjusted_polygon)
 
             graph = generate_visgraph(polygons)
-            graph.serialize_to_file(curr_file_output_path)
+
+            save_graph_to_file(graph, curr_file_output_path)
 
     @staticmethod
     def _generate_point_with_meridian_adjustment(
@@ -85,14 +86,26 @@ if __name__ == "__main__":
     import os
 
     from capi.test.test_files.test_files_dir import TEST_FILES_DIR
+    import time
 
     gen = GraphGenerator()
+
+    start_time = time.time()
 
     gen.generate(
         os.path.join(TEST_FILES_DIR, "smaller.shp"),
         os.path.join(TEST_FILES_DIR, "smaller_graph"),
     )
+
+    end_time = time.time()
+    print(f"Time taken for smaller: {end_time - start_time}")
+
+    start_time = time.time()
+
     gen.generate(
         os.path.join(TEST_FILES_DIR, "GSHHS_c_L1.shp"),
         os.path.join(TEST_FILES_DIR, "graph"),
     )
+
+    end_time = time.time()
+    print(f"Time taken for larger: {end_time - start_time}")

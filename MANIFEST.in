@@ -1,5 +1,6 @@
 include requirements.txt
 include capi/py.typed
 include README.md
+include CMakeLists.txt
 recursive-include capi/src *.hpp *.cpp *.h *.cc
 recursive-include capi/cpp_libs *.hpp *.cpp *.h *.cc
