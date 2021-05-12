@@ -78,7 +78,7 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink& mmap,
 
         serialize_to_mmap(mmap, num_polygon_vertices, polygon_byte_offsets[i]);
 
-//#pragma omp parallel for shared(num_polygons, polygon_vertices, polygons, mmap, polygon_byte_offsets) default(none)
+#pragma omp parallel for shared(num_polygons, polygon_vertices, i, num_polygon_vertices, polygons, mmap, polygon_byte_offsets) default(none)
         for (size_t j = 0; j < num_polygon_vertices; ++j) {
             const auto longitude_offset = polygon_byte_offsets[i] + sizeof(num_polygon_vertices) + (sizeof(uint64_t) * (2 * j));
             const auto latitude_offset = longitude_offset + sizeof(uint64_t);
@@ -102,7 +102,7 @@ size_t GraphSerializer::serialize_adjacency_matrix_to_mmap(mio::mmap_sink& mmap,
     }
 
     for (size_t i = 0; i < num_vertices; ++i) {
-//#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, adjacency_matrix_byte_offsets) default(none)
+#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, adjacency_matrix_byte_offsets) default(none)
         for (size_t j = 0; j < CEIL_DIV(i, BITS_IN_A_BYTE); ++j) {
             uint8_t adjacency_encoding = 0x0;
 
@@ -132,7 +132,7 @@ size_t GraphSerializer::deserialize_polygon_vertices_from_mmap(const mio::mmap_s
         curr_offset += sizeof(num_vertices);
 
         auto vertices = std::vector<Coordinate>(num_vertices);
-//#pragma omp parallel for shared(num_vertices, mmap, vertices, curr_offset, i) default(none)
+#pragma omp parallel for shared(num_vertices, mmap, vertices, curr_offset, i) default(none)
         for (size_t j = 0; j < num_vertices; ++j) {
             const auto longitude_offset = curr_offset + (j * 2 * sizeof(uint64_t));
             const auto latitude_offset = longitude_offset + sizeof(uint64_t);
@@ -162,7 +162,7 @@ size_t GraphSerializer::deserialize_adjacency_matrix_from_mmap(const mio::mmap_s
     }
 
     for (size_t i = 0; i < num_vertices; ++i) {
-//#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, adjacency_matrix_byte_offsets) default(none)
+#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, adjacency_matrix_byte_offsets) default(none)
         for (size_t j = 0; j < CEIL_DIV(i, BITS_IN_A_BYTE); ++j) {
             const auto encoded_adjacency = deserialize_byte_from_mmap(mmap, adjacency_matrix_byte_offsets[i] + (j * sizeof(uint8_t)));
 
