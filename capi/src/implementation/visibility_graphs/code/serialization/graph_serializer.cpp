@@ -78,11 +78,11 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
 
     for (size_t i = 0; i < num_polygons; ++i) {
         const auto &polygon_vertices = polygons[i].get_vertices();
-        const uint64_t num_polygon_vertices = polygon_vertices.size();
+        uint64_t num_polygon_vertices = polygon_vertices.size();
 
         serialize_to_mmap(mmap, num_polygon_vertices, polygon_byte_offsets[i]);
 
-#pragma omp parallel for shared(num_polygons, polygon_vertices, i, num_polygon_vertices, polygons, mmap,               \
+#pragma omp parallel for shared(polygon_vertices, i, num_polygon_vertices, polygons, mmap,               \
                                 polygon_byte_offsets) default(none)
         for (size_t j = 0; j < num_polygon_vertices; ++j) {
             const auto longitude_offset =
@@ -98,7 +98,7 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
 
 size_t GraphSerializer::serialize_adjacency_matrix_to_mmap(mio::mmap_sink &mmap, const Graph &graph, size_t offset) {
     const auto &vertices = graph.get_vertices();
-    const uint64_t num_vertices = graph.get_vertices().size();
+    uint64_t num_vertices = graph.get_vertices().size();
 
     auto adjacency_matrix_byte_offsets = std::vector<size_t>(num_vertices + 1);
     adjacency_matrix_byte_offsets[0] = offset;
@@ -132,7 +132,7 @@ size_t GraphSerializer::deserialize_polygon_vertices_from_mmap(const mio::mmap_s
 
     size_t curr_offset = offset;
     for (size_t i = 0; i < num_polygons; ++i) {
-        const auto num_vertices = deserialize_8_bytes_from_mmap(mmap, curr_offset);
+        auto num_vertices = deserialize_8_bytes_from_mmap(mmap, curr_offset);
         curr_offset += sizeof(num_vertices);
 
         auto vertices = std::vector<Coordinate>(num_vertices);
@@ -157,7 +157,7 @@ size_t GraphSerializer::deserialize_polygon_vertices_from_mmap(const mio::mmap_s
 
 size_t GraphSerializer::deserialize_adjacency_matrix_from_mmap(const mio::mmap_source &mmap, Graph &graph,
                                                                size_t offset) {
-    const auto num_vertices = graph.get_vertices().size();
+    auto num_vertices = graph.get_vertices().size();
     const auto &vertices = graph.get_vertices();
     auto adjacency_matrix_byte_offsets = std::vector<size_t>(num_vertices + 1);
     adjacency_matrix_byte_offsets[0] = offset;
