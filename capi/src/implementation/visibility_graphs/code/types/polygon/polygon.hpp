@@ -33,6 +33,10 @@ class Polygon {
     static std::vector<Coordinate> remove_collinear_vertices(const std::vector<Coordinate> &vertices);
 };
 
+namespace std {
+template <> struct hash<Polygon> { std::size_t operator()(const Polygon &poly) const; };
+} // namespace std
+
 std::ostream &operator<<(std::ostream &outs, const Polygon &poly);
 
 #endif // CAPI_POLYGON_HPP

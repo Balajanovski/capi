@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+#include <unordered_set>
 
 #include "graph.hpp"
 #include "visgraph/vistree_generator.hpp"
@@ -210,6 +211,35 @@ std::vector<Coordinate> Graph::get_vertices() const {
 }
 
 std::vector<Polygon> Graph::get_polygons() const { return _polygons; }
+
+Graph merge_graphs(const std::vector<Graph>& graphs) {
+    auto polygons = std::unordered_set<Polygon>();
+    size_t num_polygons = 0;
+    for (const auto& graph : graphs) {
+        num_polygons += graph.get_polygons().size();
+    }
+    polygons.reserve(num_polygons);
+
+    for (const auto& graph : graphs) {
+        for (const auto& poly: graph.get_polygons()) {
+            polygons.insert(poly);
+        }
+    }
+
+    auto merged_graph = Graph(std::vector<Polygon>(polygons.begin(), polygons.end()));
+
+    for (const auto& graph : graphs) {
+        for (const auto& vert_1: graph.get_vertices()) {
+            for (const auto& vert_2: graph.get_vertices()) {
+                if (graph.are_adjacent(vert_1, vert_2)) {
+                    merged_graph.add_edge(vert_1, vert_2);
+                }
+            }
+        }
+    }
+
+    return merged_graph;
+}
 
 std::ostream &operator<<(std::ostream &outs, const Graph &graph) { return outs << graph.to_string_representation(); }
 
