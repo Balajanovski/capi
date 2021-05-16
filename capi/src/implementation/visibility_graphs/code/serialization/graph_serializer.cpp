@@ -47,6 +47,8 @@ void GraphSerializer::serialize_to_file(const Graph &graph, const std::string &p
     if (error) {
         handle_mmap_error(error);
     }
+
+    rw_mmap.unmap();
 }
 
 Graph GraphSerializer::deserialize_from_file(const std::string &path) {
@@ -61,6 +63,8 @@ Graph GraphSerializer::deserialize_from_file(const std::string &path) {
     Graph graph;
     const auto poly_offset = deserialize_polygon_vertices_from_mmap(r_mmap, graph, num_polygons, sizeof(num_polygons));
     deserialize_adjacency_matrix_from_mmap(r_mmap, graph, poly_offset);
+
+    r_mmap.unmap();
 
     return graph;
 }

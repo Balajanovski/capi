@@ -74,7 +74,8 @@ bool Graph::operator==(const Graph &other) const {
         accessor.release();
     }
 
-    return _polygons == other._polygons;
+    return std::unordered_set<Polygon>(_polygons.begin(), _polygons.end()) ==
+        std::unordered_set<Polygon>(other._polygons.begin(), other._polygons.end());
 }
 
 bool Graph::operator!=(const Graph &other) const { return !(*this == other); }
@@ -214,12 +215,6 @@ std::vector<Polygon> Graph::get_polygons() const { return _polygons; }
 
 Graph merge_graphs(const std::vector<Graph>& graphs) {
     auto polygons = std::unordered_set<Polygon>();
-    size_t num_polygons = 0;
-    for (const auto& graph : graphs) {
-        num_polygons += graph.get_polygons().size();
-    }
-    polygons.reserve(num_polygons);
-
     for (const auto& graph : graphs) {
         for (const auto& poly: graph.get_polygons()) {
             polygons.insert(poly);
