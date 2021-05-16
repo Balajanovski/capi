@@ -93,28 +93,20 @@ TEST_CASE("Graph shortest path") {
 
 TEST_CASE("Graph merge") {
     const auto poly1 = Polygon({
-                                   Coordinate(1, 0),
-                                   Coordinate(0, 1.5),
-                                   Coordinate(-1, 0),
-                               });
+        Coordinate(1, 0),
+        Coordinate(0, 1.5),
+        Coordinate(-1, 0),
+    });
 
     const auto poly2 = Polygon({
-                                   Coordinate(4, 0),
-                                   Coordinate(3, 1),
-                                   Coordinate(2, 0),
-                               });
+        Coordinate(4, 0),
+        Coordinate(3, 1),
+        Coordinate(2, 0),
+    });
 
     const auto single_graph = VisgraphGenerator::generate({poly1, poly2});
-    const auto graph_split_1 = VisgraphGenerator::generate_with_shuffled_range(
-        {poly1, poly2},
-        0, 3,
-        0
-        );
-    const auto graph_split_2 = VisgraphGenerator::generate_with_shuffled_range(
-        {poly1, poly2},
-        3, 6,
-        0
-        );
+    const auto graph_split_1 = VisgraphGenerator::generate_with_shuffled_range({poly1, poly2}, 0, 3, 0);
+    const auto graph_split_2 = VisgraphGenerator::generate_with_shuffled_range({poly1, poly2}, 3, 6, 0);
     const auto merged_graph = merge_graphs({graph_split_1, graph_split_2});
 
     REQUIRE(single_graph == merged_graph);

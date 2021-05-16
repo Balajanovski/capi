@@ -50,7 +50,7 @@ class Graph {
     std::vector<Polygon> _polygons;
 };
 
-Graph merge_graphs(const std::vector<Graph>& graphs);
+Graph merge_graphs(const std::vector<Graph> &graphs);
 
 std::ostream &operator<<(std::ostream &outs, const Graph &graph);
 

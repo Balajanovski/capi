@@ -86,7 +86,7 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
 
         serialize_to_mmap(mmap, num_polygon_vertices, polygon_byte_offsets[i]);
 
-#pragma omp parallel for shared(polygon_vertices, i, num_polygon_vertices, polygons, mmap,               \
+#pragma omp parallel for shared(polygon_vertices, i, num_polygon_vertices, polygons, mmap,                             \
                                 polygon_byte_offsets) default(none)
         for (size_t j = 0; j < num_polygon_vertices; ++j) {
             const auto longitude_offset =

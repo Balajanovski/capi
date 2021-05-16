@@ -7,8 +7,8 @@
 #include <queue>
 #include <sstream>
 #include <stdexcept>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 #include "graph.hpp"
 #include "visgraph/vistree_generator.hpp"
@@ -75,7 +75,7 @@ bool Graph::operator==(const Graph &other) const {
     }
 
     return std::unordered_set<Polygon>(_polygons.begin(), _polygons.end()) ==
-        std::unordered_set<Polygon>(other._polygons.begin(), other._polygons.end());
+           std::unordered_set<Polygon>(other._polygons.begin(), other._polygons.end());
 }
 
 bool Graph::operator!=(const Graph &other) const { return !(*this == other); }
@@ -213,19 +213,19 @@ std::vector<Coordinate> Graph::get_vertices() const {
 
 std::vector<Polygon> Graph::get_polygons() const { return _polygons; }
 
-Graph merge_graphs(const std::vector<Graph>& graphs) {
+Graph merge_graphs(const std::vector<Graph> &graphs) {
     auto polygons = std::unordered_set<Polygon>();
-    for (const auto& graph : graphs) {
-        for (const auto& poly: graph.get_polygons()) {
+    for (const auto &graph : graphs) {
+        for (const auto &poly : graph.get_polygons()) {
             polygons.insert(poly);
         }
     }
 
     auto merged_graph = Graph(std::vector<Polygon>(polygons.begin(), polygons.end()));
 
-    for (const auto& graph : graphs) {
-        for (const auto& vert_1: graph.get_vertices()) {
-            for (const auto& vert_2: graph.get_vertices()) {
+    for (const auto &graph : graphs) {
+        for (const auto &vert_1 : graph.get_vertices()) {
+            for (const auto &vert_2 : graph.get_vertices()) {
                 if (graph.are_adjacent(vert_1, vert_2)) {
                     merged_graph.add_edge(vert_1, vert_2);
                 }
