@@ -223,7 +223,9 @@ Graph merge_graphs(const std::vector<Graph> &graphs) {
 
     auto merged_graph = Graph(std::vector<Polygon>(polygons.begin(), polygons.end()));
 
-    for (const auto &graph : graphs) {
+#pragma omp parallel for shared(graphs, merged_graph) default(none)
+    for (size_t i = 0; i < graphs.size(); ++i) { // NOLINT
+        const auto graph = graphs[i];
         for (const auto &vert_1 : graph.get_vertices()) {
             for (const auto &vert_2 : graph.get_vertices()) {
                 if (graph.are_adjacent(vert_1, vert_2)) {
