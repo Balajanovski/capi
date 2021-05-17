@@ -87,4 +87,12 @@ std::string Polygon::to_string_representation() const {
     return outs.str();
 }
 
+std::size_t std::hash<Polygon>::operator()(const Polygon &poly) const {
+    size_t seed = poly.get_vertices().size();
+    for (const auto &vert : poly.get_vertices()) {
+        seed ^= std::hash<Coordinate>()(vert) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+}
+
 std::ostream &operator<<(std::ostream &outs, const Polygon &poly) { return outs << poly.to_string_representation(); }

@@ -3,6 +3,7 @@ import typing
 
 from haversine import haversine  # type: ignore
 
+from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate
 from capi.src.implementation.intersection_prechecker_factory import IntersectionPrecheckerFactory
 from capi.src.implementation.visibility_graphs import VisGraph, VisGraphCoord, load_graph_from_file
@@ -17,8 +18,9 @@ class PathInterpolator(IPathInterpolator):
         visibility_graph_file_path: str,
         intersection_prechecker_factory: typing.Optional[IIntersectionPrecheckerFactory] = None,
     ):
-        self._graph = load_graph_from_file(os.path.join(visibility_graph_file_path, "default"))
-        self._meridian_crossing_graph = load_graph_from_file(os.path.join(visibility_graph_file_path, "meridian"))
+        graph_paths = GraphFilePaths(visibility_graph_file_path)
+        self._graph = load_graph_from_file(graph_paths.default_graph_path)
+        self._meridian_crossing_graph = load_graph_from_file(graph_paths.meridian_graph_path)
 
         _intersection_prechecker_factory = (
             IntersectionPrecheckerFactory()

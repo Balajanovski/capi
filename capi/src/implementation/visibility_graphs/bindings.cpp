@@ -66,6 +66,7 @@ PYBIND11_MODULE(_vis_graph, m) {
 
     m.def("load_graph_from_file", &GraphSerializer::deserialize_from_file, "Loads serialized graph from file");
     m.def("save_graph_to_file", &GraphSerializer::serialize_to_file, "Serializes graph to file");
+    m.def("merge_graphs", &merge_graphs, "Merges graphs into one");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

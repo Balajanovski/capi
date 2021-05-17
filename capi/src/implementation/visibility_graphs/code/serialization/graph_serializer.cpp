@@ -47,6 +47,8 @@ void GraphSerializer::serialize_to_file(const Graph &graph, const std::string &p
     if (error) {
         handle_mmap_error(error);
     }
+
+    rw_mmap.unmap();
 }
 
 Graph GraphSerializer::deserialize_from_file(const std::string &path) {
@@ -61,6 +63,8 @@ Graph GraphSerializer::deserialize_from_file(const std::string &path) {
     Graph graph;
     const auto poly_offset = deserialize_polygon_vertices_from_mmap(r_mmap, graph, num_polygons, sizeof(num_polygons));
     deserialize_adjacency_matrix_from_mmap(r_mmap, graph, poly_offset);
+
+    r_mmap.unmap();
 
     return graph;
 }
@@ -82,7 +86,7 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
 
         serialize_to_mmap(mmap, num_polygon_vertices, polygon_byte_offsets[i]);
 
-#pragma omp parallel for shared(polygon_vertices, i, num_polygon_vertices, polygons, mmap,               \
+#pragma omp parallel for shared(polygon_vertices, i, num_polygon_vertices, polygons, mmap,                             \
                                 polygon_byte_offsets) default(none)
         for (size_t j = 0; j < num_polygon_vertices; ++j) {
             const auto longitude_offset =

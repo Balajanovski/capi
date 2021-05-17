@@ -7,6 +7,7 @@
 #include <queue>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_set>
 #include <vector>
 
 #include "graph.hpp"
@@ -73,7 +74,8 @@ bool Graph::operator==(const Graph &other) const {
         accessor.release();
     }
 
-    return _polygons == other._polygons;
+    return std::unordered_set<Polygon>(_polygons.begin(), _polygons.end()) ==
+           std::unordered_set<Polygon>(other._polygons.begin(), other._polygons.end());
 }
 
 bool Graph::operator!=(const Graph &other) const { return !(*this == other); }
@@ -210,6 +212,31 @@ std::vector<Coordinate> Graph::get_vertices() const {
 }
 
 std::vector<Polygon> Graph::get_polygons() const { return _polygons; }
+
+Graph merge_graphs(const std::vector<Graph> &graphs) {
+    auto polygons = std::unordered_set<Polygon>();
+    for (const auto &graph : graphs) {
+        for (const auto &poly : graph.get_polygons()) {
+            polygons.insert(poly);
+        }
+    }
+
+    auto merged_graph = Graph(std::vector<Polygon>(polygons.begin(), polygons.end()));
+
+#pragma omp parallel for shared(graphs, merged_graph) default(none)
+    for (size_t i = 0; i < graphs.size(); ++i) { // NOLINT
+        const auto graph = graphs[i];
+        for (const auto &vert_1 : graph.get_vertices()) {
+            for (const auto &vert_2 : graph.get_vertices()) {
+                if (graph.are_adjacent(vert_1, vert_2)) {
+                    merged_graph.add_edge(vert_1, vert_2);
+                }
+            }
+        }
+    }
+
+    return merged_graph;
+}
 
 std::ostream &operator<<(std::ostream &outs, const Graph &graph) { return outs << graph.to_string_representation(); }
 

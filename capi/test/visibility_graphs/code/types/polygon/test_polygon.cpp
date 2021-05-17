@@ -57,3 +57,19 @@ TEST_CASE("Polygon Equals") {
     REQUIRE_FALSE(poly1 == poly3);
     REQUIRE(poly1 != poly3);
 }
+
+TEST_CASE("Polygon hash") {
+    const auto vertices1 = std::vector<Coordinate>{Coordinate(1, 2), Coordinate(2, 1), Coordinate(3, 3)};
+    const auto vertices2 = std::vector<Coordinate>{Coordinate(1, 2), Coordinate(2, 2), Coordinate(1, 1)};
+
+    const auto poly1 = Polygon(vertices1);
+    const auto poly2 = Polygon(vertices1);
+    const auto poly3 = Polygon(vertices2);
+
+    const auto poly1_hash = std::hash<Polygon>()(poly1);
+    const auto poly2_hash = std::hash<Polygon>()(poly2);
+    const auto poly3_hash = std::hash<Polygon>()(poly3);
+
+    REQUIRE(poly1_hash == poly2_hash);
+    REQUIRE(poly1_hash != poly3_hash);
+}
