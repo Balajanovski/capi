@@ -1,10 +1,11 @@
-import unittest
 import os
-from capi.test.test_files.test_files_dir import TEST_FILES_DIR
-from capi.src.implementation.graph_merger import GraphMerger
-from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
-from capi.src.implementation.visibility_graphs import load_graph_from_file
+import unittest
 from tempfile import TemporaryDirectory
+
+from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
+from capi.src.implementation.graph_merger import GraphMerger
+from capi.src.implementation.visibility_graphs import load_graph_from_file
+from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 
 class TestGraphMerger(unittest.TestCase):

@@ -3,12 +3,12 @@ import typing
 
 from haversine import haversine  # type: ignore
 
+from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate
 from capi.src.implementation.intersection_prechecker_factory import IntersectionPrecheckerFactory
 from capi.src.implementation.visibility_graphs import VisGraph, VisGraphCoord, load_graph_from_file
 from capi.src.interfaces.intersection_prechecker_factory import IIntersectionPrecheckerFactory
 from capi.src.interfaces.path_interpolator import IPathInterpolator
-from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 
 
 class PathInterpolator(IPathInterpolator):

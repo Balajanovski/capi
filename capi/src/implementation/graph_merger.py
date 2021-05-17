@@ -1,9 +1,10 @@
-from capi.src.interfaces.graph_merger import IGraphMerger
-from capi.src.implementation.visibility_graphs import merge_graphs, load_graph_from_file, save_graph_to_file
-from typing import Sequence
-from multiprocessing.pool import ThreadPool
-from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 import os
+from multiprocessing.pool import ThreadPool
+from typing import Sequence
+
+from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
+from capi.src.implementation.visibility_graphs import load_graph_from_file, merge_graphs, save_graph_to_file
+from capi.src.interfaces.graph_merger import IGraphMerger
 
 
 class GraphMerger(IGraphMerger):
@@ -16,10 +17,16 @@ class GraphMerger(IGraphMerger):
         input_graph_file_paths = [GraphFilePaths(graph_file) for graph_file in input_graph_files]
         with ThreadPool(self._num_load_threads) as pool:
             default_graphs = list(
-                pool.map(lambda graph_file_path: load_graph_from_file(graph_file_path.default_graph_path), input_graph_file_paths)
+                pool.map(
+                    lambda graph_file_path: load_graph_from_file(graph_file_path.default_graph_path),
+                    input_graph_file_paths,
+                )
             )
             meridian_graphs = list(
-                pool.map(lambda graph_file_path: load_graph_from_file(graph_file_path.meridian_graph_path), input_graph_file_paths)
+                pool.map(
+                    lambda graph_file_path: load_graph_from_file(graph_file_path.meridian_graph_path),
+                    input_graph_file_paths,
+                )
             )
 
         merged_default_graph = merge_graphs(default_graphs)

@@ -1,5 +1,6 @@
-from capi.src.interfaces.datastructures.graph_file_paths import IGraphFilePaths
 import os
+
+from capi.src.interfaces.datastructures.graph_file_paths import IGraphFilePaths
 
 
 class GraphFilePaths(IGraphFilePaths):

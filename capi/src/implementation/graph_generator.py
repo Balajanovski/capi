@@ -1,7 +1,8 @@
+import os
 import typing
 from functools import reduce
-import os
 
+from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader
 from capi.src.implementation.visibility_graphs import (
     VisGraph,
@@ -13,7 +14,6 @@ from capi.src.implementation.visibility_graphs import (
 )
 from capi.src.interfaces.graph_generator import IGraphGenerator
 from capi.src.interfaces.shapefiles.shapefile_reader import IShapefileReader
-from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 
 
 class GraphGenerator(IGraphGenerator):
@@ -25,7 +25,9 @@ class GraphGenerator(IGraphGenerator):
         graph_file = GraphFilePaths(output_path)
 
         for meridian_crossing in [False, True]:
-            curr_file_output_path = graph_file.meridian_graph_path if meridian_crossing else graph_file.default_graph_path
+            curr_file_output_path = (
+                graph_file.meridian_graph_path if meridian_crossing else graph_file.default_graph_path
+            )
 
             unadjusted_polygons = self._read_polygons_from_shapefile(shape_file_path, meridian_crossing)
             polygons = self._split_meridian_crossing_polygons(unadjusted_polygons)
@@ -41,7 +43,9 @@ class GraphGenerator(IGraphGenerator):
         graph_file = GraphFilePaths(output_path)
 
         for meridian_crossing in [False, True]:
-            curr_file_output_path = graph_file.meridian_graph_path if meridian_crossing else graph_file.default_graph_path
+            curr_file_output_path = (
+                graph_file.meridian_graph_path if meridian_crossing else graph_file.default_graph_path
+            )
 
             unadjusted_polygons = self._read_polygons_from_shapefile(shape_file_path, meridian_crossing)
             polygons = self._split_meridian_crossing_polygons(unadjusted_polygons)
