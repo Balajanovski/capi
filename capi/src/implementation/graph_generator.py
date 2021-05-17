@@ -1,4 +1,3 @@
-import os
 import typing
 from functools import reduce
 
@@ -13,6 +12,7 @@ from capi.src.implementation.visibility_graphs import (
 )
 from capi.src.interfaces.graph_generator import IGraphGenerator
 from capi.src.interfaces.shapefiles.shapefile_reader import IShapefileReader
+from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 
 
 class GraphGenerator(IGraphGenerator):
@@ -21,9 +21,10 @@ class GraphGenerator(IGraphGenerator):
 
     def generate(self, shape_file_path: str, output_path: str) -> None:
         os.mkdir(output_path)
+        graph_file = GraphFilePaths(output_path)
 
         for meridian_crossing in [False, True]:
-            curr_file_output_path = os.path.join(output_path, "meridian" if meridian_crossing else "default")
+            curr_file_output_path = graph_file.meridian_graph_path if meridian_crossing else graph_file.default_graph_path
 
             unadjusted_polygons = self._read_polygons_from_shapefile(shape_file_path, meridian_crossing)
             polygons = self._split_meridian_crossing_polygons(unadjusted_polygons)
@@ -36,9 +37,10 @@ class GraphGenerator(IGraphGenerator):
         self, shape_file_path: str, output_path: str, current_split_num: int, num_splits: int, seed: int
     ) -> None:
         os.mkdir(output_path)
+        graph_file = GraphFilePaths(output_path)
 
         for meridian_crossing in [False, True]:
-            curr_file_output_path = os.path.join(output_path, "meridian" if meridian_crossing else "default")
+            curr_file_output_path = graph_file.meridian_graph_path if meridian_crossing else graph_file.default_graph_path
 
             unadjusted_polygons = self._read_polygons_from_shapefile(shape_file_path, meridian_crossing)
             polygons = self._split_meridian_crossing_polygons(unadjusted_polygons)
@@ -133,6 +135,7 @@ if __name__ == "__main__":
 
     gen = GraphGenerator()
 
+    """
     start_time = time.time()
 
     gen.generate(
@@ -152,19 +155,20 @@ if __name__ == "__main__":
 
     end_time = time.time()
     print(f"Time taken for larger: {end_time - start_time}")
+    """
 
     gen.generate_for_vertex_range(
         os.path.join(TEST_FILES_DIR, "smaller.shp"),
         os.path.join(TEST_FILES_DIR, "smaller_graph_range_1"),
         0,
-        10,
+        2,
         42,
     )
 
     gen.generate_for_vertex_range(
         os.path.join(TEST_FILES_DIR, "smaller.shp"),
         os.path.join(TEST_FILES_DIR, "smaller_graph_range_2"),
-        9,
-        10,
+        1,
+        2,
         42,
     )

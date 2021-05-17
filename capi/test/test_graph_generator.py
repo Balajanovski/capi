@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from capi.src.implementation.graph_generator import GraphGenerator
 from capi.src.implementation.visibility_graphs import load_graph_from_file
 from capi.test.test_files.test_files_dir import TEST_FILES_DIR
+from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 
 
 class TestGraphGenerator(unittest.TestCase):
@@ -14,8 +15,9 @@ class TestGraphGenerator(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             output_graph_path = os.path.join(temp_dir, "out_smaller_graph")
 
-            expected_normal_graph = load_graph_from_file(os.path.join(expected_graph_path, "default"))
-            expected_meridian_spanning_graph = load_graph_from_file(os.path.join(expected_graph_path, "meridian"))
+            expected_graph_paths = GraphFilePaths(expected_graph_path)
+            expected_normal_graph = load_graph_from_file(expected_graph_paths.default_graph_path)
+            expected_meridian_spanning_graph = load_graph_from_file(expected_graph_paths.meridian_graph_path)
 
             generator = GraphGenerator()
             generator.generate(
@@ -23,8 +25,9 @@ class TestGraphGenerator(unittest.TestCase):
                 output_graph_path,
             )
 
-            actual_normal_graph = load_graph_from_file(os.path.join(output_graph_path, "default"))
-            actual_meridian_spanning_graph = load_graph_from_file(os.path.join(output_graph_path, "meridian"))
+            actual_graph_paths = GraphFilePaths(output_graph_path)
+            actual_normal_graph = load_graph_from_file(actual_graph_paths.default_graph_path)
+            actual_meridian_spanning_graph = load_graph_from_file(actual_graph_paths.meridian_graph_path)
 
         self.assertEqual(expected_normal_graph, actual_normal_graph)
         self.assertEqual(expected_meridian_spanning_graph, actual_meridian_spanning_graph)
@@ -36,8 +39,9 @@ class TestGraphGenerator(unittest.TestCase):
             with TemporaryDirectory() as temp_dir:
                 output_graph_path = os.path.join(temp_dir, f"out_{test_case[2]}")
 
-                expected_normal_graph = load_graph_from_file(os.path.join(expected_graph_path, "default"))
-                expected_meridian_spanning_graph = load_graph_from_file(os.path.join(expected_graph_path, "meridian"))
+                expected_graph_paths = GraphFilePaths(expected_graph_path)
+                expected_normal_graph = load_graph_from_file(expected_graph_paths.default_graph_path)
+                expected_meridian_spanning_graph = load_graph_from_file(expected_graph_paths.meridian_graph_path)
 
                 generator = GraphGenerator()
                 generator.generate_for_vertex_range(
@@ -48,8 +52,9 @@ class TestGraphGenerator(unittest.TestCase):
                     42,
                 )
 
-                actual_normal_graph = load_graph_from_file(os.path.join(output_graph_path, "default"))
-                actual_meridian_spanning_graph = load_graph_from_file(os.path.join(output_graph_path, "meridian"))
+                actual_graph_paths = GraphFilePaths(output_graph_path)
+                actual_normal_graph = load_graph_from_file(actual_graph_paths.default_graph_path)
+                actual_meridian_spanning_graph = load_graph_from_file(actual_graph_paths.meridian_graph_path)
 
             self.assertEqual(expected_normal_graph, actual_normal_graph)
             self.assertEqual(expected_meridian_spanning_graph, actual_meridian_spanning_graph)
