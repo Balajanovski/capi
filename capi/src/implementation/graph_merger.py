@@ -1,6 +1,6 @@
 import os
 from multiprocessing.pool import ThreadPool
-from typing import Sequence
+from typing import Sequence, cast
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.visibility_graphs import load_graph_from_file, merge_graphs, save_graph_to_file
@@ -18,13 +18,13 @@ class GraphMerger(IGraphMerger):
         with ThreadPool(self._num_load_threads) as pool:
             default_graphs = list(
                 pool.map(
-                    lambda graph_file_path: load_graph_from_file(graph_file_path.default_graph_path),
+                    lambda graph_file_path: cast(object, load_graph_from_file(graph_file_path.default_graph_path)),
                     input_graph_file_paths,
                 )
             )
             meridian_graphs = list(
                 pool.map(
-                    lambda graph_file_path: load_graph_from_file(graph_file_path.meridian_graph_path),
+                    lambda graph_file_path: cast(object, load_graph_from_file(graph_file_path.meridian_graph_path)),
                     input_graph_file_paths,
                 )
             )
