@@ -1,5 +1,6 @@
 import typing
 from functools import reduce
+import os
 
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader
 from capi.src.implementation.visibility_graphs import (

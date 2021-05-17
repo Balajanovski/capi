@@ -3,6 +3,7 @@ from capi.src.implementation.visibility_graphs import merge_graphs, load_graph_f
 from typing import Sequence
 from multiprocessing.pool import ThreadPool
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
+import os
 
 
 class GraphMerger(IGraphMerger):
@@ -10,6 +11,8 @@ class GraphMerger(IGraphMerger):
         self._num_load_threads = num_load_threads
 
     def merge(self, input_graph_files: Sequence[str], output_graph_file: str) -> None:
+        os.mkdir(output_graph_file)
+
         input_graph_file_paths = [GraphFilePaths(graph_file) for graph_file in input_graph_files]
         with ThreadPool(self._num_load_threads) as pool:
             default_graphs = list(
