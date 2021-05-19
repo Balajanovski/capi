@@ -24,9 +24,6 @@ class TestGraphMerger(unittest.TestCase):
             actual_graph_file_paths = GraphFilePaths(output_graph_path)
 
             expected_default_graph = load_graph_from_file(expected_graph_file_paths.default_graph_path)
-            expected_meridian_graph = load_graph_from_file(expected_graph_file_paths.meridian_graph_path)
             actual_default_graph = load_graph_from_file(actual_graph_file_paths.default_graph_path)
-            actual_meridian_graph = load_graph_from_file(actual_graph_file_paths.meridian_graph_path)
 
         self.assertEqual(expected_default_graph, actual_default_graph)
-        self.assertEqual(expected_meridian_graph, actual_meridian_graph)

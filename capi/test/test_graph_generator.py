@@ -17,7 +17,6 @@ class TestGraphGenerator(unittest.TestCase):
 
             expected_graph_paths = GraphFilePaths(expected_graph_path)
             expected_normal_graph = load_graph_from_file(expected_graph_paths.default_graph_path)
-            expected_meridian_spanning_graph = load_graph_from_file(expected_graph_paths.meridian_graph_path)
 
             generator = GraphGenerator()
             generator.generate(
@@ -27,10 +26,8 @@ class TestGraphGenerator(unittest.TestCase):
 
             actual_graph_paths = GraphFilePaths(output_graph_path)
             actual_normal_graph = load_graph_from_file(actual_graph_paths.default_graph_path)
-            actual_meridian_spanning_graph = load_graph_from_file(actual_graph_paths.meridian_graph_path)
 
         self.assertEqual(expected_normal_graph, actual_normal_graph)
-        self.assertEqual(expected_meridian_spanning_graph, actual_meridian_spanning_graph)
 
     def test_generate_for_vertex_range(self):
         for test_case in [(0, 2, "smaller_graph_range_1"), (1, 2, "smaller_graph_range_2")]:
@@ -41,7 +38,6 @@ class TestGraphGenerator(unittest.TestCase):
 
                 expected_graph_paths = GraphFilePaths(expected_graph_path)
                 expected_normal_graph = load_graph_from_file(expected_graph_paths.default_graph_path)
-                expected_meridian_spanning_graph = load_graph_from_file(expected_graph_paths.meridian_graph_path)
 
                 generator = GraphGenerator()
                 generator.generate_for_vertex_range(
@@ -54,7 +50,5 @@ class TestGraphGenerator(unittest.TestCase):
 
                 actual_graph_paths = GraphFilePaths(output_graph_path)
                 actual_normal_graph = load_graph_from_file(actual_graph_paths.default_graph_path)
-                actual_meridian_spanning_graph = load_graph_from_file(actual_graph_paths.meridian_graph_path)
 
             self.assertEqual(expected_normal_graph, actual_normal_graph)
-            self.assertEqual(expected_meridian_spanning_graph, actual_meridian_spanning_graph)
