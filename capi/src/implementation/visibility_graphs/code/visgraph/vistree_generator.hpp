@@ -14,14 +14,7 @@
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
 #include "types/polygon/polygon.hpp"
-
-struct VisibleVertex {
-    Coordinate coord;
-    bool is_visible_across_meridian;
-
-    bool operator==(const VisibleVertex& other) const;
-    bool operator!=(const VisibleVertex& other) const;
-};
+#include "types/visible_vertex/visible_vertex.hpp"
 
 class VistreeGenerator {
   public:

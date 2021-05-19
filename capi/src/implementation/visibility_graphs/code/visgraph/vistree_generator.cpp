@@ -212,11 +212,3 @@ void VistreeGenerator::add_segments_to_open_edges(const std::vector<LineSegment>
         open_edges.emplace(distance_squared, std::make_unique<LineSegment>(segment));
     }
 }
-
-bool VisibleVertex::operator==(const VisibleVertex &other) const {
-    return is_visible_across_meridian == other.is_visible_across_meridian && coord == other.coord;
-}
-
-bool VisibleVertex::operator!=(const VisibleVertex &other) const {
-    return !((*this) == other);
-}
