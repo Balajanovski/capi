@@ -2,16 +2,16 @@
 // Created by James.Balajan on 6/04/2021.
 //
 
-#include <algorithm>
-#include <fmt/format.h>
 #include <stdexcept>
+#include <unordered_set>
 
 #include "constants/constants.hpp"
 #include "geom/angle_sorter/angle_sorter.hpp"
 #include "types/polyline/three_vertex_polyline.hpp"
 #include "vistree_generator.hpp"
+#include "coordinate_periodicity/coordinate_periodicity.hpp"
 
-std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const Coordinate &observer,
+std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(const Coordinate &observer,
                                                                          const std::vector<Polygon> &polygons,
                                                                          bool half_scan) {
     const auto all_polygon_vertices_and_incident_segments =
@@ -41,7 +41,7 @@ std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const C
         }
     }
 
-    std::vector<Coordinate> visible_vertices;
+    std::vector<VisibleVertex> visible_vertices;
     for (const auto &current_vertex : vertices_sorted_clockwise_around_observer) {
         const auto scanline_segment = LineSegment(observer, current_vertex);
         if (half_scan && initial_scanline_vector.cross_product_magnitude(scanline_segment.get_tangent_vector()) < 0) {
@@ -59,7 +59,11 @@ std::vector<Coordinate> VistreeGenerator::get_visible_vertices_from_root(const C
         const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(
             open_edges, all_polygon_vertices_and_incident_segments, observer, current_vertex);
         if (curr_vertex_visible) {
-            visible_vertices.push_back(current_vertex);
+            visible_vertices.push_back(
+                VisibleVertex {
+                    .coord = coordinate_from_periodic_coordinate(current_vertex),
+                    .is_visible_across_meridian = is_coordinate_over_meridian(current_vertex),
+                });
         }
 
         VistreeGenerator::add_segments_to_open_edges(counter_clockwise_segments, open_edges, observer, current_vertex);
@@ -207,4 +211,12 @@ void VistreeGenerator::add_segments_to_open_edges(const std::vector<LineSegment>
 
         open_edges.emplace(distance_squared, std::make_unique<LineSegment>(segment));
     }
+}
+
+bool VisibleVertex::operator==(const VisibleVertex &other) const {
+    return is_visible_across_meridian == other.is_visible_across_meridian && coord == other.coord;
+}
+
+bool VisibleVertex::operator!=(const VisibleVertex &other) const {
+    return !((*this) == other);
 }

@@ -3,7 +3,7 @@
 //
 
 #include <catch.hpp>
-#include <iostream>
+#include <utility>
 #include <vector>
 
 #include "types/coordinate/coordinate.hpp"
@@ -39,92 +39,140 @@ TEST_CASE("Visgraph Generator Normal Case") {
     auto expectedVisGraph = Graph({poly1, poly2});
     add_edges(Coordinate(3, -1),
               {
-                  Coordinate(4, -2),
                   Coordinate(1, 0),
-                  Coordinate(0.3, -0.5),
                   Coordinate(0, 1),
+                  Coordinate(-1, 0),
                   Coordinate(-1, -1),
                   Coordinate(0, -1),
+                  Coordinate(0.3, -0.5),
                   Coordinate(2, -2),
+                  Coordinate(2.9, -3),
+                  Coordinate(3, -3),
               },
               expectedVisGraph);
     add_edges(Coordinate(-1, -1),
               {
-                  Coordinate(-1, 0),
+                  Coordinate(1, 0),
+                  Coordinate(0, 1),
+                  Coordinate(0.3, -0.5),
                   Coordinate(3, -1),
                   Coordinate(0, -1),
-                  Coordinate(2.9, -3),
                   Coordinate(2, -2),
+                  Coordinate(4, -2),
+                  Coordinate(2.9, -3),
+                  Coordinate(3, -3),
+                  Coordinate(-1, 0),
               },
               expectedVisGraph);
     add_edges(Coordinate(2, -2),
               {
-                  Coordinate(3, -1),
-                  Coordinate(2.9, -3),
+                  Coordinate(1, 0),
+                  Coordinate(0, 1),
                   Coordinate(-1, -1),
                   Coordinate(0, -1),
-                  Coordinate(1, 0),
                   Coordinate(0.3, -0.5),
+                  Coordinate(3, -1),
+                  Coordinate(2.9, -3),
+                  Coordinate(3, -3),
               },
               expectedVisGraph);
     add_edges(Coordinate(0, 1),
               {
-                  Coordinate(3, -1),
-                  Coordinate(-1, 0),
                   Coordinate(1, 0),
+                  Coordinate(-1, 0),
+                  Coordinate(-1, -1),
+                  Coordinate(0, -1),
+                  Coordinate(0.3, -0.5),
+                  Coordinate(3, -1),
+                  Coordinate(2, -2),
+                  Coordinate(2.9, -3),
+                  Coordinate(3, -3),
+                  Coordinate(4, -2),
               },
               expectedVisGraph);
     add_edges(Coordinate(0, -1),
               {
-                  Coordinate(0.3, -0.5),
                   Coordinate(1, 0),
+                  Coordinate(0, 1),
+                  Coordinate(-1, 0),
+                  Coordinate(-1, -1),
+                  Coordinate(0.3, -0.5),
                   Coordinate(3, -1),
                   Coordinate(2, -2),
-                  Coordinate(-1, -1),
                   Coordinate(2.9, -3),
+                  Coordinate(3, -3),
+                  Coordinate(4, -2),
               },
               expectedVisGraph);
     add_edges(Coordinate(0.3, -0.5),
               {
+                  Coordinate(1, 0),
+                  Coordinate(0, 1),
                   Coordinate(3, -1),
-                  Coordinate(2.9, -3),
+                  Coordinate(0, -1),
+                  Coordinate(-1, -1),
                   Coordinate(2, -2),
+                  Coordinate(2.9, -3),
+                  Coordinate(-1, 0),
               },
               expectedVisGraph);
     add_edges(Coordinate(-1, 0),
               {
+                  Coordinate(1, 0),
                   Coordinate(0, 1),
                   Coordinate(-1, -1),
+                  Coordinate(0, -1),
+                  Coordinate(0.3, -0.5),
+                  Coordinate(3, -1),
+                  Coordinate(3, -3),
               },
               expectedVisGraph);
     add_edges(Coordinate(3, -3),
               {
+                  Coordinate(0, 1),
+                  Coordinate(3, -1),
+                  Coordinate(0, -1),
+                  Coordinate(-1, -1),
+                  Coordinate(2, -2),
                   Coordinate(4, -2),
                   Coordinate(2.9, -3),
+                  Coordinate(-1, 0),
               },
               expectedVisGraph);
     add_edges(Coordinate(2.9, -3),
               {
-                  Coordinate(3, -3),
-                  Coordinate(-1, -1),
+                  Coordinate(1, 0),
+                  Coordinate(0, 1),
+                  Coordinate(3, -1),
                   Coordinate(0, -1),
+                  Coordinate(-1, -1),
                   Coordinate(2, -2),
-                  Coordinate(0.3, -0.5),
+                  Coordinate(4, -2),
+                  Coordinate(3, -3),
               },
               expectedVisGraph);
     add_edges(Coordinate(4, -2),
               {
-                  Coordinate(3, -3),
+                  Coordinate(0, 1),
                   Coordinate(3, -1),
+                  Coordinate(0, -1),
+                  Coordinate(-1, -1),
+                  Coordinate(2, -2),
+                  Coordinate(2.9, -3),
+                  Coordinate(3, -3),
+                  Coordinate(-1, 0),
               },
               expectedVisGraph);
     add_edges(Coordinate(1, 0),
               {
-                  Coordinate(3, -1),
-                  Coordinate(2, -2),
-                  Coordinate(0, -1),
                   Coordinate(0, 1),
                   Coordinate(0.3, -0.5),
+                  Coordinate(3, -1),
+                  Coordinate(0, -1),
+                  Coordinate(-1, -1),
+                  Coordinate(2, -2),
+                  Coordinate(2.9, -3),
+                  Coordinate(-1, 0),
               },
               expectedVisGraph);
 
@@ -205,6 +253,6 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
 
 void add_edges(const Coordinate &source, const std::vector<Coordinate> &neighbors, Graph &g) {
     for (const auto &neighbor : neighbors) {
-        g.add_edge(source, neighbor);
+        g.add_edge(source, neighbor, false);
     }
 }

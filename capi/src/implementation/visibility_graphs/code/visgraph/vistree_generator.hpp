@@ -15,9 +15,17 @@
 #include "types/line_segment/line_segment.hpp"
 #include "types/polygon/polygon.hpp"
 
+struct VisibleVertex {
+    Coordinate coord;
+    bool is_visible_across_meridian;
+
+    bool operator==(const VisibleVertex& other) const;
+    bool operator!=(const VisibleVertex& other) const;
+};
+
 class VistreeGenerator {
   public:
-    static std::vector<Coordinate> get_visible_vertices_from_root(const Coordinate &observer,
+    static std::vector<VisibleVertex> get_visible_vertices_from_root(const Coordinate &observer,
                                                                   const std::vector<Polygon> &polygons,
                                                                   bool half_scan = false);
 

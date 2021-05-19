@@ -12,7 +12,7 @@
 
 const std::regex Coordinate::coordinate_regex = std::regex("^\\((-?[0-9]+(?:\\.[0-9]+)?),(-?[0-9]+(?:\\.[0-9]+)?)\\)$");
 
-double round_to_epsilon_tolerance(double val);
+long discretise_double(double val);
 
 Coordinate::Coordinate() : _longitude(0.0), _latitude(0.0) {}
 
@@ -26,7 +26,7 @@ double Coordinate::get_latitude() const { return _latitude; }
 double Coordinate::get_longitude() const { return _longitude; }
 
 bool Coordinate::operator==(const Coordinate &other) const {
-    return (other - *this).magnitude_squared() < (EPSILON_TOLERANCE * EPSILON_TOLERANCE);
+    return (other - (*this)).magnitude_squared() <= EPSILON_TOLERANCE_SQUARED;
 }
 
 bool Coordinate::operator!=(const Coordinate &other) const { return !(*this == other); }
@@ -123,13 +123,16 @@ Coordinate Coordinate::parse_from_string(const std::string &str) {
 }
 
 std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {
-    const std::size_t long_hash = hash<double>()(round_to_epsilon_tolerance(coord.get_longitude()));
-    const std::size_t lat_hash = hash<double>()(round_to_epsilon_tolerance(coord.get_latitude()));
+    const auto longitude = coord.get_longitude();
+    const auto latitude = coord.get_latitude();
+
+    const std::size_t long_hash = hash<long>()(discretise_double(longitude));
+    const std::size_t lat_hash = hash<long>()(discretise_double(latitude));
     return lat_hash ^ (long_hash + 0x9e3779b9 + (lat_hash << 6) + (lat_hash >> 2));
 }
 
-double round_to_epsilon_tolerance(double val) {
-    return (std::floor(val / EPSILON_TOLERANCE) * EPSILON_TOLERANCE) + 0.5;
+long discretise_double(double val) {
+    return static_cast<long>(std::round(val / EPSILON_TOLERANCE));
 }
 
 std::ostream &operator<<(std::ostream &outs, const Coordinate &coord) {

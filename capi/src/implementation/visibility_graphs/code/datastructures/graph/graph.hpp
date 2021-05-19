@@ -22,9 +22,10 @@ class Graph {
     explicit Graph(std::vector<Polygon> polygons);
     Graph(const Graph &other_graph);
 
-    void add_edge(const Coordinate &a, const Coordinate &b);
-    void add_directed_edge(const Coordinate &a, const Coordinate &b);
+    void add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
+    void add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
     [[nodiscard]] bool has_edge(const Coordinate &a, const Coordinate &b) const;
+    [[nodiscard]] bool is_edge_meridian_crossing(const Coordinate& a, const Coordinate& b) const;
 
     bool operator==(const Graph &other) const;
     bool operator!=(const Graph &other) const;
@@ -46,7 +47,7 @@ class Graph {
         static bool equal(const Coordinate &lhs, const Coordinate &rhs) { return lhs == rhs; }
     };
 
-    tbb::concurrent_hash_map<Coordinate, std::unordered_set<Coordinate>, CoordinateHashCompare> _neighbors;
+    tbb::concurrent_hash_map<Coordinate, std::unordered_map<Coordinate, bool>, CoordinateHashCompare> _neighbors;
     std::vector<Polygon> _polygons;
 };
 

@@ -3,7 +3,7 @@ project(capi VERSION "2.0.2")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
-set(CMAKE_CXX_FLAGS "-Ofast -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
@@ -79,4 +79,6 @@ add_executable(${TEST_TARGET}
         ${MIO_SOURCE}
         ${FMT_SOURCE})
 
-target_link_libraries(${TEST_TARGET} PRIVATE OpenMP::OpenMP_CXX tbb)
+target_link_libraries(${TEST_TARGET} PRIVATE
+        OpenMP::OpenMP_CXX
+        tbb)

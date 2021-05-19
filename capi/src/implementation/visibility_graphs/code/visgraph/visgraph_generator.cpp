@@ -8,20 +8,22 @@
 
 #include "visgraph_generator.hpp"
 #include "vistree_generator.hpp"
+#include "coordinate_periodicity/coordinate_periodicity.hpp"
 
 VisgraphGenerator::VisgraphGenerator() = default;
 
 Graph VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
     auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
     auto visgraph = Graph(polygons);
+    auto periodic_polygons = make_polygons_periodic(polygons);
 
-#pragma omp parallel for shared(visgraph, polygons, polygon_vertices) default(none)
+#pragma omp parallel for shared(visgraph, periodic_polygons, polygon_vertices) default(none)
     for (size_t i = 0; i < polygon_vertices.size(); ++i) { // NOLINT
         const auto visible_vertices =
-            VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], polygons, true);
+            VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], periodic_polygons, true);
 
         for (const auto &visible_vertex : visible_vertices) {
-            visgraph.add_edge(polygon_vertices[i], visible_vertex);
+            visgraph.add_edge(polygon_vertices[i], visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
 
@@ -38,17 +40,18 @@ Graph VisgraphGenerator::generate_with_shuffled_range(const std::vector<Polygon>
     if (range_start < 0 || range_end > polygon_vertices.size() || range_start > range_end) {
         throw std::runtime_error("Improper range for visgraph generation");
     }
+    auto periodic_polygons = make_polygons_periodic(polygons);
 
     std::mt19937 gen(seed);
     std::shuffle(polygon_vertices.begin(), polygon_vertices.end(), gen);
 
-#pragma omp parallel for shared(visgraph, polygons, polygon_vertices, range_start, range_end) default(none)
+#pragma omp parallel for shared(visgraph, periodic_polygons, polygon_vertices, range_start, range_end) default(none)
     for (size_t i = range_start; i < range_end; ++i) { // NOLINT
         const auto visible_vertices =
-            VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], polygons, true);
+            VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], periodic_polygons, true);
 
         for (const auto &visible_vertex : visible_vertices) {
-            visgraph.add_edge(polygon_vertices[i], visible_vertex);
+            visgraph.add_edge(polygon_vertices[i], visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
 

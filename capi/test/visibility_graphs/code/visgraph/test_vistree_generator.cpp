@@ -10,12 +10,12 @@
 #include "types/polygon/polygon.hpp"
 #include "visgraph/vistree_generator.hpp"
 
-const auto coord_sorter = [](const Coordinate &lhs, const Coordinate &rhs) {
-    if (lhs.get_longitude() != rhs.get_longitude()) {
-        return lhs.get_longitude() < rhs.get_longitude();
+const auto coord_sorter = [](const VisibleVertex &lhs, const VisibleVertex &rhs) {
+    if (lhs.coord.get_longitude() != rhs.coord.get_longitude()) {
+        return lhs.coord.get_longitude() < rhs.coord.get_longitude();
     }
 
-    return lhs.get_latitude() < rhs.get_longitude();
+    return lhs.coord.get_latitude() < rhs.coord.get_longitude();
 };
 
 TEST_CASE("Vistree Generator get visible vertices from root") {
@@ -40,8 +40,12 @@ TEST_CASE("Vistree Generator get visible vertices from root") {
 
     auto visible_vertices =
         VistreeGenerator::get_visible_vertices_from_root(root_vertex, std::vector<Polygon>{poly1, poly2});
-    auto expected_vertices = std::vector<Coordinate>{
-        Coordinate(0, -1), Coordinate(2, -2), Coordinate(3, -1), Coordinate(0, 1), Coordinate(0.3, -0.5),
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(0, -1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(2, -2), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(3, -1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(0, 1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(0.3, -0.5), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
@@ -71,7 +75,9 @@ TEST_CASE("Vistree Generator get visible vertices from root half scan") {
 
     auto visible_vertices =
         VistreeGenerator::get_visible_vertices_from_root(root_vertex, std::vector<Polygon>{poly1, poly2}, true);
-    auto expected_vertices = std::vector<Coordinate>{Coordinate(0, 1)};
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(0, 1), .is_visible_across_meridian=false},
+    };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
 
@@ -91,7 +97,7 @@ TEST_CASE("Vistree Generator get visible vertices from root root on edge") {
     });
 
     auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root_vertex, std::vector<Polygon>{poly1});
-    auto expected_vertices = std::vector<Coordinate>{};
+    auto expected_vertices = std::vector<VisibleVertex>{};
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
 
@@ -120,9 +126,12 @@ TEST_CASE("Vistree Generator get visible vertices from root precise") {
 
     auto visible_vertices =
         VistreeGenerator::get_visible_vertices_from_root(root_vertex, std::vector<Polygon>{poly1, poly2});
-    auto expected_vertices = std::vector<Coordinate>{
-        Coordinate(0, -0.0001),    Coordinate(0.0002, -0.0002), Coordinate(0.0003, -0.0001),
-        Coordinate(3e-05, -5e-05), Coordinate(0, 0.0001),
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(0, -0.0001), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(0.0002, -0.0002), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(0.0003, -0.0001), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(3e-05, -5e-05), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(0, 0.0001), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
@@ -152,9 +161,9 @@ TEST_CASE("Vistree Generator get visible vertices from root isolated") {
 
     auto visible_vertices =
         VistreeGenerator::get_visible_vertices_from_root(root_vertex, std::vector<Polygon>{poly1, poly2});
-    auto expected_vertices = std::vector<Coordinate>{
-        Coordinate(2.9, -3),
-        Coordinate(4, -2),
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(2.9, -3), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(4, -2), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
@@ -184,8 +193,12 @@ TEST_CASE("Vistree Generator get visible vertices from concave root") {
 
     auto visible_vertices =
         VistreeGenerator::get_visible_vertices_from_root(root_vertex, std::vector<Polygon>{poly1, poly2});
-    auto expected_vertices = std::vector<Coordinate>{
-        Coordinate(2, -2), Coordinate(2.9, -3), Coordinate(3, -1), Coordinate(0, -1), Coordinate(1, 0),
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex {.coord = Coordinate(2, -2), .is_visible_across_meridian=false},
+        VisibleVertex {.coord = Coordinate(2.9, -3), .is_visible_across_meridian=false},
+        VisibleVertex {.coord = Coordinate(3, -1), .is_visible_across_meridian=false},
+        VisibleVertex {.coord = Coordinate(0, -1), .is_visible_across_meridian=false},
+        VisibleVertex {.coord = Coordinate(1, 0), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
@@ -206,11 +219,11 @@ TEST_CASE("Vistree Generator get visible vertices from concave root 2") {
         Coordinate(1.5, -2),
     });
     auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{polygon});
-    auto expected_vertices = std::vector<Coordinate>{
-        Coordinate(-1.5, -2),
-        Coordinate(-1, -1),
-        Coordinate(1, -1),
-        Coordinate(1.5, -2),
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex {.coord = Coordinate(-1.5, -2), .is_visible_across_meridian=false},
+        VisibleVertex {.coord = Coordinate(-1, -1), .is_visible_across_meridian=false},
+        VisibleVertex {.coord = Coordinate(1, -1), .is_visible_across_meridian=false},
+        VisibleVertex {.coord = Coordinate(1.5, -2), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
@@ -231,11 +244,11 @@ TEST_CASE("Vistree Generator get visible vertices from concave root 3") {
         Coordinate(1.5, -2),
     });
     auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{polygon});
-    auto expected_vertices = std::vector<Coordinate>{
-        Coordinate(0, 0),
-        Coordinate(1.5, -2),
-        Coordinate(-1, -1),
-        Coordinate(-1.5, -2),
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(0, 0), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(1.5, -2), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(-1, -1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(-1.5, -2), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
@@ -251,8 +264,8 @@ TEST_CASE("Vistree Generator collinear") {
     const auto root = Coordinate(0.0, 0.0);
 
     auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{polygon});
-    auto expected_vertices = std::vector<Coordinate>{
-        Coordinate(2, 2),
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(2, 2), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
@@ -277,8 +290,12 @@ TEST_CASE("Vistree Generator collinear above") {
     const auto root = Coordinate(0, 0);
 
     auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{poly1, poly2});
-    auto expected_vertices = std::vector<Coordinate>{Coordinate(-1, 3), Coordinate(-1, 1), Coordinate(0, 2),
-                                                     Coordinate(1, 1), Coordinate(1, 3)};
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(-1, 3), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(-1, 1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(0, 2), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(1, 1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(1, 3), .is_visible_across_meridian=false}};
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
 
