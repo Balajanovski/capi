@@ -25,7 +25,7 @@ class Graph {
     void add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
     void add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
     [[nodiscard]] bool has_edge(const Coordinate &a, const Coordinate &b) const;
-    [[nodiscard]] bool is_edge_meridian_crossing(const Coordinate& a, const Coordinate& b) const;
+    [[nodiscard]] bool is_edge_meridian_crossing(const Coordinate &a, const Coordinate &b) const;
 
     bool operator==(const Graph &other) const;
     bool operator!=(const Graph &other) const;

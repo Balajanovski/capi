@@ -2,6 +2,7 @@
 // Created by James.Balajan on 11/05/2021.
 //
 
+#include <atomic>
 #include <cstdint>
 #include <fmt/core.h>
 #include <mio.hpp>
@@ -9,7 +10,6 @@
 #include <system_error>
 #include <unistd.h>
 #include <vector>
-#include <atomic>
 
 #include "graph_serializer.hpp"
 
@@ -28,8 +28,10 @@ void allocate_file(const std::string &path, size_t num_bytes);
 void handle_mmap_error(const std::error_code &error);
 
 void GraphSerializer::serialize_to_file(const Graph &graph, const std::string &path) {
-    const auto num_meridian_spanning_edges = GraphSerializer::calculate_number_of_meridian_spanning_edges_for_graph(graph);
-    const auto num_bytes_for_graph = GraphSerializer::calculate_number_of_bytes_for_graph(graph, num_meridian_spanning_edges);
+    const auto num_meridian_spanning_edges =
+        GraphSerializer::calculate_number_of_meridian_spanning_edges_for_graph(graph);
+    const auto num_bytes_for_graph =
+        GraphSerializer::calculate_number_of_bytes_for_graph(graph, num_meridian_spanning_edges);
     allocate_file(path, num_bytes_for_graph);
 
     std::error_code error;
@@ -102,7 +104,8 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
     return polygon_byte_offsets.back();
 }
 
-size_t GraphSerializer::serialize_adjacency_matrix_to_mmap(mio::mmap_sink &mmap, const Graph &graph, size_t offset, uint64_t num_meridian_spanning_edges) {
+size_t GraphSerializer::serialize_adjacency_matrix_to_mmap(mio::mmap_sink &mmap, const Graph &graph, size_t offset,
+                                                           uint64_t num_meridian_spanning_edges) {
     const auto &vertices = graph.get_vertices();
     uint64_t num_vertices = graph.get_vertices().size();
 
@@ -133,7 +136,8 @@ size_t GraphSerializer::serialize_adjacency_matrix_to_mmap(mio::mmap_sink &mmap,
     std::atomic<uint64_t> current_meridian_spanning_edge = 0;
     serialize_to_mmap(mmap, num_meridian_spanning_edges, adjacency_matrix_byte_offsets_back);
     for (size_t i = 0; i < num_vertices; ++i) {
-#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, current_meridian_spanning_edge, adjacency_matrix_byte_offsets_back) default(none)
+#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, current_meridian_spanning_edge,                \
+                                adjacency_matrix_byte_offsets_back) default(none)
         for (size_t j = 0; j < i; ++j) {
             const uint64_t edge_number = j + (((i * i) + i) / 2);
             if (graph.is_edge_meridian_crossing(vertices[i], vertices[j])) {
@@ -190,11 +194,12 @@ size_t GraphSerializer::deserialize_adjacency_matrix_from_mmap(const mio::mmap_s
     const auto num_meridian_spanning_edges = deserialize_8_bytes_from_mmap(mmap, adjacency_matrix_byte_offsets.back());
     for (size_t i = 0; i < num_meridian_spanning_edges; ++i) {
         meridian_spanning_edge_indices.insert(
-            deserialize_8_bytes_from_mmap(mmap, adjacency_matrix_byte_offsets.back() + (i+1) * sizeof(uint64_t)));
+            deserialize_8_bytes_from_mmap(mmap, adjacency_matrix_byte_offsets.back() + (i + 1) * sizeof(uint64_t)));
     }
 
     for (size_t i = 0; i < num_vertices; ++i) {
-#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, adjacency_matrix_byte_offsets, meridian_spanning_edge_indices) default(none)
+#pragma omp parallel for shared(num_vertices, i, mmap, vertices, graph, adjacency_matrix_byte_offsets,                 \
+                                meridian_spanning_edge_indices) default(none)
         for (size_t j = 0; j < CEIL_DIV(i, BITS_IN_A_BYTE); ++j) {
             const auto encoded_adjacency =
                 deserialize_byte_from_mmap(mmap, adjacency_matrix_byte_offsets[i] + (j * sizeof(uint8_t)));
@@ -203,9 +208,10 @@ size_t GraphSerializer::deserialize_adjacency_matrix_from_mmap(const mio::mmap_s
                  ++l) {
                 if ((encoded_adjacency >> l) & 0x1) {
                     const auto neighbor_index = j * BITS_IN_A_BYTE + l;
-                    const auto edge_index = neighbor_index + (((i*i) + i) / 2);
+                    const auto edge_index = neighbor_index + (((i * i) + i) / 2);
                     graph.add_edge(vertices[i], vertices[neighbor_index],
-                                   meridian_spanning_edge_indices.find(edge_index) != meridian_spanning_edge_indices.end());
+                                   meridian_spanning_edge_indices.find(edge_index) !=
+                                       meridian_spanning_edge_indices.end());
                 }
             }
         }
@@ -226,17 +232,18 @@ size_t GraphSerializer::calculate_number_of_bytes_for_graph(const Graph &graph, 
                           2) +
         (num_vertices - BITS_IN_A_BYTE * num_verts_over_bits_in_byte_floor) * num_verts_over_bits_in_byte_ceil;
 
-    return (sizeof(uint64_t) +                                      // For the number of polygons header
-            sizeof(uint64_t) * num_polygons +                       // For the number of vertices per polygon headers
-            sizeof(uint64_t) * 2 * num_vertices +                   // For the vertex latitudes and longitudes
-            sizeof(uint8_t) * num_adjacency_matrix_bytes +          // For the adjacency matrix
-            sizeof(uint64_t) * (num_meridian_spanning_edges + 1));  // For the number of meridian spanning edges, and each edge index;
+    return (sizeof(uint64_t) +                             // For the number of polygons header
+            sizeof(uint64_t) * num_polygons +              // For the number of vertices per polygon headers
+            sizeof(uint64_t) * 2 * num_vertices +          // For the vertex latitudes and longitudes
+            sizeof(uint8_t) * num_adjacency_matrix_bytes + // For the adjacency matrix
+            sizeof(uint64_t) *
+                (num_meridian_spanning_edges + 1)); // For the number of meridian spanning edges, and each edge index;
 }
 
 uint64_t GraphSerializer::calculate_number_of_meridian_spanning_edges_for_graph(const Graph &graph) {
     size_t meridian_spanning_edges = 0;
-    for (const auto& vertex_1 : graph.get_vertices()) {
-        for (const auto& vertex_2 : graph.get_vertices()) {
+    for (const auto &vertex_1 : graph.get_vertices()) {
+        for (const auto &vertex_2 : graph.get_vertices()) {
             meridian_spanning_edges += graph.is_edge_meridian_crossing(vertex_1, vertex_2);
         }
     }

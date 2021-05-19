@@ -8,6 +8,4 @@ bool VisibleVertex::operator==(const VisibleVertex &other) const {
     return is_visible_across_meridian == other.is_visible_across_meridian && coord == other.coord;
 }
 
-bool VisibleVertex::operator!=(const VisibleVertex &other) const {
-    return !((*this) == other);
-}
+bool VisibleVertex::operator!=(const VisibleVertex &other) const { return !((*this) == other); }

@@ -11,8 +11,8 @@ struct VisibleVertex {
     Coordinate coord;
     bool is_visible_across_meridian;
 
-    bool operator==(const VisibleVertex& other) const;
-    bool operator!=(const VisibleVertex& other) const;
+    bool operator==(const VisibleVertex &other) const;
+    bool operator!=(const VisibleVertex &other) const;
 };
 
 #endif // CAPI_VISIBLE_VERTEX_HPP

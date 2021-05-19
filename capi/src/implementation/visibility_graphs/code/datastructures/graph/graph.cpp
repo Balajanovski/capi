@@ -10,10 +10,10 @@
 #include <unordered_set>
 #include <vector>
 
+#include "constants/constants.hpp"
+#include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "graph.hpp"
 #include "visgraph/vistree_generator.hpp"
-#include "coordinate_periodicity/coordinate_periodicity.hpp"
-#include "constants/constants.hpp"
 
 #define BITS_IN_A_BYTE 8u
 
@@ -36,7 +36,8 @@ void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool mer
     decltype(_neighbors)::accessor accessor;
 
     _neighbors.insert(accessor, a);
-    accessor->second[b] = meridian_crossing && ((accessor->second.find(b) == accessor->second.end()) || (accessor->second[b]));
+    accessor->second[b] =
+        meridian_crossing && ((accessor->second.find(b) == accessor->second.end()) || (accessor->second[b]));
     accessor.release();
 }
 
@@ -74,17 +75,15 @@ std::string Graph::to_string_representation() const {
 
         auto sorted_neighbors = std::vector<Coordinate>();
         sorted_neighbors.reserve(neighbors.second.size());
-        for (const auto& neighbor : neighbors.second) {
+        for (const auto &neighbor : neighbors.second) {
             sorted_neighbors.push_back(neighbor.first);
         }
-        std::sort(sorted_neighbors.begin(), sorted_neighbors.end(), [](const Coordinate& lhs, const Coordinate& rhs) {
+        std::sort(sorted_neighbors.begin(), sorted_neighbors.end(), [](const Coordinate &lhs, const Coordinate &rhs) {
             return std::hash<Coordinate>()(lhs) < std::hash<Coordinate>()(rhs);
         });
 
         for (const auto &neighbor : sorted_neighbors) {
-            outs << fmt::format("({}, {}, meridian_span: {}) ",
-                                neighbor.get_longitude(),
-                                neighbor.get_latitude(),
+            outs << fmt::format("({}, {}, meridian_span: {}) ", neighbor.get_longitude(), neighbor.get_latitude(),
                                 is_edge_meridian_crossing(neighbors.first, neighbor));
         }
         outs << "]]\n";
@@ -161,8 +160,8 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
     pq.push(AStarHeapElement{
         .node = source,
         .distance_to_source = 0,
-        .heuristic_distance_to_destination = std::min(distance_measurement(source, destination, false),
-                                                      distance_measurement(source, destination, true)),
+        .heuristic_distance_to_destination =
+            std::min(distance_measurement(source, destination, false), distance_measurement(source, destination, true)),
     });
 
     auto prev_coord = std::unordered_map<Coordinate, Coordinate>();
@@ -181,8 +180,8 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
             const auto neighbor = neighbor_is_meridian_spanning.first;
             const auto meridian_spanning = neighbor_is_meridian_spanning.second;
 
-            const auto neighbor_dist_to_source = top.distance_to_source +
-                                                 distance_measurement(neighbor, top.node, meridian_spanning);
+            const auto neighbor_dist_to_source =
+                top.distance_to_source + distance_measurement(neighbor, top.node, meridian_spanning);
 
             if (distances_to_source.find(neighbor) != distances_to_source.end() &&
                 distances_to_source.at(neighbor) <= neighbor_dist_to_source) {
@@ -192,9 +191,8 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
             const auto heap_elem = AStarHeapElement{
                 .node = neighbor,
                 .distance_to_source = neighbor_dist_to_source,
-                .heuristic_distance_to_destination =
-                    std::min(distance_measurement(neighbor, destination, false),
-                             distance_measurement(neighbor, destination, true)),
+                .heuristic_distance_to_destination = std::min(distance_measurement(neighbor, destination, false),
+                                                              distance_measurement(neighbor, destination, true)),
             };
             pq.push(heap_elem);
             prev_coord[neighbor] = top.node;
@@ -241,7 +239,7 @@ std::vector<Coordinate> Graph::get_neighbors(const Coordinate &vertex) const {
     auto neighbors = std::vector<Coordinate>();
     if (found_neighbors) {
         neighbors.reserve(accessor->second.size());
-        for (const auto& neighbor : accessor->second) {
+        for (const auto &neighbor : accessor->second) {
             neighbors.push_back(neighbor.first);
         }
     }

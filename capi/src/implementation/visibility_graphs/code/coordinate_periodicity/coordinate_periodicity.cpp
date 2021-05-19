@@ -17,20 +17,22 @@ std::vector<Coordinate> periodic_coordinates_from_coordinate(const Coordinate &c
     };
 }
 
-bool is_coordinate_over_meridian(const Coordinate& coordinate) {
+bool is_coordinate_over_meridian(const Coordinate &coordinate) {
     return (coordinate.get_longitude() < MIN_LONGITUDE) || (coordinate.get_longitude() > MAX_LONGITUDE);
 }
 
 Coordinate coordinate_from_periodic_coordinate(const Coordinate &periodic_coordinate) {
     const auto longitude_period = MAX_LONGITUDE - MIN_LONGITUDE;
     auto adjusted_longitude = periodic_coordinate.get_longitude();
-    if (adjusted_longitude >= MAX_LONGITUDE) adjusted_longitude -= longitude_period;
-    if (adjusted_longitude <= MIN_LONGITUDE) adjusted_longitude += longitude_period;
+    if (adjusted_longitude >= MAX_LONGITUDE)
+        adjusted_longitude -= longitude_period;
+    if (adjusted_longitude <= MIN_LONGITUDE)
+        adjusted_longitude += longitude_period;
 
     return Coordinate(adjusted_longitude, periodic_coordinate.get_latitude());
 }
 
-std::vector<Polygon> make_polygons_periodic(const std::vector<Polygon>& polygons) {
+std::vector<Polygon> make_polygons_periodic(const std::vector<Polygon> &polygons) {
     if (polygons.empty()) {
         return polygons;
     }
@@ -39,20 +41,20 @@ std::vector<Polygon> make_polygons_periodic(const std::vector<Polygon>& polygons
     auto periodic_polygons = std::vector<Polygon>();
     periodic_polygons.reserve(num_periodic_vertices * polygons.size());
 
-    for (const auto& polygon : polygons) {
+    for (const auto &polygon : polygons) {
         std::vector<std::vector<Coordinate>> periodic_polygon_coordinates(num_periodic_vertices);
         for (size_t i = 0; i < num_periodic_vertices; ++i) {
             periodic_polygon_coordinates[i].reserve(polygon.get_vertices().size());
         }
 
-        for (const auto& vertex : polygon.get_vertices()) {
+        for (const auto &vertex : polygon.get_vertices()) {
             const auto periodic_vertex_coordinates = periodic_coordinates_from_coordinate(vertex);
             for (size_t i = 0; i < num_periodic_vertices; ++i) {
                 periodic_polygon_coordinates[i].push_back(periodic_vertex_coordinates[i]);
             }
         }
 
-        for (const auto& polygon_vertices : periodic_polygon_coordinates) {
+        for (const auto &polygon_vertices : periodic_polygon_coordinates) {
             periodic_polygons.emplace_back(polygon_vertices);
         }
     }

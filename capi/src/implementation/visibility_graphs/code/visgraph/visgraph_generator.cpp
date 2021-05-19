@@ -6,9 +6,9 @@
 #include <random>
 #include <stdexcept>
 
+#include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "visgraph_generator.hpp"
 #include "vistree_generator.hpp"
-#include "coordinate_periodicity/coordinate_periodicity.hpp"
 
 VisgraphGenerator::VisgraphGenerator() = default;
 

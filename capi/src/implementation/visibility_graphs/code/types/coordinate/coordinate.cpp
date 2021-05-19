@@ -131,9 +131,7 @@ std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {
     return lat_hash ^ (long_hash + 0x9e3779b9 + (lat_hash << 6) + (lat_hash >> 2));
 }
 
-long discretise_double(double val) {
-    return static_cast<long>(std::round(val / EPSILON_TOLERANCE));
-}
+long discretise_double(double val) { return static_cast<long>(std::round(val / EPSILON_TOLERANCE)); }
 
 std::ostream &operator<<(std::ostream &outs, const Coordinate &coord) {
     return outs << coord.to_string_representation();

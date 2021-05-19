@@ -19,8 +19,8 @@
 class VistreeGenerator {
   public:
     static std::vector<VisibleVertex> get_visible_vertices_from_root(const Coordinate &observer,
-                                                                  const std::vector<Polygon> &polygons,
-                                                                  bool half_scan = false);
+                                                                     const std::vector<Polygon> &polygons,
+                                                                     bool half_scan = false);
 
   private:
     using OpenEdges = std::multimap<double, const std::unique_ptr<LineSegment>>;

@@ -6,14 +6,14 @@
 #include <unordered_set>
 
 #include "constants/constants.hpp"
+#include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "geom/angle_sorter/angle_sorter.hpp"
 #include "types/polyline/three_vertex_polyline.hpp"
 #include "vistree_generator.hpp"
-#include "coordinate_periodicity/coordinate_periodicity.hpp"
 
 std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(const Coordinate &observer,
-                                                                         const std::vector<Polygon> &polygons,
-                                                                         bool half_scan) {
+                                                                            const std::vector<Polygon> &polygons,
+                                                                            bool half_scan) {
     const auto all_polygon_vertices_and_incident_segments =
         VistreeGenerator::all_vertices_and_incident_segments(polygons);
     if (all_polygon_vertices_and_incident_segments.empty()) {
@@ -59,11 +59,10 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(cons
         const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(
             open_edges, all_polygon_vertices_and_incident_segments, observer, current_vertex);
         if (curr_vertex_visible) {
-            visible_vertices.push_back(
-                VisibleVertex {
-                    .coord = coordinate_from_periodic_coordinate(current_vertex),
-                    .is_visible_across_meridian = is_coordinate_over_meridian(current_vertex),
-                });
+            visible_vertices.push_back(VisibleVertex{
+                .coord = coordinate_from_periodic_coordinate(current_vertex),
+                .is_visible_across_meridian = is_coordinate_over_meridian(current_vertex),
+            });
         }
 
         VistreeGenerator::add_segments_to_open_edges(counter_clockwise_segments, open_edges, observer, current_vertex);
