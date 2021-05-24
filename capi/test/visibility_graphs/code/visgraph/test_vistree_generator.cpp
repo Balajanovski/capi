@@ -301,3 +301,40 @@ TEST_CASE("Vistree Generator collinear above") {
 
     REQUIRE(visible_vertices == expected_vertices);
 }
+
+TEST_CASE("Vistree generator collinear 2") {
+    const auto poly1 = Polygon({
+        Coordinate(0, 1),
+        Coordinate(1, 0),
+        Coordinate(-1, -1),
+        Coordinate(0, 0),
+    });
+
+    const auto poly2 = Polygon({
+        Coordinate(-10, -0.01),
+        Coordinate(-20.1, -1),
+        Coordinate(-20, 0),
+        Coordinate(-20, -0.02),
+    });
+
+    const auto poly3 = Polygon({
+        Coordinate(-380, -0.38),
+        Coordinate(-390, -0.39),
+        Coordinate(-385, -5),
+    });
+
+    const auto root = Coordinate(0, 0);
+
+    auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{poly1, poly2, poly3});
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord=Coordinate(-20.1, -1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(-20, 0), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(-10, -0.01), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(-1, -1), .is_visible_across_meridian=false},
+        VisibleVertex{.coord=Coordinate(0, 1), .is_visible_across_meridian=false},
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}
