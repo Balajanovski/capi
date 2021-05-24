@@ -39,6 +39,7 @@ class PathInterpolator(IPathInterpolator):
 
     def _get_shortest_path(self, start: VisGraphCoord, end: VisGraphCoord) -> typing.Sequence[Coordinate]:
         path = self._graph.shortest_path(start, end)
+        n = self._graph.get_neighbors(path[1])
         return self._convert_visgraph_coords_list_to_coordinates(path)
 
     @staticmethod
