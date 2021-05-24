@@ -26,7 +26,8 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(cons
     AngleSorter::sort_counter_clockwise_around_observer(observer, vertices_sorted_clockwise_around_observer);
 
     auto open_edges = VistreeGenerator::OpenEdges();
-    const auto initial_scanline_segment = LineSegment(observer, Coordinate(MAX_PERIODIC_LONGITUDE, observer.get_latitude()));
+    const auto initial_scanline_segment =
+        LineSegment(observer, Coordinate(MAX_PERIODIC_LONGITUDE, observer.get_latitude()));
     const auto initial_scanline_vector = initial_scanline_segment.get_tangent_vector();
     auto line_segments = VistreeGenerator::all_line_segments(all_polygon_vertices_and_incident_segments);
     for (const auto &line_segment : line_segments) {

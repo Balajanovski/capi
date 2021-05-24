@@ -304,24 +304,24 @@ TEST_CASE("Vistree Generator collinear above") {
 
 TEST_CASE("Vistree generator collinear 2") {
     const auto poly1 = Polygon({
-                                   Coordinate(0, 1),
-                                   Coordinate(1, 0),
-                                   Coordinate(-1, -1),
-                                   Coordinate(0, 0),
-                               });
+        Coordinate(0, 1),
+        Coordinate(1, 0),
+        Coordinate(-1, -1),
+        Coordinate(0, 0),
+    });
 
     const auto poly2 = Polygon({
-                                   Coordinate(-10, -0.01),
-                                   Coordinate(-20.1, -1),
-                                   Coordinate(-20, 0),
-                                   Coordinate(-20, -0.02),
-                               });
+        Coordinate(-10, -0.01),
+        Coordinate(-20.1, -1),
+        Coordinate(-20, 0),
+        Coordinate(-20, -0.02),
+    });
 
     const auto poly3 = Polygon({
-                                   Coordinate(-380, -0.38),
-                                   Coordinate(-390, -0.39),
-                                   Coordinate(-385, -5),
-                               });
+        Coordinate(-380, -0.38),
+        Coordinate(-390, -0.39),
+        Coordinate(-385, -5),
+    });
 
     const auto root = Coordinate(0, 0);
 
@@ -339,7 +339,6 @@ TEST_CASE("Vistree generator collinear 2") {
 
     REQUIRE(visible_vertices == expected_vertices);
 }
-
 
 TEST_CASE("Vistree generator collinear 3") {
     const auto poly1 = Polygon({
@@ -392,21 +391,88 @@ TEST_CASE("Vistree generator enclosed periodic") {
     });
 
     const auto poly2 = Polygon({
-        Coordinate(363, -2),
-        Coordinate(364, -3),
-        Coordinate(363, -4),
-        Coordinate(362, -3),
+        Coordinate(3, -2),
+        Coordinate(4, -3),
+        Coordinate(3, -4),
+        Coordinate(2, -3),
     });
 
     const auto root = Coordinate(360, 1);
 
-    auto visible_vertices =
-        VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{poly1, poly2});
+    auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{poly1, poly2});
     auto expected_vertices = std::vector<VisibleVertex>{
         VisibleVertex{.coord = Coordinate(-1, 10), .is_visible_across_meridian = true},
         VisibleVertex{.coord = Coordinate(-1, 0), .is_visible_across_meridian = true},
         VisibleVertex{.coord = Coordinate(1, 0), .is_visible_across_meridian = true},
         VisibleVertex{.coord = Coordinate(1, 10), .is_visible_across_meridian = true},
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}
+
+TEST_CASE("Vistree generator enclosed periodic 2") {
+    const auto poly1 = Polygon({
+                                   Coordinate(1, 0),
+                                   Coordinate(1, 10),
+                                   Coordinate(2, 10),
+                                   Coordinate(2, -1),
+                                   Coordinate(-2, -1),
+                                   Coordinate(-2, 10),
+                                   Coordinate(-1, 10),
+                                   Coordinate(-1, 0),
+                               });
+
+    const auto poly2 = Polygon({
+                                   Coordinate(363, -2),
+                                   Coordinate(364, -3),
+                                   Coordinate(363, -4),
+                                   Coordinate(362, -3),
+                               });
+
+    const auto root = Coordinate(0, 1);
+
+    auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{poly1, poly2});
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord = Coordinate(-1, 10), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(-1, 0), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(1, 0), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(1, 10), .is_visible_across_meridian = false},
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}
+
+TEST_CASE("Vistree generator enclosed periodic 3") {
+    const auto poly1 = Polygon({
+                                   Coordinate(1, 0),
+                                   Coordinate(1, 10),
+                                   Coordinate(2, 10),
+                                   Coordinate(2, -1),
+                                   Coordinate(-2, -1),
+                                   Coordinate(-2, 10),
+                                   Coordinate(-1, 10),
+                                   Coordinate(-1, 0),
+                               });
+
+    const auto poly2 = Polygon({
+                                   Coordinate(-357, -2),
+                                   Coordinate(-356, -3),
+                                   Coordinate(-357, -4),
+                                   Coordinate(-358, -3),
+                               });
+
+    const auto root = Coordinate(0, 1);
+
+    auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{poly1, poly2});
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord = Coordinate(-1, 10), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(-1, 0), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(1, 0), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(1, 10), .is_visible_across_meridian = false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
