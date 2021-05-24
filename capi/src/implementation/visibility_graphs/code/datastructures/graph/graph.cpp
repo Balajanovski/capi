@@ -15,8 +15,6 @@
 #include "graph.hpp"
 #include "visgraph/vistree_generator.hpp"
 
-#define BITS_IN_A_BYTE 8u
-
 Graph::Graph() = default;
 
 Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {}
@@ -144,9 +142,8 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
         if (!is_meridian_spanning) {
             return (a - b).magnitude();
         } else {
-            const auto longitude_period = MAX_LONGITUDE - MIN_LONGITUDE;
-            const auto shifted_a_1 = Coordinate(a.get_longitude() + longitude_period, a.get_latitude());
-            const auto shifted_a_2 = Coordinate(a.get_longitude() - longitude_period, a.get_latitude());
+            const auto shifted_a_1 = Coordinate(a.get_longitude() + LONGITUDE_PERIOD, a.get_latitude());
+            const auto shifted_a_2 = Coordinate(a.get_longitude() - LONGITUDE_PERIOD, a.get_latitude());
             return std::min((shifted_a_1 - b).magnitude(), (shifted_a_2 - b).magnitude());
         }
     };
@@ -289,5 +286,3 @@ Graph merge_graphs(const std::vector<Graph> &graphs) {
 }
 
 std::ostream &operator<<(std::ostream &outs, const Graph &graph) { return outs << graph.to_string_representation(); }
-
-#undef BITS_IN_A_BYTE

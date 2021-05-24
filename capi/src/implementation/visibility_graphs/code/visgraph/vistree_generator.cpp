@@ -21,9 +21,9 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(cons
         return {};
     }
 
-    auto vertices_sorted_clockwise_around_observer =
+    auto vertices_sorted_counter_clockwise_around_observer =
         VistreeGenerator::all_vertices(all_polygon_vertices_and_incident_segments);
-    AngleSorter::sort_counter_clockwise_around_observer(observer, vertices_sorted_clockwise_around_observer);
+    AngleSorter::sort_counter_clockwise_around_observer(observer, vertices_sorted_counter_clockwise_around_observer);
 
     auto open_edges = VistreeGenerator::OpenEdges();
     const auto initial_scanline_segment =
@@ -46,7 +46,7 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(cons
     bool prev_visible = false;
     auto prev_vertex = std::optional<Coordinate>{};
     std::vector<VisibleVertex> visible_vertices;
-    for (const auto &current_vertex : vertices_sorted_clockwise_around_observer) {
+    for (const auto &current_vertex : vertices_sorted_counter_clockwise_around_observer) {
         if (current_vertex == observer) {
             continue;
         }

@@ -5,6 +5,7 @@
 #include <catch.hpp>
 #include <vector>
 
+#include "constants/constants.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
 #include "types/visible_vertex/visible_vertex.hpp"
@@ -105,7 +106,7 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
 
     const auto visgraph = VisgraphGenerator::generate(std::vector<Polygon>{polygon});
 
-    auto expectedVisGraph = Graph({polygon});
+    auto expected_vis_graph = Graph({polygon});
     add_edges(Coordinate(1.5, -2),
               {
                   VisibleVertex{.coord = Coordinate(-1, -1), .is_visible_across_meridian = false},
@@ -114,7 +115,7 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
                   VisibleVertex{.coord = Coordinate(-1.5, -2), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(1.5, 1), .is_visible_across_meridian = false},
               },
-              expectedVisGraph);
+              expected_vis_graph);
     add_edges(Coordinate(-1.5, -2),
               {
                   VisibleVertex{.coord = Coordinate(-1.5, 1), .is_visible_across_meridian = false},
@@ -123,7 +124,7 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
                   VisibleVertex{.coord = Coordinate(1.5, -2), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(1, -1), .is_visible_across_meridian = false},
               },
-              expectedVisGraph);
+              expected_vis_graph);
     add_edges(Coordinate(0, 0),
               {
                   VisibleVertex{.coord = Coordinate(1.5, -2), .is_visible_across_meridian = false},
@@ -131,7 +132,7 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
                   VisibleVertex{.coord = Coordinate(-1, -1), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(-1.5, -2), .is_visible_across_meridian = false},
               },
-              expectedVisGraph);
+              expected_vis_graph);
     add_edges(Coordinate(-1, -1),
               {
                   VisibleVertex{.coord = Coordinate(1.5, -2), .is_visible_across_meridian = false},
@@ -139,7 +140,7 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
                   VisibleVertex{.coord = Coordinate(1, -1), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(0, 0), .is_visible_across_meridian = false},
               },
-              expectedVisGraph);
+              expected_vis_graph);
     add_edges(Coordinate(1, -1),
               {
                   VisibleVertex{.coord = Coordinate(1.5, -2), .is_visible_across_meridian = false},
@@ -147,19 +148,61 @@ TEST_CASE("Visgraph Generator Surrounded Case") {
                   VisibleVertex{.coord = Coordinate(-1, -1), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(-1.5, -2), .is_visible_across_meridian = false},
               },
-              expectedVisGraph);
+              expected_vis_graph);
     add_edges(Coordinate(-1.5, 1),
               {
                   VisibleVertex{.coord = Coordinate(-1.5, -2), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(1.5, 1), .is_visible_across_meridian = false},
               },
-              expectedVisGraph);
+              expected_vis_graph);
     add_edges(Coordinate(1.5, 1),
               {
                   VisibleVertex{.coord = Coordinate(1.5, -2), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(-1.5, 1), .is_visible_across_meridian = false},
               },
-              expectedVisGraph);
+              expected_vis_graph);
+}
+
+TEST_CASE("Visgraph Generator Polygon along world boundary") {
+    const auto polygon = Polygon({
+        Coordinate(MAX_LONGITUDE, MAX_LATITUDE),
+        Coordinate(MAX_LONGITUDE, MIN_LATITUDE),
+        Coordinate(MIN_LONGITUDE, MIN_LATITUDE),
+        Coordinate(MIN_LONGITUDE, MAX_LATITUDE),
+    });
+
+    const auto visgraph = VisgraphGenerator::generate(std::vector<Polygon>{polygon});
+    auto expected_vis_graph = Graph({polygon});
+    add_edges(Coordinate(MAX_LONGITUDE, MIN_LATITUDE),
+              {
+                  VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = false},
+                  VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = true},
+                  VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = false},
+              },
+              expected_vis_graph);
+    add_edges(Coordinate(MIN_LONGITUDE, MAX_LATITUDE),
+              {
+                  VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = false},
+                  VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = false},
+                  VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = true},
+              },
+              expected_vis_graph);
+    add_edges(Coordinate(MAX_LONGITUDE, MAX_LATITUDE),
+              {
+                  VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = false},
+                  VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = true},
+                  VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = false},
+              },
+              expected_vis_graph);
+    add_edges(Coordinate(MIN_LONGITUDE, MIN_LATITUDE),
+              {
+                  VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = true},
+                  VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = false},
+                  VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = false},
+              },
+              expected_vis_graph);
+
+    REQUIRE(visgraph == expected_vis_graph);
 }
 
 void add_edges(const Coordinate &source, const std::vector<VisibleVertex> &neighbors, Graph &g) {

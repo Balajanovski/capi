@@ -8,26 +8,24 @@
 #include "coordinate_periodicity.hpp"
 
 std::vector<Coordinate> periodic_coordinates_from_coordinate(const Coordinate &coordinate) {
-    const auto longitude_period = MAX_LONGITUDE - MIN_LONGITUDE;
-
     return std::vector<Coordinate>{
         coordinate,
-        Coordinate(coordinate.get_longitude() - longitude_period, coordinate.get_latitude()),
-        Coordinate(coordinate.get_longitude() + longitude_period, coordinate.get_latitude()),
+        Coordinate(coordinate.get_longitude() - LONGITUDE_PERIOD, coordinate.get_latitude()),
+        Coordinate(coordinate.get_longitude() + LONGITUDE_PERIOD, coordinate.get_latitude()),
     };
 }
 
 bool is_coordinate_over_meridian(const Coordinate &coordinate) {
-    return (coordinate.get_longitude() < MIN_LONGITUDE) || (coordinate.get_longitude() > MAX_LONGITUDE);
+    return (coordinate.get_longitude() <= (MIN_LONGITUDE - EPSILON_TOLERANCE)) ||
+           (coordinate.get_longitude() >= (MAX_LONGITUDE + EPSILON_TOLERANCE));
 }
 
 Coordinate coordinate_from_periodic_coordinate(const Coordinate &periodic_coordinate) {
-    const auto longitude_period = MAX_LONGITUDE - MIN_LONGITUDE;
     auto adjusted_longitude = periodic_coordinate.get_longitude();
-    if (adjusted_longitude >= MAX_LONGITUDE)
-        adjusted_longitude -= longitude_period;
-    if (adjusted_longitude <= MIN_LONGITUDE)
-        adjusted_longitude += longitude_period;
+    if (adjusted_longitude >= MAX_LONGITUDE + EPSILON_TOLERANCE)
+        adjusted_longitude -= LONGITUDE_PERIOD;
+    if (adjusted_longitude <= MIN_LONGITUDE - EPSILON_TOLERANCE)
+        adjusted_longitude += LONGITUDE_PERIOD;
 
     return Coordinate(adjusted_longitude, periodic_coordinate.get_latitude());
 }

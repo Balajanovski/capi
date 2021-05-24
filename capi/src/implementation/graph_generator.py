@@ -24,9 +24,7 @@ class GraphGenerator(IGraphGenerator):
         os.mkdir(output_path)
         graph_file = GraphFilePaths(output_path)
 
-        curr_file_output_path = (
-            graph_file.default_graph_path
-        )
+        curr_file_output_path = graph_file.default_graph_path
 
         polygons = self._read_polygons_from_shapefile(shape_file_path)
 
@@ -40,9 +38,7 @@ class GraphGenerator(IGraphGenerator):
         os.mkdir(output_path)
         graph_file = GraphFilePaths(output_path)
 
-        curr_file_output_path = (
-            graph_file.default_graph_path
-        )
+        curr_file_output_path = graph_file.default_graph_path
 
         polygons = self._read_polygons_from_shapefile(shape_file_path)
         num_vertices = self._get_num_vertices_in_polygons(polygons)
@@ -55,17 +51,10 @@ class GraphGenerator(IGraphGenerator):
 
         save_graph_to_file(graph, curr_file_output_path)
 
-    def _read_polygons_from_shapefile(
-        self, shape_file_path: str
-    ) -> typing.Sequence[VisGraphPolygon]:
+    def _read_polygons_from_shapefile(self, shape_file_path: str) -> typing.Sequence[VisGraphPolygon]:
         read_polygons = self._shapefile_reader.read(shape_file_path)
         unadjusted_polygons = [
-            VisGraphPolygon(
-                [
-                    VisGraphCoord(vertex.longitude, vertex.latitude)
-                    for vertex in polygon.vertices
-                ]
-            )
+            VisGraphPolygon([VisGraphCoord(vertex.longitude, vertex.latitude) for vertex in polygon.vertices])
             for polygon in read_polygons
         ]
 
