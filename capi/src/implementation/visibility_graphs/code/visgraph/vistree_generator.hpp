@@ -33,12 +33,16 @@ class VistreeGenerator {
                                                          const LineSegment &scanline_segment,
                                                          const Orientation &desired_orientation);
 
-    static bool is_vertex_visible_collinear(const OpenEdges& open_edges, bool prev_visible, const std::optional<Coordinate>& prev_vertex, const Coordinate& current_vertex);
-    static bool is_vertex_visible_non_collinear(const OpenEdges &open_edges, const VertexToSegmentMapping &vertices_and_segments,
-                                  const Coordinate &observer_coordinate, const Coordinate &vertex_in_question);
+    static bool is_vertex_visible_collinear(const OpenEdges &open_edges, bool prev_visible,
+                                            const std::optional<Coordinate> &prev_vertex,
+                                            const Coordinate &current_vertex);
+    static bool is_vertex_visible_non_collinear(const OpenEdges &open_edges,
+                                                const VertexToSegmentMapping &vertices_and_segments,
+                                                const Coordinate &observer_coordinate,
+                                                const Coordinate &vertex_in_question);
     static bool is_vertex_visible(const OpenEdges &open_edges, const VertexToSegmentMapping &vertices_and_segments,
-                                                const Coordinate &observer_coordinate, const Coordinate &vertex_in_question,
-                                  const std::optional<Coordinate>& prev_vertex, bool prev_vertex_visible);
+                                  const Coordinate &observer_coordinate, const Coordinate &vertex_in_question,
+                                  const std::optional<Coordinate> &prev_vertex, bool prev_vertex_visible);
 
     static void erase_segments_from_open_edges(const std::vector<LineSegment> &segments, OpenEdges &open_edges);
     static void add_segments_to_open_edges(const std::vector<LineSegment> &segments, OpenEdges &open_edges,

@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.graph_generator import GraphGenerator
-from capi.src.implementation.visibility_graphs import load_graph_from_file
+from capi.src.implementation.visibility_graphs import load_graph_from_file, VisGraphCoord
 from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 

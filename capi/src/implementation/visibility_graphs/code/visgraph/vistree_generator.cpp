@@ -2,9 +2,9 @@
 // Created by James.Balajan on 6/04/2021.
 //
 
+#include <optional>
 #include <stdexcept>
 #include <unordered_set>
-#include <optional>
 
 #include "constants/constants.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
@@ -63,8 +63,9 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(cons
 
         VistreeGenerator::erase_segments_from_open_edges(clockwise_segments, open_edges);
 
-        const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(
-            open_edges, all_polygon_vertices_and_incident_segments, observer, current_vertex, prev_vertex, prev_visible);
+        const auto curr_vertex_visible =
+            VistreeGenerator::is_vertex_visible(open_edges, all_polygon_vertices_and_incident_segments, observer,
+                                                current_vertex, prev_vertex, prev_visible);
         if (curr_vertex_visible) {
             visible_vertices.push_back(VisibleVertex{
                 .coord = coordinate_from_periodic_coordinate(current_vertex),
@@ -161,8 +162,8 @@ bool VistreeGenerator::is_vertex_visible_collinear(const VistreeGenerator::OpenE
     }
 
     const auto prev_to_current_segment = LineSegment(prev_vertex.value(), current_vertex);
-    for (const auto& open_edge_and_distance : open_edges) {
-        const auto& open_edge = open_edge_and_distance.second;
+    for (const auto &open_edge_and_distance : open_edges) {
+        const auto &open_edge = open_edge_and_distance.second;
         if (open_edge->intersection_with_segment(prev_to_current_segment).has_value()) {
             return false;
         }
@@ -171,9 +172,10 @@ bool VistreeGenerator::is_vertex_visible_collinear(const VistreeGenerator::OpenE
     return true;
 }
 
-bool VistreeGenerator::is_vertex_visible_non_collinear(const VistreeGenerator::OpenEdges &open_edges,
-                                         const VistreeGenerator::VertexToSegmentMapping &vertices_and_segments,
-                                         const Coordinate &observer_coordinate, const Coordinate &vertex_in_question) {
+bool VistreeGenerator::is_vertex_visible_non_collinear(
+    const VistreeGenerator::OpenEdges &open_edges,
+    const VistreeGenerator::VertexToSegmentMapping &vertices_and_segments, const Coordinate &observer_coordinate,
+    const Coordinate &vertex_in_question) {
     if (vertex_in_question == observer_coordinate) {
         return false;
     }
@@ -220,14 +222,16 @@ bool VistreeGenerator::is_vertex_visible_non_collinear(const VistreeGenerator::O
 bool VistreeGenerator::is_vertex_visible(const VistreeGenerator::OpenEdges &open_edges,
                                          const VistreeGenerator::VertexToSegmentMapping &vertices_and_segments,
                                          const Coordinate &observer_coordinate, const Coordinate &vertex_in_question,
-                                         const std::optional<Coordinate> &prev_vertex,
-                                         bool prev_vertex_visible) {
+                                         const std::optional<Coordinate> &prev_vertex, bool prev_vertex_visible) {
     if (prev_vertex.has_value() &&
-        LineSegment(observer_coordinate, vertex_in_question).orientation_of_point_to_segment(prev_vertex.value()) == Orientation::COLLINEAR) {
-        return VistreeGenerator::is_vertex_visible_collinear(open_edges, prev_vertex_visible, prev_vertex, vertex_in_question);
+        LineSegment(observer_coordinate, vertex_in_question).orientation_of_point_to_segment(prev_vertex.value()) ==
+            Orientation::COLLINEAR) {
+        return VistreeGenerator::is_vertex_visible_collinear(open_edges, prev_vertex_visible, prev_vertex,
+                                                             vertex_in_question);
     }
 
-    return VistreeGenerator::is_vertex_visible_non_collinear(open_edges, vertices_and_segments, observer_coordinate, vertex_in_question);
+    return VistreeGenerator::is_vertex_visible_non_collinear(open_edges, vertices_and_segments, observer_coordinate,
+                                                             vertex_in_question);
 }
 
 void VistreeGenerator::erase_segments_from_open_edges(const std::vector<LineSegment> &segments,
@@ -252,4 +256,3 @@ void VistreeGenerator::add_segments_to_open_edges(const std::vector<LineSegment>
         open_edges.emplace(distance_squared, std::make_unique<LineSegment>(segment));
     }
 }
-

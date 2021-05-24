@@ -95,25 +95,21 @@ TEST_CASE("Graph shortest path") {
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
     REQUIRE(shortest_path_ab ==
-            std::vector<Coordinate>{
-                Coordinate(-2, 0),
-                Coordinate(-1, 0),
-                Coordinate(1, 0),
-                Coordinate(3, 1)});
+            std::vector<Coordinate>{Coordinate(-2, 0), Coordinate(-1, 0), Coordinate(1, 0), Coordinate(3, 1)});
 }
 
 TEST_CASE("Graph shortest path over meridian") {
     const auto poly1 = Polygon({
-                                   Coordinate(179, 0),
-                                   Coordinate(178, 1.5),
-                                   Coordinate(177, 0),
-                               });
+        Coordinate(179, 0),
+        Coordinate(178, 1.5),
+        Coordinate(177, 0),
+    });
 
     const auto poly2 = Polygon({
-                                   Coordinate(2, 0),
-                                   Coordinate(1, 1),
-                                   Coordinate(0, 0),
-                               });
+        Coordinate(2, 0),
+        Coordinate(1, 1),
+        Coordinate(0, 0),
+    });
 
     const auto graph = VisgraphGenerator::generate({poly1, poly2});
     const auto a = Coordinate(176, 0);
@@ -124,8 +120,7 @@ TEST_CASE("Graph shortest path over meridian") {
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab ==
-            std::vector<Coordinate>{Coordinate(176, 0), Coordinate(1, 1)});
+    REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176, 0), Coordinate(1, 1)});
 }
 
 TEST_CASE("Graph merge") {
