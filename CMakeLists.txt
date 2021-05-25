@@ -79,4 +79,6 @@ add_executable(${TEST_TARGET}
         ${MIO_SOURCE}
         ${FMT_SOURCE})
 
-target_link_libraries(${TEST_TARGET} PRIVATE OpenMP::OpenMP_CXX tbb)
+target_link_libraries(${TEST_TARGET} PRIVATE
+        OpenMP::OpenMP_CXX
+        tbb)

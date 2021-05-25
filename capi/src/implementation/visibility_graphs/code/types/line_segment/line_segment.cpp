@@ -72,10 +72,10 @@ Orientation LineSegment::orientation_of_point_to_segment(const Coordinate &point
                                  (point.get_latitude() - _endpoint_1.get_latitude()) -
                              (_endpoint_2.get_latitude() - _endpoint_1.get_latitude()) *
                                  (point.get_longitude() - _endpoint_1.get_longitude());
-    if (signed_area > 0) {
+    if (signed_area > EPSILON_TOLERANCE) {
         return Orientation::COUNTER_CLOCKWISE;
     }
-    if (signed_area < 0) {
+    if (signed_area < -EPSILON_TOLERANCE) {
         return Orientation::CLOCKWISE;
     }
     return Orientation::COLLINEAR;

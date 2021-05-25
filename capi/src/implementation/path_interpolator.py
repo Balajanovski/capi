@@ -20,7 +20,6 @@ class PathInterpolator(IPathInterpolator):
     ):
         graph_paths = GraphFilePaths(visibility_graph_file_path)
         self._graph = load_graph_from_file(graph_paths.default_graph_path)
-        self._meridian_crossing_graph = load_graph_from_file(graph_paths.meridian_graph_path)
 
         _intersection_prechecker_factory = (
             IntersectionPrecheckerFactory()
@@ -38,26 +37,10 @@ class PathInterpolator(IPathInterpolator):
 
         return self._get_shortest_path(point_1, point_2)
 
-    def _get_shortest_path(self, start: Coordinate, end: Coordinate) -> typing.Sequence[Coordinate]:
+    def _get_shortest_path(self, start: VisGraphCoord, end: VisGraphCoord) -> typing.Sequence[Coordinate]:
         path = self._graph.shortest_path(start, end)
-        meridian_path = self._meridian_crossing_graph.shortest_path(
-            VisGraphCoord(((start.longitude + 270) % 360) - 180, start.latitude),
-            VisGraphCoord(((end.longitude + 270) % 360) - 180, end.latitude),
-        )
-
-        if self._get_path_length(meridian_path) < self._get_path_length(path):
-            return [
-                Coordinate(longitude=((point.longitude + 90) % 360) - 180, latitude=point.latitude)
-                for point in meridian_path
-            ]
+        n = self._graph.get_neighbors(path[1])
         return self._convert_visgraph_coords_list_to_coordinates(path)
-
-    @staticmethod
-    def _get_path_length(path: typing.Sequence[VisGraphCoord]) -> float:
-        length = 0
-        for i in range(1, len(path)):
-            length += haversine((path[i - 1].latitude, path[i - 1].longitude), (path[i].latitude, path[i].longitude))
-        return length
 
     @staticmethod
     def _convert_visgraph_coords_list_to_coordinates(

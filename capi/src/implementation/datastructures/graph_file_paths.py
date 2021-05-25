@@ -12,9 +12,5 @@ class GraphFilePaths(IGraphFilePaths):
         return os.path.join(self._folder_path, "default")
 
     @property
-    def meridian_graph_path(self) -> str:
-        return os.path.join(self._folder_path, "meridian")
-
-    @property
     def folder_path(self) -> str:
         return self._folder_path

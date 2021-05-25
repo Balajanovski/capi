@@ -16,9 +16,9 @@ TEST_CASE("Graph serialize") {
 
     auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2}), Polygon({coord3, coord4})});
 
-    graph.add_edge(coord1, coord2);
-    graph.add_edge(coord1, coord3);
-    graph.add_edge(coord3, coord4);
+    graph.add_edge(coord1, coord2, false);
+    graph.add_edge(coord1, coord3, false);
+    graph.add_edge(coord3, coord4, true);
 
     char tmp_name[L_tmpnam];
     tmpnam(tmp_name);
@@ -78,9 +78,9 @@ TEST_CASE("Graph serialize 3") {
         coord8,
     })});
 
-    graph.add_edge(coord1, coord2);
-    graph.add_edge(coord1, coord3);
-    graph.add_edge(coord3, coord4);
+    graph.add_edge(coord1, coord2, false);
+    graph.add_edge(coord1, coord3, false);
+    graph.add_edge(coord3, coord4, true);
 
     char tmp_name[L_tmpnam];
     tmpnam(tmp_name);

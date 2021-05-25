@@ -10,10 +10,10 @@
 #include <unordered_set>
 #include <vector>
 
+#include "constants/constants.hpp"
+#include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "graph.hpp"
 #include "visgraph/vistree_generator.hpp"
-
-#define BITS_IN_A_BYTE 8u
 
 Graph::Graph() = default;
 
@@ -21,16 +21,21 @@ Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {}
 
 Graph::Graph(const Graph &other_graph) : _neighbors(other_graph._neighbors), _polygons(other_graph._polygons) {}
 
-void Graph::add_edge(const Coordinate &a, const Coordinate &b) {
-    add_directed_edge(a, b);
-    add_directed_edge(b, a);
+void Graph::add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) {
+    if (a == b) {
+        return;
+    }
+
+    add_directed_edge(a, b, meridian_crossing);
+    add_directed_edge(b, a, meridian_crossing);
 }
 
-void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b) {
+void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) {
     decltype(_neighbors)::accessor accessor;
 
     _neighbors.insert(accessor, a);
-    accessor->second.insert(b);
+    accessor->second[b] =
+        meridian_crossing && ((accessor->second.find(b) == accessor->second.end()) || (accessor->second[b]));
     accessor.release();
 }
 
@@ -46,14 +51,38 @@ bool Graph::has_edge(const Coordinate &a, const Coordinate &b) const {
     return has_edge_result;
 }
 
+bool Graph::is_edge_meridian_crossing(const Coordinate &a, const Coordinate &b) const {
+    decltype(_neighbors)::const_accessor accessor;
+
+    const auto found_a_in_neighbors = _neighbors.find(accessor, a);
+
+    const auto is_meridian_crossing =
+        (found_a_in_neighbors) && (accessor->second.find(b) != accessor->second.end()) && (accessor->second.at(b));
+
+    accessor.release();
+
+    return is_meridian_crossing;
+}
+
 std::string Graph::to_string_representation() const {
     auto outs = std::stringstream();
 
     outs << "Graph (\n";
     for (const auto &neighbors : _neighbors) {
         outs << fmt::format("\t[({}, {}) [", neighbors.first.get_longitude(), neighbors.first.get_latitude());
+
+        auto sorted_neighbors = std::vector<Coordinate>();
+        sorted_neighbors.reserve(neighbors.second.size());
         for (const auto &neighbor : neighbors.second) {
-            outs << fmt::format("({}, {}) ", neighbor.get_longitude(), neighbor.get_latitude());
+            sorted_neighbors.push_back(neighbor.first);
+        }
+        std::sort(sorted_neighbors.begin(), sorted_neighbors.end(), [](const Coordinate &lhs, const Coordinate &rhs) {
+            return std::hash<Coordinate>()(lhs) < std::hash<Coordinate>()(rhs);
+        });
+
+        for (const auto &neighbor : sorted_neighbors) {
+            outs << fmt::format("({}, {}, meridian_span: {}) ", neighbor.get_longitude(), neighbor.get_latitude(),
+                                is_edge_meridian_crossing(neighbors.first, neighbor));
         }
         outs << "]]\n";
     }
@@ -88,13 +117,14 @@ struct AStarHeapElement {
 
 std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coordinate &destination) const {
     auto modified_graph = Graph(*this);
+    const auto periodic_modified_graph_polygons = make_polygons_periodic(modified_graph._polygons);
 
     decltype(modified_graph._neighbors)::const_accessor accessor;
     const auto found_source = modified_graph._neighbors.find(accessor, source);
     if (!found_source) {
         for (const auto &visible_vertex :
-             VistreeGenerator::get_visible_vertices_from_root(source, modified_graph._polygons, false)) {
-            modified_graph.add_edge(source, visible_vertex);
+             VistreeGenerator::get_visible_vertices_from_root(source, periodic_modified_graph_polygons, false)) {
+            modified_graph.add_edge(source, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
     accessor.release();
@@ -102,13 +132,21 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
     const auto found_destination = modified_graph._neighbors.find(accessor, destination);
     if (!found_destination) {
         for (const auto &visible_vertex :
-             VistreeGenerator::get_visible_vertices_from_root(destination, modified_graph._polygons, false)) {
-            modified_graph.add_edge(destination, visible_vertex);
+             VistreeGenerator::get_visible_vertices_from_root(destination, periodic_modified_graph_polygons, false)) {
+            modified_graph.add_edge(destination, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
     accessor.release();
 
-    const auto distance_measurement = [](const Coordinate &a, const Coordinate &b) { return (a - b).magnitude(); };
+    const auto distance_measurement = [](const Coordinate &a, const Coordinate &b, bool is_meridian_spanning) {
+        if (!is_meridian_spanning) {
+            return (a - b).magnitude();
+        } else {
+            const auto shifted_a_1 = Coordinate(a.get_longitude() + LONGITUDE_PERIOD, a.get_latitude());
+            const auto shifted_a_2 = Coordinate(a.get_longitude() - LONGITUDE_PERIOD, a.get_latitude());
+            return std::min((shifted_a_1 - b).magnitude(), (shifted_a_2 - b).magnitude());
+        }
+    };
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
         return (a.distance_to_source + a.heuristic_distance_to_destination) >
@@ -119,7 +157,8 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
     pq.push(AStarHeapElement{
         .node = source,
         .distance_to_source = 0,
-        .heuristic_distance_to_destination = distance_measurement(source, destination),
+        .heuristic_distance_to_destination =
+            std::min(distance_measurement(source, destination, false), distance_measurement(source, destination, true)),
     });
 
     auto prev_coord = std::unordered_map<Coordinate, Coordinate>();
@@ -134,8 +173,12 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
 
         decltype(modified_graph._neighbors)::const_accessor neighbor_accessor;
         modified_graph._neighbors.find(neighbor_accessor, top.node);
-        for (const auto &neighbor : neighbor_accessor->second) {
-            const auto neighbor_dist_to_source = top.distance_to_source + distance_measurement(neighbor, top.node);
+        for (const auto &neighbor_is_meridian_spanning : neighbor_accessor->second) {
+            const auto neighbor = neighbor_is_meridian_spanning.first;
+            const auto meridian_spanning = neighbor_is_meridian_spanning.second;
+
+            const auto neighbor_dist_to_source =
+                top.distance_to_source + distance_measurement(neighbor, top.node, meridian_spanning);
 
             if (distances_to_source.find(neighbor) != distances_to_source.end() &&
                 distances_to_source.at(neighbor) <= neighbor_dist_to_source) {
@@ -145,7 +188,8 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
             const auto heap_elem = AStarHeapElement{
                 .node = neighbor,
                 .distance_to_source = neighbor_dist_to_source,
-                .heuristic_distance_to_destination = distance_measurement(neighbor, destination),
+                .heuristic_distance_to_destination = std::min(distance_measurement(neighbor, destination, false),
+                                                              distance_measurement(neighbor, destination, true)),
             };
             pq.push(heap_elem);
             prev_coord[neighbor] = top.node;
@@ -191,7 +235,10 @@ std::vector<Coordinate> Graph::get_neighbors(const Coordinate &vertex) const {
 
     auto neighbors = std::vector<Coordinate>();
     if (found_neighbors) {
-        neighbors = std::vector<Coordinate>(accessor->second.begin(), accessor->second.end());
+        neighbors.reserve(accessor->second.size());
+        for (const auto &neighbor : accessor->second) {
+            neighbors.push_back(neighbor.first);
+        }
     }
 
     accessor.release();
@@ -229,7 +276,7 @@ Graph merge_graphs(const std::vector<Graph> &graphs) {
         for (const auto &vert_1 : graph.get_vertices()) {
             for (const auto &vert_2 : graph.get_vertices()) {
                 if (graph.are_adjacent(vert_1, vert_2)) {
-                    merged_graph.add_edge(vert_1, vert_2);
+                    merged_graph.add_edge(vert_1, vert_2, graph.is_edge_meridian_crossing(vert_1, vert_2));
                 }
             }
         }
@@ -239,5 +286,3 @@ Graph merge_graphs(const std::vector<Graph> &graphs) {
 }
 
 std::ostream &operator<<(std::ostream &outs, const Graph &graph) { return outs << graph.to_string_representation(); }
-
-#undef BITS_IN_A_BYTE
