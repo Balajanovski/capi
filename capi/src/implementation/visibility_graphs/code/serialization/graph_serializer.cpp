@@ -132,7 +132,7 @@ size_t GraphSerializer::serialize_adjacency_matrix_to_mmap(mio::mmap_sink &mmap,
         }
     }
 
-    const auto adjacency_matrix_byte_offsets_back = adjacency_matrix_byte_offsets.back();
+    auto adjacency_matrix_byte_offsets_back = adjacency_matrix_byte_offsets.back();
     std::atomic<uint64_t> current_meridian_spanning_edge = 0;
     serialize_to_mmap(mmap, num_meridian_spanning_edges, adjacency_matrix_byte_offsets_back);
     for (size_t i = 0; i < num_vertices; ++i) {
