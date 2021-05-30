@@ -14,7 +14,6 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-          architecture: 'x86'
       - name: Install Gcc 9
         run: >-
           sudo apt install -yqq gcc-9 g++-9
