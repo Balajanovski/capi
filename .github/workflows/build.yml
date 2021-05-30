@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+  push:
 
 jobs:
   build:
@@ -54,5 +55,9 @@ jobs:
           .
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@master
+        on:
+          push:
+            branches:
+              - main
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
