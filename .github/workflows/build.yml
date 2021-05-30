@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.8'
       - name: Install Gcc 9
-        run: >-
+        run: |
           sudo apt install -yqq gcc-9 g++-9
           export CC=gcc-9
           export CXX=g++-9
@@ -24,13 +24,13 @@ jobs:
       - name: Install LibGeos
         run: sudo apt -yqq install libgeos-dev
       - name: Install Python Dependencies
-        run: >-
+        run: |
           python -m pip install --no-cache-dir cython wheel
           python -m pip install --no-cache-dir shapely==1.8a1 --no-binary shapely
           python -m pip install --no-cache-dir pygeos --no-binary pygeos
           python -m pip install --no-cache-dir -r requirements_test.txt
       - name: Build C++ backend library
-        run: >-
+        run: |
           cmake .
           make
           cp _vis_graph.*.so capi/src/implementation/visibility_graphs/
