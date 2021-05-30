@@ -50,6 +50,7 @@ jobs:
           build
           --user
       - name: Build a binary wheel and a source tarball
+        if: success() && github.ref == 'refs/heads/main'
         run: >-
           python -m
           build
@@ -59,9 +60,6 @@ jobs:
           .
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@master
-        on:
-          push:
-            branches:
-              - main
+        if: success() && github.ref == 'refs/heads/main'
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
