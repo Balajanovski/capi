@@ -1,0 +1,65 @@
+name: capi CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Update pip
+        run: python -m pip install --upgrade pip
+      - name: Install Gcc 9
+        run: |
+          sudo apt install -yqq gcc-9 g++-9
+          export CC=gcc-9
+          export CXX=g++-9
+      - name: Install TBB
+        run: sudo apt install -yqq libtbb-dev
+      - name: Install LibGeos
+        run: sudo apt -yqq install libgeos-dev
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --no-cache-dir cython wheel
+          python -m pip install --no-cache-dir shapely==1.8a1 --no-binary shapely
+          python -m pip install --no-cache-dir pygeos --no-binary pygeos
+          python -m pip install --no-cache-dir -r requirements_test.txt
+      - name: Build C++ backend library
+        run: |
+          cmake .
+          make
+          cp _vis_graph.*.so capi/src/implementation/visibility_graphs/
+      - name: Run C++ tests
+        run: ./capi_test
+      - name: Run Python tests
+        run: python run_tests.py
+      - name: Install pypa/build
+        run: >-
+          python -m
+          pip install
+          build
+          --user
+      - name: Build a binary wheel and a source tarball
+        if: success() && github.ref == 'refs/heads/main'
+        run: >-
+          python -m
+          build
+          --sdist
+          --wheel
+          --outdir dist/
+          .
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        if: success() && github.ref == 'refs/heads/main'
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
