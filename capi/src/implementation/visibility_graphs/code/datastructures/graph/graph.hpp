@@ -43,7 +43,7 @@ class Graph {
 
   private:
     // This method is not thread-safe
-    void add_vertex(const Coordinate& vertex);
+    void add_vertex(const Coordinate &vertex);
 
     Coordinate index_to_coordinate(unsigned int index) const;
     int coordinate_to_index(Coordinate coordinate) const;

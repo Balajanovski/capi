@@ -16,8 +16,7 @@ std::vector<Coordinate> periodic_coordinates_from_coordinate(const Coordinate &c
 }
 
 bool is_coordinate_over_meridian(const Coordinate &coordinate) {
-    return (coordinate.get_longitude() < MIN_LONGITUDE) ||
-           (coordinate.get_longitude() > MAX_LONGITUDE);
+    return (coordinate.get_longitude() < MIN_LONGITUDE) || (coordinate.get_longitude() > MAX_LONGITUDE);
 }
 
 Coordinate coordinate_from_periodic_coordinate(const Coordinate &periodic_coordinate) {

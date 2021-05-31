@@ -18,7 +18,7 @@
 
 Graph::Graph() = default;
 
-Graph::Graph(std::vector<Polygon> polygons): _polygons(std::move(polygons)) {
+Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {
     for (const auto &polygon : _polygons) {
         for (const auto &vertex : polygon.get_vertices()) {
             _index_to_coordinate_mapping.push_back(vertex);
@@ -47,7 +47,8 @@ void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool mer
 
     _neighbors.insert(accessor, coordinate_to_index(a));
     accessor->second[coordinate_to_index(b)] =
-        meridian_crossing && ((accessor->second.find(coordinate_to_index(b)) == accessor->second.end()) || (accessor->second[coordinate_to_index(b)]));
+        meridian_crossing && ((accessor->second.find(coordinate_to_index(b)) == accessor->second.end()) ||
+                              (accessor->second[coordinate_to_index(b)]));
 
     accessor.release();
 }
@@ -57,7 +58,8 @@ bool Graph::has_edge(const Coordinate &a, const Coordinate &b) const {
 
     const auto found_a_in_neighbors = _neighbors.find(accessor, coordinate_to_index(a));
 
-    const auto has_edge_result = (found_a_in_neighbors) && (accessor->second.find(coordinate_to_index(b)) != accessor->second.end());
+    const auto has_edge_result =
+        (found_a_in_neighbors) && (accessor->second.find(coordinate_to_index(b)) != accessor->second.end());
 
     accessor.release();
 
@@ -73,8 +75,9 @@ bool Graph::is_edge_meridian_crossing(const Coordinate &a, const Coordinate &b) 
 
     const auto found_a_in_neighbors = _neighbors.find(accessor, coordinate_to_index(a));
 
-    const auto is_meridian_crossing =
-        (found_a_in_neighbors) && (accessor->second.find(coordinate_to_index(b)) != accessor->second.end()) && (accessor->second.at(coordinate_to_index(b)));
+    const auto is_meridian_crossing = (found_a_in_neighbors) &&
+                                      (accessor->second.find(coordinate_to_index(b)) != accessor->second.end()) &&
+                                      (accessor->second.at(coordinate_to_index(b)));
 
     accessor.release();
 
@@ -85,7 +88,7 @@ std::string Graph::to_string_representation() const {
     auto outs = std::stringstream();
 
     const auto coord_sorter = [](const Coordinate &lhs, const Coordinate &rhs) {
-      return std::hash<Coordinate>()(lhs) < std::hash<Coordinate>()(rhs);
+        return std::hash<Coordinate>()(lhs) < std::hash<Coordinate>()(rhs);
     };
 
     auto first_neighbor_coords = std::vector<Coordinate>();
@@ -119,7 +122,7 @@ std::string Graph::to_string_representation() const {
 
 bool Graph::operator==(const Graph &other) const {
     if (std::unordered_set<Polygon>(_polygons.begin(), _polygons.end()) !=
-                std::unordered_set<Polygon>(other._polygons.begin(), other._polygons.end()) ||
+            std::unordered_set<Polygon>(other._polygons.begin(), other._polygons.end()) ||
         _neighbors.size() != other._neighbors.size()) {
         return false;
     }
@@ -132,10 +135,10 @@ bool Graph::operator==(const Graph &other) const {
             return false;
         }
 
-        for (const auto& neighbor : get_neighbors(current_vertex)) {
+        for (const auto &neighbor : get_neighbors(current_vertex)) {
             if (!other.has_edge(current_vertex, neighbor) ||
                 (is_edge_meridian_crossing(current_vertex, neighbor) !=
-                    other.is_edge_meridian_crossing(current_vertex, neighbor))) {
+                 other.is_edge_meridian_crossing(current_vertex, neighbor))) {
                 return false;
             }
         }
@@ -212,7 +215,7 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
             break;
         }
 
-        for (const auto &neighbor: modified_graph.get_neighbors(top.node)) {
+        for (const auto &neighbor : modified_graph.get_neighbors(top.node)) {
             const auto meridian_spanning = modified_graph.is_edge_meridian_crossing(top.node, neighbor);
 
             const auto neighbor_dist_to_source =
@@ -283,13 +286,9 @@ std::vector<Coordinate> Graph::get_neighbors(const Coordinate &vertex) const {
     return neighbors;
 }
 
-std::vector<Coordinate> Graph::get_vertices() const {
-    return _index_to_coordinate_mapping;
-}
+std::vector<Coordinate> Graph::get_vertices() const { return _index_to_coordinate_mapping; }
 
-std::vector<Polygon> Graph::get_polygons() const {
-    return _polygons;
-}
+std::vector<Polygon> Graph::get_polygons() const { return _polygons; }
 
 void Graph::add_vertex(const Coordinate &vertex) {
     _coordinate_to_index_mapping[vertex] = _index_to_coordinate_mapping.size();
@@ -300,9 +299,7 @@ inline int Graph::coordinate_to_index(Coordinate coordinate) const {
     return _coordinate_to_index_mapping.at(coordinate);
 }
 
-inline Coordinate Graph::index_to_coordinate(unsigned int index) const {
-    return _index_to_coordinate_mapping[index];
-}
+inline Coordinate Graph::index_to_coordinate(unsigned int index) const { return _index_to_coordinate_mapping[index]; }
 
 Graph merge_graphs(const std::vector<Graph> &graphs) {
     auto polygons = std::unordered_set<Polygon>();
@@ -330,4 +327,3 @@ Graph merge_graphs(const std::vector<Graph> &graphs) {
 }
 
 std::ostream &operator<<(std::ostream &outs, const Graph &graph) { return outs << graph.to_string_representation(); }
-
