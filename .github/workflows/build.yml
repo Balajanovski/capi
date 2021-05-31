@@ -24,6 +24,8 @@ jobs:
           sudo apt install -yqq gcc-9 g++-9
           export CC=gcc-9
           export CXX=g++-9
+      - name: Uninstall old Cmake
+        run: sudo apt remove cmake
       - name: Install TBB
         run: sudo apt install -yqq libtbb-dev
       - name: Install LibGeos
