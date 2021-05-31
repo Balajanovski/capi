@@ -1,5 +1,6 @@
 include requirements.txt
 include capi/py.typed
+include setup.py
 include README.md
 include CMakeLists.txt
 include pyproject.toml
