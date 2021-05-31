@@ -45,10 +45,13 @@ void Graph::add_edge(const Coordinate &a, const Coordinate &b, bool meridian_cro
 void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) {
     decltype(_neighbors)::accessor accessor;
 
-    _neighbors.insert(accessor, coordinate_to_index(a));
-    accessor->second[coordinate_to_index(b)] =
-        meridian_crossing && ((accessor->second.find(coordinate_to_index(b)) == accessor->second.end()) ||
-                              (accessor->second[coordinate_to_index(b)]));
+    const auto a_index = coordinate_to_index(a);
+    const auto b_index = coordinate_to_index(b);
+
+    _neighbors.insert(accessor, a_index);
+    accessor->second[b_index] =
+        meridian_crossing && ((accessor->second.find(b_index) == accessor->second.end()) ||
+                              (accessor->second[b_index]));
 
     accessor.release();
 }
@@ -296,7 +299,11 @@ void Graph::add_vertex(const Coordinate &vertex) {
 }
 
 inline int Graph::coordinate_to_index(Coordinate coordinate) const {
-    return _coordinate_to_index_mapping.at(coordinate);
+    try {
+        return _coordinate_to_index_mapping.at(coordinate);
+    } catch (const std::out_of_range& exception) {
+        throw std::runtime_error(fmt::format("Coordinate {} not in graph vertices, so an index cannot be fetched", coordinate.to_string_representation()));
+    }
 }
 
 inline Coordinate Graph::index_to_coordinate(unsigned int index) const { return _index_to_coordinate_mapping[index]; }
