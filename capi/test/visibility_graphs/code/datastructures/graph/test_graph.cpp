@@ -4,12 +4,8 @@
 
 #include <algorithm>
 #include <catch.hpp>
-#include <cstdio>
-#include <stdexcept>
 
 #include "datastructures/graph/graph.hpp"
-#include "types/coordinate/coordinate.hpp"
-#include "types/polygon/polygon.hpp"
 #include "visgraph/visgraph_generator.hpp"
 
 TEST_CASE("Graph Add Edge") {
@@ -18,7 +14,7 @@ TEST_CASE("Graph Add Edge") {
     const auto coord3 = Coordinate(1, 1);
     const auto coord4 = Coordinate(1, 5);
 
-    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3})});
+    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3, coord4})});
 
     graph.add_edge(coord1, coord2, true);
     graph.add_edge(coord1, coord2, true);

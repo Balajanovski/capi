@@ -24,6 +24,7 @@ class Graph {
 
     void add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
     void add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
+    [[nodiscard]] bool has_vertex(const Coordinate &vertex) const;
     [[nodiscard]] bool has_edge(const Coordinate &a, const Coordinate &b) const;
     [[nodiscard]] bool is_edge_meridian_crossing(const Coordinate &a, const Coordinate &b) const;
 
@@ -41,14 +42,16 @@ class Graph {
     [[nodiscard]] std::vector<Polygon> get_polygons() const;
 
   private:
-    struct CoordinateHashCompare {
-        static size_t hash(const Coordinate &c) { return std::hash<Coordinate>()(c); }
+    // This method is not thread-safe
+    void add_vertex(const Coordinate& vertex);
 
-        static bool equal(const Coordinate &lhs, const Coordinate &rhs) { return lhs == rhs; }
-    };
+    Coordinate index_to_coordinate(unsigned int index) const;
+    int coordinate_to_index(Coordinate coordinate) const;
 
-    tbb::concurrent_hash_map<Coordinate, std::unordered_map<Coordinate, bool>, CoordinateHashCompare> _neighbors;
     std::vector<Polygon> _polygons;
+    tbb::concurrent_hash_map<unsigned int, std::unordered_map<unsigned int, bool>> _neighbors;
+    std::unordered_map<Coordinate, unsigned int> _coordinate_to_index_mapping;
+    std::vector<Coordinate> _index_to_coordinate_mapping;
 };
 
 Graph merge_graphs(const std::vector<Graph> &graphs);

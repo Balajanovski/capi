@@ -32,26 +32,27 @@ float LUT[102] = {
 
 float fast_arctan(float x){
     /*
-    A fast look-up method with enough accuracy
-    */
-    if (x > 0) {
+  Linear interpolation is used for higher accuracy
+  */
+    if (x >= 0) {
         if (x <= 1) {
-            int index = static_cast<int>(std::roundf(x * 100));
-            return LUT[index];
+            int index = round(x * 100);
+            return (LUT[index] + (x * 100 - index) * (LUT[index + 1] - LUT[index]));
         } else {
             float re_x = 1 / x;
-            int index = static_cast<int>(std::roundf(re_x * 100));
-            return (static_cast<float>(M_PI_2) - LUT[index]);
+            int index = round(re_x * 100);
+            return (M_PI_2 - (LUT[index] + (re_x * 100 - index) * (LUT[index + 1] - LUT[index])));
+            // No recursive is better here
         }
     } else {
         if (x >= -1) {
             float abs_x = -x;
-            int index = static_cast<int>(std::roundf(abs_x * 100));
-            return -(LUT[index]);
+            int index = round(abs_x * 100);
+            return -(LUT[index] + (abs_x * 100 - index) * (LUT[index + 1] - LUT[index]));
         } else {
             float re_x = 1 / (-x);
-            int index = static_cast<int>(std::roundf(re_x * 100));
-            return (LUT[index] - static_cast<float>(M_PI_2));
+            int index = round(re_x * 100);
+            return (LUT[index] + (re_x * 100 - index) * (LUT[index+1] - LUT[index])) - M_PI_2;
         }
     }
 }

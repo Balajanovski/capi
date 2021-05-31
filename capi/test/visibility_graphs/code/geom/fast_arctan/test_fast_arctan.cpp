@@ -10,7 +10,7 @@
 TEST_CASE("Fast arctan approximates arc tan") {
     const auto num_subdivisions = 10000;
     const auto subdiv_angle = (2 * M_PI) / num_subdivisions;
-    const auto epsilon_tolerance = 0.01;
+    const auto epsilon_tolerance = 0.0001;
 
     for (int i = 0; i < num_subdivisions; ++i) {
         const auto angle = (subdiv_angle)*i;

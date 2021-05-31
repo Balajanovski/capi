@@ -83,7 +83,7 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
     polygon_byte_offsets[0] = offset;
     for (size_t i = 1; i <= num_polygons; ++i) {
         polygon_byte_offsets[i] = polygon_byte_offsets[i - 1] + sizeof(uint64_t) +
-                                  (polygons[i - 1].get_vertices().size() * sizeof(uint64_t) * 2);
+                                  (polygons[i - 1].get_vertices().size() * sizeof(float) * 2);
     }
 
     for (size_t i = 0; i < num_polygons; ++i) {
@@ -96,8 +96,8 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
                                 polygon_byte_offsets) default(none)
         for (size_t j = 0; j < num_polygon_vertices; ++j) {
             const auto longitude_offset =
-                polygon_byte_offsets[i] + sizeof(num_polygon_vertices) + (sizeof(uint64_t) * (2 * j));
-            const auto latitude_offset = longitude_offset + sizeof(uint64_t);
+                polygon_byte_offsets[i] + sizeof(num_polygon_vertices) + (sizeof(float) * (2 * j));
+            const auto latitude_offset = longitude_offset + sizeof(float);
             serialize_to_mmap(mmap, polygon_vertices[j].get_longitude(), longitude_offset);
             serialize_to_mmap(mmap, polygon_vertices[j].get_latitude(), latitude_offset);
         }
@@ -165,8 +165,8 @@ size_t GraphSerializer::deserialize_polygon_vertices_from_mmap(const mio::mmap_s
         auto vertices = std::vector<Coordinate>(num_vertices);
 #pragma omp parallel for shared(num_vertices, mmap, vertices, curr_offset, i) default(none)
         for (size_t j = 0; j < num_vertices; ++j) {
-            const auto longitude_offset = curr_offset + (j * 2 * sizeof(uint64_t));
-            const auto latitude_offset = longitude_offset + sizeof(uint64_t);
+            const auto longitude_offset = curr_offset + (j * 2 * sizeof(float));
+            const auto latitude_offset = longitude_offset + sizeof(float);
             const auto longitude = deserialize_float_from_mmap(mmap, longitude_offset);
             const auto latitude = deserialize_float_from_mmap(mmap, latitude_offset);
             vertices[j] = Coordinate(longitude, latitude);
@@ -277,7 +277,7 @@ inline void serialize_to_mmap(mio::mmap_sink &mmap, uint8_t val, size_t offset) 
 
 inline uint64_t deserialize_8_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset) {
     uint64_t val = 0x0;
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < sizeof(val); ++i) {
         const auto curr_byte = deserialize_byte_from_mmap(mmap, offset + i);
         val |= (static_cast<uint64_t>(curr_byte) << (i * BITS_IN_A_BYTE));
     }
@@ -286,7 +286,7 @@ inline uint64_t deserialize_8_bytes_from_mmap(const mio::mmap_source &mmap, size
 
 inline uint32_t deserialize_4_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset) {
     uint32_t val = 0x0;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < sizeof(val); ++i) {
         const auto curr_byte = deserialize_byte_from_mmap(mmap, offset + i);
         val |= (static_cast<uint32_t>(curr_byte) << (i * BITS_IN_A_BYTE));
     }

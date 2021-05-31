@@ -52,6 +52,7 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def(py::init<const std::vector<Polygon> &>())
         .def("__repr__", &Graph::to_string_representation)
         .def("has_edge", &Graph::has_edge)
+        .def("has_vertex", &Graph::has_vertex)
         .def("add_edge", &Graph::add_edge)
         .def(py::self == py::self)
         .def(py::self != py::self)
