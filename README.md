@@ -1,6 +1,6 @@
 # Coast Aware Path Interpolator (CAPI)
 
-![](https://github.com/Balajanovski/capi/actions/workflows/build/badge.svg)
+![](https://github.com/Balajanovski/capi/actions/workflows/build.yml/badge.svg)
 
 ## What is CAPI?
 
