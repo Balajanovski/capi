@@ -141,7 +141,7 @@ TEST_CASE("Coordinate angle to horizontal") {
 
 TEST_CASE("Coordinate hash") {
     const auto coord1 = Coordinate(1, 2);
-    const auto coord2 = Coordinate(1.00001, 2.00001);
+    const auto coord2 = Coordinate(1.01, 2.01);
     const auto coord3 = Coordinate(1, 2);
 
     REQUIRE(std::hash<Coordinate>()(coord1) == std::hash<Coordinate>()(coord3));

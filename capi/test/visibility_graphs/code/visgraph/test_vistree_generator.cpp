@@ -12,11 +12,15 @@
 #include "visgraph/vistree_generator.hpp"
 
 const auto coord_sorter = [](const VisibleVertex &lhs, const VisibleVertex &rhs) {
-    if (lhs.coord.get_longitude() != rhs.coord.get_longitude()) {
+    if (std::abs(lhs.coord.get_longitude() - rhs.coord.get_longitude()) > EPSILON_TOLERANCE) {
         return lhs.coord.get_longitude() < rhs.coord.get_longitude();
     }
 
-    return lhs.coord.get_latitude() < rhs.coord.get_longitude();
+    if (std::abs(lhs.coord.get_latitude() - rhs.coord.get_latitude()) > EPSILON_TOLERANCE) {
+        return lhs.coord.get_latitude() < rhs.coord.get_latitude();
+    }
+
+    return !lhs.is_visible_across_meridian;
 };
 
 TEST_CASE("Vistree Generator get visible vertices from root") {
@@ -562,6 +566,43 @@ TEST_CASE("Vistree generator enclosed periodic 3") {
         VisibleVertex{.coord = Coordinate(-1, 0), .is_visible_across_meridian = false},
         VisibleVertex{.coord = Coordinate(1, 0), .is_visible_across_meridian = false},
         VisibleVertex{.coord = Coordinate(1, 10), .is_visible_across_meridian = false},
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}
+
+TEST_CASE("Vistree generator boundaries") {
+    const auto polygon_1 = Polygon({
+         Coordinate(MAX_LONGITUDE, MAX_LATITUDE),
+         Coordinate(MAX_LONGITUDE, MIN_LATITUDE),
+         Coordinate(MIN_LONGITUDE, MIN_LATITUDE),
+         Coordinate(MIN_LONGITUDE, MAX_LATITUDE),
+     });
+    const auto polygon_2 = Polygon({
+       Coordinate(MAX_LONGITUDE + LONGITUDE_PERIOD, MAX_LATITUDE),
+       Coordinate(MAX_LONGITUDE + LONGITUDE_PERIOD, MIN_LATITUDE),
+       Coordinate(MIN_LONGITUDE + LONGITUDE_PERIOD, MIN_LATITUDE),
+       Coordinate(MIN_LONGITUDE + LONGITUDE_PERIOD, MAX_LATITUDE),
+    });
+    const auto polygon_3 = Polygon({
+                                       Coordinate(MAX_LONGITUDE - LONGITUDE_PERIOD, MAX_LATITUDE),
+                                       Coordinate(MAX_LONGITUDE - LONGITUDE_PERIOD, MIN_LATITUDE),
+                                       Coordinate(MIN_LONGITUDE - LONGITUDE_PERIOD, MIN_LATITUDE),
+                                       Coordinate(MIN_LONGITUDE - LONGITUDE_PERIOD, MAX_LATITUDE),
+                                   });
+
+    const auto root = Coordinate(MIN_LONGITUDE, MAX_LATITUDE);
+
+    auto visible_vertices = VistreeGenerator::get_visible_vertices_from_root(root, std::vector<Polygon>{polygon_1, polygon_2, polygon_3});
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord = root, .is_visible_across_meridian = true},
+        VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian=false},
+        VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian=true},
+        VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian=true},
+        VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian=true},
+        VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian=false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);

@@ -16,16 +16,18 @@ std::vector<Coordinate> periodic_coordinates_from_coordinate(const Coordinate &c
 }
 
 bool is_coordinate_over_meridian(const Coordinate &coordinate) {
-    return (coordinate.get_longitude() <= (MIN_LONGITUDE - EPSILON_TOLERANCE)) ||
-           (coordinate.get_longitude() >= (MAX_LONGITUDE + EPSILON_TOLERANCE));
+    return (coordinate.get_longitude() < MIN_LONGITUDE) ||
+           (coordinate.get_longitude() > MAX_LONGITUDE);
 }
 
 Coordinate coordinate_from_periodic_coordinate(const Coordinate &periodic_coordinate) {
     auto adjusted_longitude = periodic_coordinate.get_longitude();
-    if (adjusted_longitude >= MAX_LONGITUDE + EPSILON_TOLERANCE)
+    if (adjusted_longitude > MAX_LONGITUDE) {
         adjusted_longitude -= LONGITUDE_PERIOD;
-    if (adjusted_longitude <= MIN_LONGITUDE - EPSILON_TOLERANCE)
+    }
+    if (adjusted_longitude < MIN_LONGITUDE) {
         adjusted_longitude += LONGITUDE_PERIOD;
+    }
 
     return Coordinate(adjusted_longitude, periodic_coordinate.get_latitude());
 }

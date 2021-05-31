@@ -12,18 +12,18 @@
 
 const std::regex Coordinate::coordinate_regex = std::regex("^\\((-?[0-9]+(?:\\.[0-9]+)?),(-?[0-9]+(?:\\.[0-9]+)?)\\)$");
 
-long discretise_double(double val);
+long discretise_float(float val);
 
 Coordinate::Coordinate() : _longitude(0.0), _latitude(0.0) {}
 
-Coordinate::Coordinate(double longitude, double latitude) {
+Coordinate::Coordinate(float longitude, float latitude) {
     _longitude = longitude;
     _latitude = latitude;
 }
 
-double Coordinate::get_latitude() const { return _latitude; }
+float Coordinate::get_latitude() const { return _latitude; }
 
-double Coordinate::get_longitude() const { return _longitude; }
+float Coordinate::get_longitude() const { return _longitude; }
 
 bool Coordinate::operator==(const Coordinate &other) const {
     return (other - (*this)).magnitude_squared() <= EPSILON_TOLERANCE_SQUARED;
@@ -39,21 +39,21 @@ Coordinate Coordinate::operator-() const { return {-_longitude, -_latitude}; }
 
 Coordinate Coordinate::operator-(const Coordinate &other) const { return (*this) + (-other); }
 
-Coordinate Coordinate::operator*(double scalar) const { return {_longitude * scalar, _latitude * scalar}; }
+Coordinate Coordinate::operator*(float scalar) const { return {_longitude * scalar, _latitude * scalar}; }
 
-Coordinate Coordinate::operator/(double scalar) const { return (*this) * (1 / scalar); }
+Coordinate Coordinate::operator/(float scalar) const { return (*this) * (1 / scalar); }
 
-double Coordinate::dot_product(const Coordinate &other) const {
+float Coordinate::dot_product(const Coordinate &other) const {
     return _longitude * other._longitude + _latitude * other._latitude;
 }
 
-double Coordinate::cross_product_magnitude(const Coordinate &other) const {
+float Coordinate::cross_product_magnitude(const Coordinate &other) const {
     return (_longitude * other._latitude) - (other._longitude * _latitude);
 }
 
-double Coordinate::magnitude_squared() const { return (_longitude * _longitude) + (_latitude * _latitude); }
+float Coordinate::magnitude_squared() const { return (_longitude * _longitude) + (_latitude * _latitude); }
 
-double Coordinate::magnitude() const { return std::sqrt(magnitude_squared()); }
+float Coordinate::magnitude() const { return std::sqrt(magnitude_squared()); }
 
 Orientation Coordinate::vector_orientation(const Coordinate &v2) const {
     const auto cross_prod = this->cross_product_magnitude(v2);
@@ -71,7 +71,7 @@ bool Coordinate::parallel(const Coordinate &other) const {
     return this->vector_orientation(other) == Orientation::COLLINEAR;
 }
 
-std::optional<double> Coordinate::scalar_multiple_factor(const Coordinate &other) const {
+std::optional<float> Coordinate::scalar_multiple_factor(const Coordinate &other) const {
     if (!this->parallel(other)) {
         return {};
     }
@@ -85,7 +85,7 @@ std::optional<double> Coordinate::scalar_multiple_factor(const Coordinate &other
     }
 }
 
-double Coordinate::angle_to_horizontal() const {
+float Coordinate::angle_to_horizontal() const {
     if (_longitude == 0) {
         if (_latitude < 0) {
             return M_PI_2 * 3;
@@ -126,12 +126,12 @@ std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {
     const auto longitude = coord.get_longitude();
     const auto latitude = coord.get_latitude();
 
-    const std::size_t long_hash = hash<long>()(discretise_double(longitude));
-    const std::size_t lat_hash = hash<long>()(discretise_double(latitude));
+    const std::size_t long_hash = hash<long>()(discretise_float(longitude));
+    const std::size_t lat_hash = hash<long>()(discretise_float(latitude));
     return lat_hash ^ (long_hash + 0x9e3779b9 + (lat_hash << 6) + (lat_hash >> 2));
 }
 
-long discretise_double(double val) { return static_cast<long>(std::round(val / EPSILON_TOLERANCE)); }
+long discretise_float(float val) { return static_cast<long>(std::round(val / EPSILON_TOLERANCE)); }
 
 std::ostream &operator<<(std::ostream &outs, const Coordinate &coord) {
     return outs << coord.to_string_representation();

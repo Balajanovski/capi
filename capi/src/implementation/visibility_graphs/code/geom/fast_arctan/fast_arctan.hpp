@@ -5,6 +5,6 @@
 #ifndef CAPI_FAST_ARCTAN_HPP
 #define CAPI_FAST_ARCTAN_HPP
 
-double fast_arctan(double x);
+float fast_arctan(float x);
 
 #endif // CAPI_FAST_ARCTAN_HPP

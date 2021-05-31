@@ -17,11 +17,13 @@
 #define CEIL_DIV(x, y) (((x) / (y)) + ((x) % (y) != 0))
 
 void serialize_to_mmap(mio::mmap_sink &mmap, uint64_t val, size_t offset);
-void serialize_to_mmap(mio::mmap_sink &mmap, double val, size_t offset);
+void serialize_to_mmap(mio::mmap_sink &mmap, uint32_t val, size_t offset);
+void serialize_to_mmap(mio::mmap_sink &mmap, float val, size_t offset);
 void serialize_to_mmap(mio::mmap_sink &mmap, uint8_t val, size_t offset);
 
 uint64_t deserialize_8_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset);
-double deserialize_double_from_mmap(const mio::mmap_source &mmap, size_t offset);
+uint32_t deserialize_4_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset);
+float deserialize_float_from_mmap(const mio::mmap_source &mmap, size_t offset);
 uint8_t deserialize_byte_from_mmap(const mio::mmap_source &mmap, size_t offset);
 
 void allocate_file(const std::string &path, size_t num_bytes);
@@ -165,12 +167,12 @@ size_t GraphSerializer::deserialize_polygon_vertices_from_mmap(const mio::mmap_s
         for (size_t j = 0; j < num_vertices; ++j) {
             const auto longitude_offset = curr_offset + (j * 2 * sizeof(uint64_t));
             const auto latitude_offset = longitude_offset + sizeof(uint64_t);
-            const auto longitude = deserialize_double_from_mmap(mmap, longitude_offset);
-            const auto latitude = deserialize_double_from_mmap(mmap, latitude_offset);
+            const auto longitude = deserialize_float_from_mmap(mmap, longitude_offset);
+            const auto latitude = deserialize_float_from_mmap(mmap, latitude_offset);
             vertices[j] = Coordinate(longitude, latitude);
         }
 
-        curr_offset += (num_vertices * 2 * sizeof(double));
+        curr_offset += (num_vertices * 2 * sizeof(float));
 
         polygons[i] = Polygon(vertices);
     }
@@ -258,8 +260,15 @@ inline void serialize_to_mmap(mio::mmap_sink &mmap, uint64_t val, size_t offset)
     }
 }
 
-inline void serialize_to_mmap(mio::mmap_sink &mmap, double val, size_t offset) {
-    uint64_t val_bytes = 0x0;
+inline void serialize_to_mmap(mio::mmap_sink &mmap, uint32_t val, size_t offset) {
+    for (size_t byte_num = 0; byte_num < sizeof(val); ++byte_num) {
+        uint8_t byte = (val >> (byte_num * BITS_IN_A_BYTE)) & 0xFFu;
+        serialize_to_mmap(mmap, byte, offset + byte_num);
+    }
+}
+
+inline void serialize_to_mmap(mio::mmap_sink &mmap, float val, size_t offset) {
+    uint32_t val_bytes = 0x0;
     std::memcpy(&val_bytes, &val, sizeof(val_bytes));
     serialize_to_mmap(mmap, val_bytes, offset);
 }
@@ -275,10 +284,19 @@ inline uint64_t deserialize_8_bytes_from_mmap(const mio::mmap_source &mmap, size
     return val;
 }
 
-inline double deserialize_double_from_mmap(const mio::mmap_source &mmap, size_t offset) {
-    uint64_t bytes_val = deserialize_8_bytes_from_mmap(mmap, offset);
+inline uint32_t deserialize_4_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset) {
+    uint32_t val = 0x0;
+    for (int i = 0; i < 4; ++i) {
+        const auto curr_byte = deserialize_byte_from_mmap(mmap, offset + i);
+        val |= (static_cast<uint32_t>(curr_byte) << (i * BITS_IN_A_BYTE));
+    }
+    return val;
+}
 
-    double val;
+inline float deserialize_float_from_mmap(const mio::mmap_source &mmap, size_t offset) {
+    uint64_t bytes_val = deserialize_4_bytes_from_mmap(mmap, offset);
+
+    float val;
     std::memcpy(&val, &bytes_val, sizeof(val));
 
     return val;

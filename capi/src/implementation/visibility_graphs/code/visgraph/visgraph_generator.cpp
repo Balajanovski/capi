@@ -20,7 +20,7 @@ Graph VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
 #pragma omp parallel for shared(visgraph, periodic_polygons, polygon_vertices) default(none)
     for (size_t i = 0; i < polygon_vertices.size(); ++i) { // NOLINT
         const auto visible_vertices =
-            VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], periodic_polygons, true);
+            VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], periodic_polygons, false);
 
         for (const auto &visible_vertex : visible_vertices) {
             visgraph.add_edge(polygon_vertices[i], visible_vertex.coord, visible_vertex.is_visible_across_meridian);

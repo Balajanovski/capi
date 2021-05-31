@@ -31,7 +31,7 @@ Polygon::normalize_vertex_orientation_to_counter_clockwise(const std::vector<Coo
         return vertices;
     }
 
-    double winding_sum = 0;
+    float winding_sum = 0;
     long num_vertices = vertices.size();
 #pragma omp simd reduction(+ : winding_sum)
     for (long i = 0; i < num_vertices; ++i) {

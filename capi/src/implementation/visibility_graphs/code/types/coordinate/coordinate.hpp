@@ -15,13 +15,13 @@
 class Coordinate {
   public:
     Coordinate();
-    Coordinate(double longitude, double latitude);
+    Coordinate(float longitude, float latitude);
 
     static Coordinate parse_from_string(const std::string &str);
 
     // Getters
-    [[nodiscard]] double get_latitude() const;
-    [[nodiscard]] double get_longitude() const;
+    [[nodiscard]] float get_latitude() const;
+    [[nodiscard]] float get_longitude() const;
 
     // Comparison operations
     bool operator==(const Coordinate &other) const;
@@ -31,23 +31,23 @@ class Coordinate {
     Coordinate operator-() const;
     Coordinate operator-(const Coordinate &other) const;
     Coordinate operator+(const Coordinate &other) const;
-    Coordinate operator*(double scalar) const;
-    Coordinate operator/(double scalar) const;
-    [[nodiscard]] double dot_product(const Coordinate &other) const;
-    [[nodiscard]] double cross_product_magnitude(const Coordinate &other) const;
-    [[nodiscard]] double magnitude_squared() const;
-    [[nodiscard]] double magnitude() const;
+    Coordinate operator*(float scalar) const;
+    Coordinate operator/(float scalar) const;
+    [[nodiscard]] float dot_product(const Coordinate &other) const;
+    [[nodiscard]] float cross_product_magnitude(const Coordinate &other) const;
+    [[nodiscard]] float magnitude_squared() const;
+    [[nodiscard]] float magnitude() const;
     [[nodiscard]] Orientation vector_orientation(const Coordinate &v2) const;
     [[nodiscard]] bool parallel(const Coordinate &other) const;
-    [[nodiscard]] std::optional<double> scalar_multiple_factor(const Coordinate &other) const;
-    [[nodiscard]] double angle_to_horizontal() const;
+    [[nodiscard]] std::optional<float> scalar_multiple_factor(const Coordinate &other) const;
+    [[nodiscard]] float angle_to_horizontal() const;
     [[nodiscard]] std::string to_string_representation() const;
 
   private:
     static const std::regex coordinate_regex;
 
-    double _longitude;
-    double _latitude;
+    float _longitude;
+    float _latitude;
 };
 
 namespace std {
