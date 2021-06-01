@@ -1,7 +1,4 @@
-import os
 import typing
-
-from haversine import haversine  # type: ignore
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate

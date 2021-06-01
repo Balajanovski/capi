@@ -13,9 +13,11 @@
 
 Coordinate::Coordinate() : _longitude(0), _latitude(0) {}
 
-Coordinate::Coordinate(double longitude, double latitude) : _longitude(DEGREES_TO_MICRODEGREES(longitude)), _latitude(DEGREES_TO_MICRODEGREES(latitude)) { }
+Coordinate::Coordinate(double longitude, double latitude)
+    : _longitude(DEGREES_TO_MICRODEGREES(longitude)), _latitude(DEGREES_TO_MICRODEGREES(latitude)) {}
 
-Coordinate::Coordinate(int32_t longitude_microdegrees, int32_t latitude_microdegrees): _longitude(longitude_microdegrees), _latitude(latitude_microdegrees) { }
+Coordinate::Coordinate(int32_t longitude_microdegrees, int32_t latitude_microdegrees)
+    : _longitude(longitude_microdegrees), _latitude(latitude_microdegrees) {}
 
 double Coordinate::get_latitude() const { return MICRODEGREES_TO_DEGREES(_latitude); }
 
@@ -40,10 +42,8 @@ Coordinate Coordinate::operator-() const { return {-_longitude, -_latitude}; }
 Coordinate Coordinate::operator-(const Coordinate &other) const { return (*this) + (-other); }
 
 Coordinate Coordinate::operator*(double scalar) const {
-    return {
-        static_cast<int32_t>(std::round(_longitude * scalar)),
-        static_cast<int32_t>(std::round(_latitude * scalar))
-    };
+    return {static_cast<int32_t>(std::round(_longitude * scalar)),
+            static_cast<int32_t>(std::round(_latitude * scalar))};
 }
 
 Coordinate Coordinate::operator/(double scalar) const { return (*this) * (1 / scalar); }
@@ -77,7 +77,7 @@ double Coordinate::magnitude() const { return std::sqrt(magnitude_squared()); }
 
 Orientation Coordinate::vector_orientation(const Coordinate &v2) const {
     const auto cross_prod = ((static_cast<int64_t>(_longitude) * static_cast<int64_t>(v2._latitude)) -
-                            (static_cast<int64_t>(v2._longitude) * static_cast<int64_t>(_latitude)));
+                             (static_cast<int64_t>(v2._longitude) * static_cast<int64_t>(_latitude)));
 
     if (cross_prod < 0) {
         return Orientation::CLOCKWISE;
@@ -111,12 +111,15 @@ double Coordinate::angle_to_horizontal() const {
     const auto latitude = get_latitude_microdegrees();
 
     auto arctan = std::atan2(latitude, longitude);
-    if (arctan < 0) arctan += (2 * M_PI);
+    if (arctan < 0)
+        arctan += (2 * M_PI);
 
     return arctan;
 }
 
-std::string Coordinate::to_string_representation() const { return fmt::format("({},{})", get_longitude(), get_latitude()); }
+std::string Coordinate::to_string_representation() const {
+    return fmt::format("({},{})", get_longitude(), get_latitude());
+}
 
 std::size_t std::hash<Coordinate>::operator()(const Coordinate &coord) const {
     const auto longitude = coord.get_longitude_microdegrees();

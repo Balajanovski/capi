@@ -29,8 +29,10 @@ TEST_CASE("Line Segment Intersection with segment") {
             line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(1., 2.))).value());
     REQUIRE(Coordinate(2.0, 1.0) ==
             line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(2., 1.))).value());
-    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(0., 0.))).has_value());
-    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(0., 2.))).has_value());
+    REQUIRE_FALSE(
+        line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(0., 0.))).has_value());
+    REQUIRE_FALSE(
+        line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(0., 2.))).has_value());
     REQUIRE_FALSE(
         line_segment.intersection_with_segment(LineSegment(Coordinate(1.5, 1.5), Coordinate(2.5, 0.5))).has_value());
     REQUIRE_FALSE(

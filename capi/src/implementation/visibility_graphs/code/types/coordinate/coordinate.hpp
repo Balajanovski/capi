@@ -44,7 +44,6 @@ class Coordinate {
     [[nodiscard]] std::string to_string_representation() const;
 
   private:
-
     // Coordinates are stored in microdegrees
     int32_t _longitude;
     int32_t _latitude;

@@ -49,9 +49,8 @@ void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool mer
     const auto b_index = coordinate_to_index(b);
 
     _neighbors.insert(accessor, a_index);
-    accessor->second[b_index] =
-        meridian_crossing && ((accessor->second.find(b_index) == accessor->second.end()) ||
-                              (accessor->second[b_index]));
+    accessor->second[b_index] = meridian_crossing && ((accessor->second.find(b_index) == accessor->second.end()) ||
+                                                      (accessor->second[b_index]));
 
     accessor.release();
 }
@@ -301,8 +300,9 @@ void Graph::add_vertex(const Coordinate &vertex) {
 inline int Graph::coordinate_to_index(Coordinate coordinate) const {
     try {
         return _coordinate_to_index_mapping.at(coordinate);
-    } catch (const std::out_of_range& exception) {
-        throw std::runtime_error(fmt::format("Coordinate {} not in graph vertices, so an index cannot be fetched", coordinate.to_string_representation()));
+    } catch (const std::out_of_range &exception) {
+        throw std::runtime_error(fmt::format("Coordinate {} not in graph vertices, so an index cannot be fetched",
+                                             coordinate.to_string_representation()));
     }
 }
 

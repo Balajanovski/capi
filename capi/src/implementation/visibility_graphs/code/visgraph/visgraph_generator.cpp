@@ -45,7 +45,7 @@ Graph VisgraphGenerator::generate_with_shuffled_range(const std::vector<Polygon>
     std::mt19937 gen(seed);
     std::shuffle(polygon_vertices.begin(), polygon_vertices.end(), gen);
 
-//#pragma omp parallel for shared(visgraph, periodic_polygons, polygon_vertices, range_start, range_end) default(none)
+#pragma omp parallel for shared(visgraph, periodic_polygons, polygon_vertices, range_start, range_end) default(none)
     for (size_t i = range_start; i < range_end; ++i) { // NOLINT
         const auto visible_vertices =
             VistreeGenerator::get_visible_vertices_from_root(polygon_vertices[i], periodic_polygons, true);

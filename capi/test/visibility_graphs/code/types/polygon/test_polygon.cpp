@@ -12,14 +12,16 @@ TEST_CASE("Polygon Constructor Counter Clockwise") {
     const auto polygon = Polygon({Coordinate(1., 2.), Coordinate(2., 1.), Coordinate(3., 3.)});
 
     REQUIRE(polygon.get_vertices().size() == 3);
-    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(1., 2.), Coordinate(2., 1.), Coordinate(3., 3.)}));
+    REQUIRE(polygon.get_vertices() ==
+            std::vector<Coordinate>({Coordinate(1., 2.), Coordinate(2., 1.), Coordinate(3., 3.)}));
 }
 
 TEST_CASE("Polygon Constructor Clockwise") {
     const auto polygon = Polygon({Coordinate(3., 3.), Coordinate(2., 1.), Coordinate(1., 2.)});
 
     REQUIRE(polygon.get_vertices().size() == 3);
-    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(1., 2.), Coordinate(2., 1.), Coordinate(3., 3.)}));
+    REQUIRE(polygon.get_vertices() ==
+            std::vector<Coordinate>({Coordinate(1., 2.), Coordinate(2., 1.), Coordinate(3., 3.)}));
 }
 
 TEST_CASE("Polygon Constructor Collinear : Line") {
@@ -40,7 +42,8 @@ TEST_CASE("Polygon Constructor Collinear : Triangle") {
     const auto polygon = Polygon({Coordinate(0., 0.), Coordinate(1., 0.), Coordinate(0., 1.), Coordinate(-1., 0.)});
 
     REQUIRE(polygon.get_vertices().size() == 3);
-    REQUIRE(polygon.get_vertices() == std::vector<Coordinate>({Coordinate(1., 0.), Coordinate(0., 1.), Coordinate(-1., 0.)}));
+    REQUIRE(polygon.get_vertices() ==
+            std::vector<Coordinate>({Coordinate(1., 0.), Coordinate(0., 1.), Coordinate(-1., 0.)}));
 }
 
 TEST_CASE("Polygon Equals") {

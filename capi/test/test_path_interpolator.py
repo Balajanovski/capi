@@ -60,7 +60,7 @@ class TestPathInterpolator(unittest.TestCase):
         graph_file_path = os.path.join(TEST_FILES_DIR, "graph")
 
         expected_path = [
-            self._make_Coordinate(104., 1.00),
+            self._make_coordinate(104., 1.00),
             self._make_coordinate(116.74586, 7.034528),
             self._make_coordinate(123.012472, 9.040389),
             self._make_coordinate(123.451306, 9.194139),
