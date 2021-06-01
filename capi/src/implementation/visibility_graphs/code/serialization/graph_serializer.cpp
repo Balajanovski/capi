@@ -18,12 +18,12 @@
 
 void serialize_to_mmap(mio::mmap_sink &mmap, uint64_t val, size_t offset);
 void serialize_to_mmap(mio::mmap_sink &mmap, uint32_t val, size_t offset);
-void serialize_to_mmap(mio::mmap_sink &mmap, float val, size_t offset);
+void serialize_to_mmap(mio::mmap_sink &mmap, int32_t val, size_t offset);
 void serialize_to_mmap(mio::mmap_sink &mmap, uint8_t val, size_t offset);
 
 uint64_t deserialize_8_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset);
 uint32_t deserialize_4_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset);
-float deserialize_float_from_mmap(const mio::mmap_source &mmap, size_t offset);
+int32_t deserialize_4_signed_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset);
 uint8_t deserialize_byte_from_mmap(const mio::mmap_source &mmap, size_t offset);
 
 void allocate_file(const std::string &path, size_t num_bytes);
@@ -83,7 +83,7 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
     polygon_byte_offsets[0] = offset;
     for (size_t i = 1; i <= num_polygons; ++i) {
         polygon_byte_offsets[i] = polygon_byte_offsets[i - 1] + sizeof(uint64_t) +
-                                  (polygons[i - 1].get_vertices().size() * sizeof(float) * 2);
+                                  (polygons[i - 1].get_vertices().size() * sizeof(int32_t) * 2);
     }
 
     for (size_t i = 0; i < num_polygons; ++i) {
@@ -96,10 +96,10 @@ size_t GraphSerializer::serialize_polygon_vertices_to_mmap(mio::mmap_sink &mmap,
                                 polygon_byte_offsets) default(none)
         for (size_t j = 0; j < num_polygon_vertices; ++j) {
             const auto longitude_offset =
-                polygon_byte_offsets[i] + sizeof(num_polygon_vertices) + (sizeof(float) * (2 * j));
-            const auto latitude_offset = longitude_offset + sizeof(float);
-            serialize_to_mmap(mmap, polygon_vertices[j].get_longitude(), longitude_offset);
-            serialize_to_mmap(mmap, polygon_vertices[j].get_latitude(), latitude_offset);
+                polygon_byte_offsets[i] + sizeof(num_polygon_vertices) + (sizeof(int32_t) * (2 * j));
+            const auto latitude_offset = longitude_offset + sizeof(int32_t);
+            serialize_to_mmap(mmap, polygon_vertices[j].get_longitude_microdegrees(), longitude_offset);
+            serialize_to_mmap(mmap, polygon_vertices[j].get_latitude_microdegrees(), latitude_offset);
         }
     }
 
@@ -165,14 +165,14 @@ size_t GraphSerializer::deserialize_polygon_vertices_from_mmap(const mio::mmap_s
         auto vertices = std::vector<Coordinate>(num_vertices);
 #pragma omp parallel for shared(num_vertices, mmap, vertices, curr_offset, i) default(none)
         for (size_t j = 0; j < num_vertices; ++j) {
-            const auto longitude_offset = curr_offset + (j * 2 * sizeof(float));
-            const auto latitude_offset = longitude_offset + sizeof(float);
-            const auto longitude = deserialize_float_from_mmap(mmap, longitude_offset);
-            const auto latitude = deserialize_float_from_mmap(mmap, latitude_offset);
+            const auto longitude_offset = curr_offset + (j * 2 * sizeof(int32_t));
+            const auto latitude_offset = longitude_offset + sizeof(int32_t);
+            const auto longitude = deserialize_4_signed_bytes_from_mmap(mmap, longitude_offset);
+            const auto latitude = deserialize_4_signed_bytes_from_mmap(mmap, latitude_offset);
             vertices[j] = Coordinate(longitude, latitude);
         }
 
-        curr_offset += (num_vertices * 2 * sizeof(float));
+        curr_offset += (num_vertices * 2 * sizeof(int32_t));
 
         polygons[i] = Polygon(vertices);
     }
@@ -236,7 +236,7 @@ size_t GraphSerializer::calculate_number_of_bytes_for_graph(const Graph &graph, 
 
     return (sizeof(uint64_t) +                             // For the number of polygons header
             sizeof(uint64_t) * num_polygons +              // For the number of vertices per polygon headers
-            sizeof(uint64_t) * 2 * num_vertices +          // For the vertex latitudes and longitudes
+            sizeof(int32_t) * 2 * num_vertices +           // For the vertex latitudes and longitudes
             sizeof(uint8_t) * num_adjacency_matrix_bytes + // For the adjacency matrix
             sizeof(uint64_t) *
                 (num_meridian_spanning_edges + 1)); // For the number of meridian spanning edges, and each edge index;
@@ -267,7 +267,7 @@ inline void serialize_to_mmap(mio::mmap_sink &mmap, uint32_t val, size_t offset)
     }
 }
 
-inline void serialize_to_mmap(mio::mmap_sink &mmap, float val, size_t offset) {
+inline void serialize_to_mmap(mio::mmap_sink &mmap, int32_t val, size_t offset) {
     uint32_t val_bytes = 0x0;
     std::memcpy(&val_bytes, &val, sizeof(val_bytes));
     serialize_to_mmap(mmap, val_bytes, offset);
@@ -293,10 +293,10 @@ inline uint32_t deserialize_4_bytes_from_mmap(const mio::mmap_source &mmap, size
     return val;
 }
 
-inline float deserialize_float_from_mmap(const mio::mmap_source &mmap, size_t offset) {
-    uint64_t bytes_val = deserialize_4_bytes_from_mmap(mmap, offset);
+inline int32_t deserialize_4_signed_bytes_from_mmap(const mio::mmap_source &mmap, size_t offset) {
+    uint32_t bytes_val = deserialize_4_bytes_from_mmap(mmap, offset);
 
-    float val;
+    int32_t val;
     std::memcpy(&val, &bytes_val, sizeof(val));
 
     return val;
@@ -330,6 +330,3 @@ inline void handle_mmap_error(const std::error_code &error) {
     const auto error_msg = fmt::format("Error mapping file (error_code: {}): {}", error.value(), error.message());
     throw std::runtime_error(error_msg);
 }
-
-#undef BITS_IN_A_BYTE
-#undef CEIL_DIV

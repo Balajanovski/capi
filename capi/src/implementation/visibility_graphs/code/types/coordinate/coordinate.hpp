@@ -7,7 +7,6 @@
 
 #include <optional>
 #include <ostream>
-#include <regex>
 #include <string>
 
 #include "types/orientation/orientation.hpp"
@@ -15,13 +14,14 @@
 class Coordinate {
   public:
     Coordinate();
-    Coordinate(float longitude, float latitude);
-
-    static Coordinate parse_from_string(const std::string &str);
+    Coordinate(double longitude, double latitude);
+    Coordinate(int32_t longitude_microdegrees, int32_t latitude_microdegrees);
 
     // Getters
-    [[nodiscard]] float get_latitude() const;
-    [[nodiscard]] float get_longitude() const;
+    [[nodiscard]] double get_latitude() const;
+    [[nodiscard]] double get_longitude() const;
+    [[nodiscard]] int32_t get_latitude_microdegrees() const;
+    [[nodiscard]] int32_t get_longitude_microdegrees() const;
 
     // Comparison operations
     bool operator==(const Coordinate &other) const;
@@ -31,23 +31,23 @@ class Coordinate {
     Coordinate operator-() const;
     Coordinate operator-(const Coordinate &other) const;
     Coordinate operator+(const Coordinate &other) const;
-    Coordinate operator*(float scalar) const;
-    Coordinate operator/(float scalar) const;
-    [[nodiscard]] float dot_product(const Coordinate &other) const;
-    [[nodiscard]] float cross_product_magnitude(const Coordinate &other) const;
-    [[nodiscard]] float magnitude_squared() const;
-    [[nodiscard]] float magnitude() const;
+    Coordinate operator*(double scalar) const;
+    Coordinate operator/(double scalar) const;
+    [[nodiscard]] double dot_product(const Coordinate &other) const;
+    [[nodiscard]] double cross_product_magnitude(const Coordinate &other) const;
+    [[nodiscard]] double magnitude_squared() const;
+    [[nodiscard]] double magnitude() const;
     [[nodiscard]] Orientation vector_orientation(const Coordinate &v2) const;
     [[nodiscard]] bool parallel(const Coordinate &other) const;
-    [[nodiscard]] std::optional<float> scalar_multiple_factor(const Coordinate &other) const;
-    [[nodiscard]] float angle_to_horizontal() const;
+    [[nodiscard]] std::optional<double> scalar_multiple_factor(const Coordinate &other) const;
+    [[nodiscard]] double angle_to_horizontal() const;
     [[nodiscard]] std::string to_string_representation() const;
 
   private:
-    static const std::regex coordinate_regex;
 
-    float _longitude;
-    float _latitude;
+    // Coordinates are stored in microdegrees
+    int32_t _longitude;
+    int32_t _latitude;
 };
 
 namespace std {

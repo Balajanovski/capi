@@ -52,7 +52,7 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(cons
         }
 
         const auto scanline_segment = LineSegment(observer, current_vertex);
-        if (half_scan && initial_scanline_vector.cross_product_magnitude(scanline_segment.get_tangent_vector()) < 0) {
+        if (half_scan && initial_scanline_vector.cross_product_magnitude(scanline_segment.get_tangent_vector()) < -EPSILON_TOLERANCE) {
             break;
         }
 

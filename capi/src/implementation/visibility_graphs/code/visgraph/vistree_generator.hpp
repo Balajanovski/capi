@@ -23,7 +23,7 @@ class VistreeGenerator {
                                                                      bool half_scan = false);
 
   private:
-    using OpenEdges = std::multimap<float, const std::unique_ptr<LineSegment>>;
+    using OpenEdges = std::multimap<double, const std::unique_ptr<LineSegment>>;
     using VertexToSegmentMapping = std::unordered_map<Coordinate, std::vector<LineSegment>>;
 
     static VertexToSegmentMapping all_vertices_and_incident_segments(const std::vector<Polygon> &polygons);

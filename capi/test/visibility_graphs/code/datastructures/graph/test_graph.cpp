@@ -9,10 +9,10 @@
 #include "visgraph/visgraph_generator.hpp"
 
 TEST_CASE("Graph Add Edge") {
-    const auto coord1 = Coordinate(1, 2);
-    const auto coord2 = Coordinate(2, 1);
-    const auto coord3 = Coordinate(1, 1);
-    const auto coord4 = Coordinate(1, 5);
+    const auto coord1 = Coordinate(1., 2.);
+    const auto coord2 = Coordinate(2., 1.);
+    const auto coord3 = Coordinate(1., 1.);
+    const auto coord4 = Coordinate(1., 5.);
 
     auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3, coord4})});
 
@@ -32,9 +32,9 @@ TEST_CASE("Graph Add Edge") {
 }
 
 TEST_CASE("Graph get_vertices") {
-    const auto coord1 = Coordinate(1, 2);
-    const auto coord2 = Coordinate(2, 1);
-    const auto coord3 = Coordinate(1, 1);
+    const auto coord1 = Coordinate(1., 2.);
+    const auto coord2 = Coordinate(2., 1.);
+    const auto coord3 = Coordinate(1., 1.);
 
     auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3})});
 
@@ -44,9 +44,9 @@ TEST_CASE("Graph get_vertices") {
 }
 
 TEST_CASE("Graph get_neighbors") {
-    const auto coord1 = Coordinate(1, 2);
-    const auto coord2 = Coordinate(2, 1);
-    const auto coord3 = Coordinate(1, 1);
+    const auto coord1 = Coordinate(1., 2.);
+    const auto coord2 = Coordinate(2., 1.);
+    const auto coord3 = Coordinate(1., 1.);
 
     auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3})});
 
@@ -57,9 +57,9 @@ TEST_CASE("Graph get_neighbors") {
 }
 
 TEST_CASE("Graph get_polygons") {
-    const auto coord1 = Coordinate(1, 2);
-    const auto coord2 = Coordinate(2, 1);
-    const auto coord3 = Coordinate(1, 1);
+    const auto coord1 = Coordinate(1., 2.);
+    const auto coord2 = Coordinate(2., 1.);
+    const auto coord3 = Coordinate(1., 1.);
     const auto polygon = Polygon({coord1, coord2, coord3});
     const auto polygons = std::vector<Polygon>{polygon};
 
@@ -70,20 +70,20 @@ TEST_CASE("Graph get_polygons") {
 
 TEST_CASE("Graph shortest path") {
     const auto poly1 = Polygon({
-        Coordinate(1, 0),
-        Coordinate(0, 1.5),
-        Coordinate(-1, 0),
+        Coordinate(1., 0.),
+        Coordinate(0., 1.5),
+        Coordinate(-1., 0.),
     });
 
     const auto poly2 = Polygon({
-        Coordinate(4, 0),
-        Coordinate(3, 1),
-        Coordinate(2, 0),
+        Coordinate(4., 0.),
+        Coordinate(3., 1.),
+        Coordinate(2., 0.),
     });
 
     const auto graph = VisgraphGenerator::generate({poly1, poly2});
-    const auto a = Coordinate(-2, 0);
-    const auto b = Coordinate(3, 1);
+    const auto a = Coordinate(-2., 0.);
+    const auto b = Coordinate(3., 1.);
 
     const auto shortest_path_ab = graph.shortest_path(a, b);
     auto shortest_path_ba = graph.shortest_path(b, a);
@@ -91,45 +91,45 @@ TEST_CASE("Graph shortest path") {
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
     REQUIRE(shortest_path_ab ==
-            std::vector<Coordinate>{Coordinate(-2, 0), Coordinate(-1, 0), Coordinate(1, 0), Coordinate(3, 1)});
+            std::vector<Coordinate>{Coordinate(-2., 0.), Coordinate(-1., 0.), Coordinate(1., 0.), Coordinate(3., 1.)});
 }
 
 TEST_CASE("Graph shortest path over meridian") {
     const auto poly1 = Polygon({
-        Coordinate(179, 0),
-        Coordinate(178, 1.5),
-        Coordinate(177, 0),
+        Coordinate(179., 0.),
+        Coordinate(178., 1.5),
+        Coordinate(177., 0.),
     });
 
     const auto poly2 = Polygon({
-        Coordinate(2, 0),
-        Coordinate(1, 1),
-        Coordinate(0, 0),
+        Coordinate(2., 0.),
+        Coordinate(1., 1.),
+        Coordinate(0., 0.),
     });
 
     const auto graph = VisgraphGenerator::generate({poly1, poly2});
-    const auto a = Coordinate(176, 0);
-    const auto b = Coordinate(1, 1);
+    const auto a = Coordinate(176., 0.);
+    const auto b = Coordinate(1., 1.);
 
     const auto shortest_path_ab = graph.shortest_path(a, b);
     auto shortest_path_ba = graph.shortest_path(b, a);
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176, 0), Coordinate(1, 1)});
+    REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176., 0.), Coordinate(1., 1.)});
 }
 
 TEST_CASE("Graph merge") {
     const auto poly1 = Polygon({
-        Coordinate(1, 0),
-        Coordinate(0, 1.5),
-        Coordinate(-1, 0),
+        Coordinate(1., 0.),
+        Coordinate(0., 1.5),
+        Coordinate(-1., 0.),
     });
 
     const auto poly2 = Polygon({
-        Coordinate(4, 0),
-        Coordinate(3, 1),
-        Coordinate(2, 0),
+        Coordinate(4., 0.),
+        Coordinate(3., 1.),
+        Coordinate(2., 0.),
     });
 
     const auto single_graph = VisgraphGenerator::generate({poly1, poly2});

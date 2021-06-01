@@ -156,8 +156,8 @@ bool Graph::operator!=(const Graph &other) const { return !(*this == other); }
 
 struct AStarHeapElement {
     Coordinate node;
-    float distance_to_source;
-    float heuristic_distance_to_destination;
+    double distance_to_source;
+    double heuristic_distance_to_destination;
 };
 
 std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coordinate &destination) const {
@@ -209,7 +209,7 @@ std::vector<Coordinate> Graph::shortest_path(const Coordinate &source, const Coo
     });
 
     auto prev_coord = std::unordered_map<Coordinate, Coordinate>();
-    auto distances_to_source = std::unordered_map<Coordinate, float>();
+    auto distances_to_source = std::unordered_map<Coordinate, double>();
     while (!pq.empty()) {
         const auto top = pq.top();
         pq.pop();
