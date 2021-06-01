@@ -32,15 +32,10 @@ TEST_CASE("Test sort counter clockwise around root vertex") {
 
 TEST_CASE("Test sort counter clockwise around root vertex collinear") {
     const auto root = Coordinate(1., 1.);
-    std::vector<Coordinate> vertices{
-        root, Coordinate(2., 1.), Coordinate(-2., 1.), Coordinate(-3., 1.), Coordinate(3., 1.)
-    };
+    std::vector<Coordinate> vertices{root, Coordinate(2., 1.), Coordinate(-2., 1.), Coordinate(-3., 1.),
+                                     Coordinate(3., 1.)};
     const std::vector<Coordinate> expected_sorted_vertices{
-        root,
-        Coordinate(2., 1.),
-        Coordinate(3., 1.),
-        Coordinate(-2., 1.),
-        Coordinate(-3., 1.),
+        root, Coordinate(2., 1.), Coordinate(3., 1.), Coordinate(-2., 1.), Coordinate(-3., 1.),
     };
 
     AngleSorter::sort_counter_clockwise_around_observer(root, vertices);

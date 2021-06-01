@@ -75,10 +75,8 @@ Orientation LineSegment::orientation_of_point_to_segment(const Coordinate &point
     const auto point_2_lon = static_cast<int64_t>(_endpoint_2.get_longitude_microdegrees());
     const auto point_2_lat = static_cast<int64_t>(_endpoint_2.get_latitude_microdegrees());
 
-    const auto signed_area = (point_2_lon - point_1_lon) *
-                                 (point_lat - point_1_lat) -
-                             (point_2_lat - point_1_lat) *
-                                 (point_lon - point_1_lon);
+    const auto signed_area = (point_2_lon - point_1_lon) * (point_lat - point_1_lat) -
+                             (point_2_lat - point_1_lat) * (point_lon - point_1_lon);
     if (signed_area > EPSILON_TOLERANCE) {
         return Orientation::COUNTER_CLOCKWISE;
     }
