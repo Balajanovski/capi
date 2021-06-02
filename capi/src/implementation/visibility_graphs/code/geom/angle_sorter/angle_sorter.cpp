@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "angle_sorter.hpp"
+#include "constants/constants.hpp"
 
 void AngleSorter::sort_counter_clockwise_around_observer(const Coordinate &observer,
                                                          std::vector<Coordinate> &vertices) {
@@ -21,15 +22,13 @@ void AngleSorter::sort_counter_clockwise_around_observer(const Coordinate &obser
 
         const auto v1 = c1 - observer;
         const auto v2 = c2 - observer;
-        const auto dotprod = v1.dot_product(v2);
 
-        if (v1.vector_orientation(v2) != Orientation::COLLINEAR || dotprod < 0) {
-            const auto v1_angle_to_horizontal = v1.angle_to_horizontal();
-            const auto v2_angle_to_horizontal = v2.angle_to_horizontal();
+        const auto v1_angle_to_horizontal = v1.angle_to_horizontal();
+        const auto v2_angle_to_horizontal = v2.angle_to_horizontal();
 
+        if (std::abs(v1_angle_to_horizontal - v2_angle_to_horizontal) >= 0.000000001) {
             return v1_angle_to_horizontal < v2_angle_to_horizontal;
         }
-
         return v1.magnitude_squared() < v2.magnitude_squared();
     };
 
