@@ -34,6 +34,7 @@ class Coordinate {
     Coordinate operator*(double scalar) const;
     Coordinate operator/(double scalar) const;
     [[nodiscard]] double dot_product(const Coordinate &other) const;
+    [[nodiscard]] int64_t dot_product_microdegrees(const Coordinate &other) const;
     [[nodiscard]] double cross_product_magnitude(const Coordinate &other) const;
     [[nodiscard]] double magnitude_squared() const;
     [[nodiscard]] double magnitude() const;

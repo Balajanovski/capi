@@ -57,6 +57,15 @@ double Coordinate::dot_product(const Coordinate &other) const {
     return (longitude * other_longitude) + (latitude * other_latitude);
 }
 
+int64_t Coordinate::dot_product_microdegrees(const Coordinate& other) const {
+    const auto longitude = static_cast<int64_t>(get_longitude_microdegrees());
+    const auto latitude = static_cast<int64_t>(get_latitude_microdegrees());
+    const auto other_longitude = static_cast<int64_t>(other.get_longitude_microdegrees());
+    const auto other_latitude = static_cast<int64_t>(other.get_latitude_microdegrees());
+
+    return (longitude * other_longitude) + (latitude * other_latitude);
+}
+
 double Coordinate::cross_product_magnitude(const Coordinate &other) const {
     const auto longitude = get_longitude();
     const auto latitude = get_latitude();
