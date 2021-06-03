@@ -4,7 +4,7 @@ import time
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate
 from capi.src.implementation.intersection_prechecker_factory import IntersectionPrecheckerFactory
-from capi.src.implementation.visibility_graphs import VisGraph, VisGraphCoord, load_graph_from_file
+from capi.src.implementation.visibility_graphs import VisGraph, VisGraphCoord, load_graph_from_file, VisGraphShortestPathComputer
 from capi.src.interfaces.intersection_prechecker_factory import IIntersectionPrecheckerFactory
 from capi.src.interfaces.path_interpolator import IPathInterpolator
 
@@ -18,8 +18,10 @@ class PathInterpolator(IPathInterpolator):
     ):
         graph_paths = GraphFilePaths(visibility_graph_file_path)
         s = time.time()
-        self._graph = load_graph_from_file(graph_paths.default_graph_path)
+        graph = load_graph_from_file(graph_paths.default_graph_path)
         print(f"Loading graph takes: {time.time() - s} seconds")
+
+        self._shortest_path_computer = VisGraphShortestPathComputer(graph)
 
         _intersection_prechecker_factory = (
             IntersectionPrecheckerFactory()
@@ -46,8 +48,7 @@ class PathInterpolator(IPathInterpolator):
         return path
 
     def _get_shortest_path(self, start: VisGraphCoord, end: VisGraphCoord) -> typing.Sequence[Coordinate]:
-        path = self._graph.shortest_path(start, end)
-        n = self._graph.get_neighbors(path[1])
+        path = self._shortest_path_computer.shortest_path(start, end)
         return self._convert_visgraph_coords_list_to_coordinates(path)
 
     @staticmethod

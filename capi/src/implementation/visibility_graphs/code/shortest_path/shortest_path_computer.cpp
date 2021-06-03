@@ -2,11 +2,9 @@
 // Created by James.Balajan on 3/06/2021.
 //
 
-//#include <pybind11/pybind11.h>
 #include <queue>
 #include <algorithm>
 
-#include "constants/constants.hpp"
 #include "shortest_path_computer.hpp"
 #include "visgraph/vistree_generator.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
@@ -86,8 +84,6 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
             distances_to_source[neighbor] = neighbor_dist_to_source;
         }
     }
-
-    //pybind11::print("Num nodes traversed:", num_nodes_traversed);
 
     auto path = std::vector<Coordinate>();
     auto curr_node = destination;
