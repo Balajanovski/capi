@@ -24,6 +24,10 @@ class Graph {
 
     void add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
     void add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
+
+    // This method is not thread-safe
+    void add_vertex(const Coordinate &vertex);
+
     [[nodiscard]] bool has_vertex(const Coordinate &vertex) const;
     [[nodiscard]] bool has_edge(const Coordinate &a, const Coordinate &b) const;
     [[nodiscard]] bool is_edge_meridian_crossing(const Coordinate &a, const Coordinate &b) const;
@@ -33,8 +37,6 @@ class Graph {
 
     [[nodiscard]] std::string to_string_representation() const;
 
-    [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination) const;
-
     [[nodiscard]] bool are_adjacent(const Coordinate &vert1, const Coordinate &vert2) const;
 
     [[nodiscard]] std::vector<Coordinate> get_neighbors(const Coordinate &vertex) const;
@@ -42,9 +44,6 @@ class Graph {
     [[nodiscard]] std::vector<Polygon> get_polygons() const;
 
   private:
-    // This method is not thread-safe
-    void add_vertex(const Coordinate &vertex);
-
     Coordinate index_to_coordinate(unsigned int index) const;
     int coordinate_to_index(Coordinate coordinate) const;
 

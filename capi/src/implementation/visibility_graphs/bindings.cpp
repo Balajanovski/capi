@@ -7,14 +7,12 @@
 //
 
 #include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 #include "datastructures/graph/graph.hpp"
 #include "serialization/graph_serializer.hpp"
-#include "types/coordinate/coordinate.hpp"
-#include "types/polygon/polygon.hpp"
 #include "visgraph/visgraph_generator.hpp"
+#include "shortest_path/shortest_path_computer.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -56,10 +54,13 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def("add_edge", &Graph::add_edge)
         .def(py::self == py::self)
         .def(py::self != py::self)
-        .def("shortest_path", &Graph::shortest_path)
         .def_property_readonly("vertices", &Graph::get_vertices)
         .def_property_readonly("polygons", &Graph::get_polygons)
         .def("get_neighbors", &Graph::get_neighbors);
+
+    py::class_<ShortestPathComputer>(m, "VisGraphShortestPathComputer")
+        .def(py::init<const Graph &>())
+        .def("shortest_path", &ShortestPathComputer::shortest_path);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
     m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,
