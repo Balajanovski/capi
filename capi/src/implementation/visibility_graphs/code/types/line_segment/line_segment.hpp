@@ -31,4 +31,8 @@ class LineSegment {
     Coordinate _endpoint_2;
 };
 
+namespace std {
+template <> struct hash<LineSegment> { std::size_t operator()(const LineSegment& segment) const; };
+} // namespace std
+
 #endif // CAPI_LINE_SEGMENT_HPP

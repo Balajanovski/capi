@@ -52,6 +52,29 @@ void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool mer
     accessor.release();
 }
 
+void Graph::remove_edge(const Coordinate &a, const Coordinate &b) {
+    if (a == b) {
+        return;
+    }
+
+    remove_directed_edge(a, b);
+    remove_directed_edge(b, a);
+}
+
+void Graph::remove_directed_edge(const Coordinate &a, const Coordinate &b) {
+    decltype(_neighbors)::accessor accessor;
+
+    const auto a_index = coordinate_to_index(a);
+    const auto b_index = coordinate_to_index(b);
+
+    const auto found_a = _neighbors.find(accessor, a_index);
+    if (found_a) {
+        accessor->second.erase(b_index);
+    }
+
+    accessor.release();
+}
+
 bool Graph::has_edge(const Coordinate &a, const Coordinate &b) const {
     decltype(_neighbors)::const_accessor accessor;
 

@@ -24,6 +24,8 @@ class Graph {
 
     void add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
     void add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing);
+    void remove_edge(const Coordinate &a, const Coordinate &b);
+    void remove_directed_edge(const Coordinate &a, const Coordinate &b);
 
     // This method is not thread-safe
     void add_vertex(const Coordinate &vertex);

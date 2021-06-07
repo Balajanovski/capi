@@ -3,7 +3,7 @@ project(capi VERSION "2.0.2")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
-set(CMAKE_CXX_FLAGS "-Ofast -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
@@ -51,6 +51,10 @@ file(GLOB_RECURSE FMT_SOURCE "${CPP_LIBS_DIR}/fmt/*.cc" "${CPP_LIBS_DIR}/fmt/*.h
 # Get mio library
 include_directories(${CPP_LIBS_DIR}/mio)
 file(GLOB_RECURSE MIO_SOURCE "${CPP_LIBS_DIR}/mio/*.hpp" "${CPP_LIBS_DIR}/mio/*.cpp")
+
+# Get FastTrigo library
+include_directories(${CPP_LIBS_DIR}/FastTrigo)
+file(GLOB_RECURSE FASTTRIGO_SOURCE "${CPP_LIBS_DIR}/FastTrigo/*.hpp" "${CPP_LIBS_DIR}/FastTrigo/*.cpp")
 
 # Create python module
 pybind11_add_module(${PY_MODULE_TARGET} MODULE

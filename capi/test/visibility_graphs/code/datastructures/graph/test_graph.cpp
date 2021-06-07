@@ -31,6 +31,21 @@ TEST_CASE("Graph Add Edge") {
     REQUIRE_FALSE(graph.is_edge_meridian_crossing(coord1, coord3));
 }
 
+TEST_CASE("Graph Remove Edge") {
+    const auto coord1 = Coordinate(1., 2.);
+    const auto coord2 = Coordinate(2., 1.);
+    const auto coord3 = Coordinate(3., 1.);
+
+    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2, coord3})});
+
+    graph.add_edge(coord1, coord2, true);
+    graph.remove_edge(coord1, coord2);
+    graph.remove_edge(coord1, coord3);
+
+    REQUIRE_FALSE(graph.has_edge(coord1, coord2));
+    REQUIRE_FALSE(graph.has_edge(coord2, coord1));
+}
+
 TEST_CASE("Graph get_vertices") {
     const auto coord1 = Coordinate(1., 2.);
     const auto coord2 = Coordinate(2., 1.);

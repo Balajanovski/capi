@@ -108,3 +108,9 @@ bool LineSegment::operator==(const LineSegment &other) const {
 }
 
 bool LineSegment::operator!=(const LineSegment &other) const { return !((*this) == other); }
+
+std::size_t std::hash<LineSegment>::operator()(const LineSegment& segment) const {
+    const std::size_t coord_1_hash = hash<Coordinate>()(segment.get_endpoint_1());
+    const std::size_t coord_2_hash = hash<Coordinate>()(segment.get_endpoint_2());
+    return coord_1_hash ^ (coord_2_hash + 0x9e3779b9 + (coord_1_hash << 6) + (coord_1_hash >> 2));
+}

@@ -21,6 +21,8 @@ class ShortestPathComputer {
     static double distance_measurement(const Coordinate &a, const Coordinate &b, bool is_meridian_spanning);
     static double heuristic_distance_measurement(const Coordinate &a, const Coordinate &b);
 
+    Graph create_modified_graph(const Coordinate &source, const Coordinate &destination) const;
+
     Graph _graph;
     std::vector<Polygon> _periodic_polygons;
 };

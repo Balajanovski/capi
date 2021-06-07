@@ -18,25 +18,8 @@ struct AStarHeapElement {
 ShortestPathComputer::ShortestPathComputer(const Graph &graph): _graph(graph), _periodic_polygons(make_polygons_periodic(graph.get_polygons())) { }
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination) const {
-    auto modified_graph = Graph(_graph);
-
-    const auto found_source = modified_graph.has_vertex(source);
-    if (!found_source) {
-        modified_graph.add_vertex(source);
-        for (const auto &visible_vertex :
-            VistreeGenerator::get_visible_vertices_from_root(source, _periodic_polygons, false)) {
-            modified_graph.add_edge(source, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
-        }
-    }
-
-    const auto found_destination = modified_graph.has_vertex(destination);
-    if (!found_destination) {
-        modified_graph.add_vertex(destination);
-        for (const auto &visible_vertex :
-            VistreeGenerator::get_visible_vertices_from_root(destination, _periodic_polygons, false)) {
-            modified_graph.add_edge(destination, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
-        }
-    }
+    const auto modified_graph = create_modified_graph(source, destination);
+    const auto source_destination_distance = heuristic_distance_measurement(source, destination);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
       return (a.distance_to_source + a.heuristic_distance_to_destination*ShortestPathComputer::GREEDINESS_WEIGHTING) >
@@ -51,14 +34,12 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
         .heuristic_distance_to_destination = heuristic_distance_measurement(source, destination),
     });
 
-    size_t num_nodes_traversed = 0; // Debugging
     auto prev_coord = std::unordered_map<Coordinate, Coordinate>();
     auto distances_to_source = std::unordered_map<Coordinate, double>();
     while (!pq.empty()) {
         const auto top = pq.top();
         pq.pop();
 
-        ++num_nodes_traversed;
         if (top.node == destination) {
             break;
         }
@@ -66,11 +47,10 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
         for (const auto &neighbor : modified_graph.get_neighbors(top.node)) {
             const auto meridian_spanning = modified_graph.is_edge_meridian_crossing(top.node, neighbor);
 
-            const auto neighbor_dist_to_source =
-                top.distance_to_source + distance_measurement(neighbor, top.node, meridian_spanning);
-
-            if (distances_to_source.find(neighbor) != distances_to_source.end() &&
-                distances_to_source.at(neighbor) <= neighbor_dist_to_source) {
+            const auto edge_dist = distance_measurement(neighbor, top.node, meridian_spanning);
+            const auto neighbor_dist_to_source = top.distance_to_source + edge_dist;
+            if (edge_dist > source_destination_distance || (distances_to_source.find(neighbor) != distances_to_source.end() &&
+                distances_to_source.at(neighbor) <= neighbor_dist_to_source)) {
                 continue;
             }
 
@@ -115,4 +95,30 @@ double ShortestPathComputer::distance_measurement(const Coordinate &a, const Coo
 double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a, const Coordinate &b) {
     return std::min(distance_measurement(a, b, false),
                     distance_measurement(a, b, true));
+}
+
+#include <iostream>
+
+Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
+    auto modified_graph = Graph(_graph);
+
+    const auto found_source = modified_graph.has_vertex(source);
+    if (!found_source) {
+        modified_graph.add_vertex(source);
+        for (const auto &visible_vertex :
+            VistreeGenerator::get_visible_vertices_from_root(source, _periodic_polygons, false)) {
+            modified_graph.add_edge(source, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
+        }
+    }
+
+    const auto found_destination = modified_graph.has_vertex(destination);
+    if (!found_destination) {
+        modified_graph.add_vertex(destination);
+        for (const auto &visible_vertex :
+            VistreeGenerator::get_visible_vertices_from_root(destination, _periodic_polygons, false)) {
+            modified_graph.add_edge(destination, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
+        }
+    }
+
+    return modified_graph;
 }

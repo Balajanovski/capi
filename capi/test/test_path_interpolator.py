@@ -54,6 +54,16 @@ class TestPathInterpolator(unittest.TestCase):
 
         self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
 
+    def test_copenhagen_to_stockholm(self):
+        copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
+        stockholm_coordinates = Coordinate(latitude=59.30, longitude=19.162)
+        graph_file_path = os.path.join(TEST_FILES_DIR, "graph")
+
+        interpolator = PathInterpolator(
+            visibility_graph_file_path=graph_file_path, shapefile_file_path=self._SHAPEFILE_FILE_PATH
+        )
+        path = interpolator.interpolate(copenhagen_coordinates, stockholm_coordinates)
+
     def test_cross_meridian(self):
         coords_1 = Coordinate(latitude=1, longitude=104)
         coords_2 = Coordinate(latitude=37, longitude=-125)

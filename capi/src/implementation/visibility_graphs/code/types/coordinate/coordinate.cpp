@@ -27,6 +27,10 @@ int32_t Coordinate::get_latitude_microdegrees() const { return _latitude; }
 
 int32_t Coordinate::get_longitude_microdegrees() const { return _longitude; }
 
+int64_t Coordinate::get_latitude_microdegrees_long() const { return _latitude; }
+
+int64_t Coordinate::get_longitude_microdegrees_long() const { return _longitude; }
+
 bool Coordinate::operator==(const Coordinate &other) const {
     return _longitude == other._longitude && _latitude == other._latitude;
 }
@@ -58,12 +62,12 @@ double Coordinate::dot_product(const Coordinate &other) const {
 }
 
 int64_t Coordinate::dot_product_microdegrees(const Coordinate& other) const {
-    const auto longitude = static_cast<int64_t>(get_longitude_microdegrees());
-    const auto latitude = static_cast<int64_t>(get_latitude_microdegrees());
-    const auto other_longitude = static_cast<int64_t>(other.get_longitude_microdegrees());
-    const auto other_latitude = static_cast<int64_t>(other.get_latitude_microdegrees());
+    const auto longitude = get_longitude_microdegrees_long();
+    const auto latitude = get_latitude_microdegrees_long();
+    const auto other_longitude = other.get_longitude_microdegrees_long();
+    const auto other_latitude = other.get_latitude_microdegrees_long();
 
-    return (longitude * other_longitude) + (latitude * other_latitude);
+    return (longitude * other_longitude / 1000000) + (latitude * other_latitude / 1000000);
 }
 
 double Coordinate::cross_product_magnitude(const Coordinate &other) const {
@@ -75,6 +79,10 @@ double Coordinate::cross_product_magnitude(const Coordinate &other) const {
     return ((longitude * other_latitude) - (other_longitude * latitude));
 }
 
+int64_t Coordinate::cross_product_magnitude_microdegrees(const Coordinate &other) const {
+    return (get_longitude_microdegrees_long() * other.get_latitude_microdegrees_long()) - (other.get_longitude_microdegrees_long() * get_latitude_microdegrees_long());
+}
+
 double Coordinate::magnitude_squared() const {
     const auto longitude = get_longitude();
     const auto latitude = get_latitude();
@@ -82,11 +90,17 @@ double Coordinate::magnitude_squared() const {
     return ((longitude * longitude) + (latitude * latitude));
 }
 
+int64_t Coordinate::magnitude_squared_microdegrees() const {
+    const auto longitude = get_longitude_microdegrees_long();
+    const auto latitude = get_latitude_microdegrees_long();
+
+    return (longitude * longitude / 1000000) + (latitude * latitude / 1000000);
+}
+
 double Coordinate::magnitude() const { return std::sqrt(magnitude_squared()); }
 
 Orientation Coordinate::vector_orientation(const Coordinate &v2) const {
-    const auto cross_prod = ((static_cast<int64_t>(_longitude) * static_cast<int64_t>(v2._latitude)) -
-                             (static_cast<int64_t>(v2._longitude) * static_cast<int64_t>(_latitude)));
+    const auto cross_prod = cross_product_magnitude_microdegrees(v2);
 
     if (cross_prod < 0) {
         return Orientation::CLOCKWISE;
