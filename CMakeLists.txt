@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules"
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
+set(EXAMPLE_TARGET "${PROJECT_NAME}_example")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
 
 # OpenMP
@@ -13,6 +14,11 @@ find_package(OpenMP REQUIRED)
 
 # TBB
 find_package(TBB REQUIRED)
+
+# S2
+set(S2_LIB /usr/local/lib/libs2.so)
+set(S2_HEADERS /usr/local/include/s2)
+include_directories(S2_HEADERS)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
@@ -52,10 +58,6 @@ file(GLOB_RECURSE FMT_SOURCE "${CPP_LIBS_DIR}/fmt/*.cc" "${CPP_LIBS_DIR}/fmt/*.h
 include_directories(${CPP_LIBS_DIR}/mio)
 file(GLOB_RECURSE MIO_SOURCE "${CPP_LIBS_DIR}/mio/*.hpp" "${CPP_LIBS_DIR}/mio/*.cpp")
 
-# Get FastTrigo library
-include_directories(${CPP_LIBS_DIR}/FastTrigo)
-file(GLOB_RECURSE FASTTRIGO_SOURCE "${CPP_LIBS_DIR}/FastTrigo/*.hpp" "${CPP_LIBS_DIR}/FastTrigo/*.cpp")
-
 # Create python module
 pybind11_add_module(${PY_MODULE_TARGET} MODULE
         ${VIS_GRAPH_IMPLEMENTATION_FILES}
@@ -65,6 +67,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
+        ${S2_LIB}
         tbb)
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
@@ -85,4 +88,16 @@ add_executable(${TEST_TARGET}
 
 target_link_libraries(${TEST_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
+        ${S2_LIB}
+        tbb)
+
+add_executable(${EXAMPLE_TARGET}
+        ${VIS_GRAPH_IMPLEMENTATION_FILES}
+        ${VIS_GRAPH_IMPL_DIR}/example.cpp
+        ${MIO_SOURCE}
+        ${FMT_SOURCE})
+
+target_link_libraries(${EXAMPLE_TARGET} PRIVATE
+        OpenMP::OpenMP_CXX
+        ${S2_LIB}
         tbb)

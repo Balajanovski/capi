@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "types/coordinate/coordinate.hpp"
+#include "types/line_segment/line_segment.hpp"
 
 class Polygon {
   public:
@@ -18,6 +19,7 @@ class Polygon {
     explicit Polygon(const std::vector<Coordinate> &vertices);
 
     [[nodiscard]] const std::vector<Coordinate> &get_vertices() const;
+    [[nodiscard]] std::vector<LineSegment> get_line_segments() const;
 
     bool operator==(const Polygon &other) const;
     bool operator!=(const Polygon &other) const;

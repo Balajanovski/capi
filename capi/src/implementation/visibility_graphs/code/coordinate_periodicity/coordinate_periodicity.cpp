@@ -64,3 +64,32 @@ std::vector<Polygon> make_polygons_periodic(const std::vector<Polygon> &polygons
 
     return periodic_polygons;
 }
+
+std::vector<Coordinate> make_coordinates_periodic(const std::vector<Coordinate> &coordinates) {
+    auto periodic_coordinates = std::vector<Coordinate>();
+    periodic_coordinates.reserve(NUM_PERIODIC_VERTICES * coordinates.size());
+
+    for (const auto &coordinate : coordinates) {
+        for (const auto &periodic_coordinate : periodic_coordinates_from_coordinate(coordinate)) {
+            periodic_coordinates.push_back(periodic_coordinate);
+        }
+    }
+
+    return periodic_coordinates;
+}
+
+std::vector<std::shared_ptr<LineSegment>> make_segments_periodic(const std::vector<LineSegment> &segments) {
+    auto periodic_segments = std::vector<std::shared_ptr<LineSegment>>();
+    periodic_segments.reserve(NUM_PERIODIC_VERTICES * segments.size());
+
+    for (const auto &segment : segments) {
+        const auto periodic_endpoint_1 = periodic_coordinates_from_coordinate(segment.get_endpoint_1());
+        const auto periodic_endpoint_2 = periodic_coordinates_from_coordinate(segment.get_endpoint_2());
+
+        for (int i = 0; i < NUM_PERIODIC_VERTICES; ++i) {
+            periodic_segments.push_back(std::make_shared<LineSegment>(periodic_endpoint_1[i], periodic_endpoint_2[i]));
+        }
+    }
+
+    return periodic_segments;
+}

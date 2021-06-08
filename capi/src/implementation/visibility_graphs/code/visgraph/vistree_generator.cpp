@@ -11,25 +11,36 @@
 #include "types/polyline/three_vertex_polyline.hpp"
 #include "vistree_generator.hpp"
 
-std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(const Coordinate &observer,
-                                                                            const std::vector<Polygon> &polygons,
-                                                                            bool half_scan) {
-    const auto all_polygon_vertices_and_incident_segments =
-        VistreeGenerator::all_vertices_and_incident_segments(polygons);
-    if (all_polygon_vertices_and_incident_segments.empty()) {
+
+VistreeGenerator::VistreeGenerator(const std::vector<Polygon> &polygons): _vertices_and_segments(VistreeGenerator::all_vertices_and_incident_segments(polygons)) { }
+
+std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices(const Coordinate &observer, bool half_scan) const {
+    return get_visible_vertices_from_candidate_segments_and_vertices(
+            observer, VistreeGenerator::all_vertices(),
+            VistreeGenerator::all_line_segments(), half_scan);
+}
+
+std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_candidate_segments(const Coordinate &observer,
+                                                                                          const std::vector<std::shared_ptr<LineSegment>> &candidate_segments,
+                                                                                          bool half_scan) const {
+    return get_visible_vertices_from_candidate_segments_and_vertices(observer, all_vertices_for_line_segments(candidate_segments), candidate_segments, half_scan);
+}
+
+std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_candidate_segments_and_vertices(
+        const Coordinate &observer, const std::vector<Coordinate> &candidate_vertices,
+        const std::vector<std::shared_ptr<LineSegment>> &candidate_segments, bool half_scan) const {
+    if (_vertices_and_segments.empty()) {
         return {};
     }
 
-    auto vertices_sorted_counter_clockwise_around_observer =
-        VistreeGenerator::all_vertices(all_polygon_vertices_and_incident_segments);
+    auto vertices_sorted_counter_clockwise_around_observer = candidate_vertices;
     AngleSorter::sort_counter_clockwise_around_observer(observer, vertices_sorted_counter_clockwise_around_observer);
 
     auto open_edges = OpenEdges();
     const auto initial_scanline_segment =
-        LineSegment(observer, Coordinate(MAX_PERIODIC_LONGITUDE, observer.get_latitude()));
+            LineSegment(observer, Coordinate(MAX_PERIODIC_LONGITUDE, observer.get_latitude()));
     const auto initial_scanline_vector = initial_scanline_segment.get_tangent_vector();
-    auto line_segments = VistreeGenerator::all_line_segments(all_polygon_vertices_and_incident_segments);
-    for (const auto &line_segment : line_segments) {
+    for (const auto &line_segment : candidate_segments) {
         if (observer == line_segment->get_endpoint_1() || observer == line_segment->get_endpoint_2()) {
             continue;
         }
@@ -53,21 +64,19 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_root(cons
             break;
         }
 
-        const auto &incident_segments = all_polygon_vertices_and_incident_segments.at(current_vertex);
+        const auto &incident_segments = _vertices_and_segments.at(current_vertex);
         const auto clockwise_segments =
-            VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::CLOCKWISE);
+                VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::CLOCKWISE);
         const auto counter_clockwise_segments =
-            VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::COUNTER_CLOCKWISE);
+                VistreeGenerator::orientation_segments(incident_segments, scanline_segment, Orientation::COUNTER_CLOCKWISE);
 
         VistreeGenerator::erase_segments_from_open_edges(clockwise_segments, open_edges);
 
-        const auto curr_vertex_visible =
-            VistreeGenerator::is_vertex_visible(open_edges, all_polygon_vertices_and_incident_segments, observer,
-                                                current_vertex);
+        const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(open_edges, observer, current_vertex);
         if (curr_vertex_visible) {
             visible_vertices.push_back(VisibleVertex{
-                .coord = coordinate_from_periodic_coordinate(current_vertex),
-                .is_visible_across_meridian = is_coordinate_over_meridian(current_vertex),
+                    .coord = coordinate_from_periodic_coordinate(current_vertex),
+                    .is_visible_across_meridian = is_coordinate_over_meridian(current_vertex),
             });
         }
 
@@ -106,11 +115,11 @@ VistreeGenerator::all_vertices_and_incident_segments(const std::vector<Polygon> 
     return vertices_and_segments;
 }
 
-std::vector<std::shared_ptr<LineSegment>> VistreeGenerator::all_line_segments(const VertexToSegmentMapping &vertices_and_segments) {
+std::vector<std::shared_ptr<LineSegment>> VistreeGenerator::all_line_segments() const {
     std::vector<std::shared_ptr<LineSegment>> segments;
-    segments.reserve(vertices_and_segments.size());
+    segments.reserve(_vertices_and_segments.size());
 
-    for (const auto &vertex_and_segments : vertices_and_segments) {
+    for (const auto &vertex_and_segments : _vertices_and_segments) {
         if (vertex_and_segments.second.size() != 2) {
             throw std::runtime_error("Vertex detected which does not have only two segments");
         }
@@ -121,15 +130,27 @@ std::vector<std::shared_ptr<LineSegment>> VistreeGenerator::all_line_segments(co
     return segments;
 }
 
-std::vector<Coordinate> VistreeGenerator::all_vertices(const VertexToSegmentMapping &vertices_and_segments) {
+std::vector<Coordinate> VistreeGenerator::all_vertices() const {
     std::vector<Coordinate> vertices;
-    vertices.reserve(vertices_and_segments.size());
+    vertices.reserve(_vertices_and_segments.size());
 
-    for (const auto &vertex_and_segments : vertices_and_segments) {
+    for (const auto &vertex_and_segments : _vertices_and_segments) {
         vertices.push_back(vertex_and_segments.first);
     }
 
     return vertices;
+}
+
+std::vector<Coordinate> VistreeGenerator::all_vertices_for_line_segments(
+        const std::vector<std::shared_ptr<LineSegment>> &line_segments) {
+    auto vertices = std::unordered_set<Coordinate>();
+
+    for (const auto &segment : line_segments) {
+        vertices.insert(segment->get_endpoint_1());
+        vertices.insert(segment->get_endpoint_2());
+    }
+
+    return std::vector<Coordinate>(vertices.begin(), vertices.end());
 }
 
 std::vector<std::shared_ptr<LineSegment>> VistreeGenerator::orientation_segments(const std::vector<std::shared_ptr<LineSegment>> &segments,
@@ -149,13 +170,12 @@ std::vector<std::shared_ptr<LineSegment>> VistreeGenerator::orientation_segments
 }
 
 bool VistreeGenerator::is_vertex_visible(const OpenEdges &open_edges,
-                                         const VertexToSegmentMapping &vertices_and_segments,
                                          const Coordinate &observer_coordinate,
-                                         const Coordinate &vertex_in_question) {
+                                         const Coordinate &vertex_in_question) const {
         if (vertex_in_question == observer_coordinate) {
             return false;
         }
-        if (vertices_and_segments.find(observer_coordinate) != vertices_and_segments.end()) {
+        if (_vertices_and_segments.find(observer_coordinate) != _vertices_and_segments.end()) {
             // We perform this check to stop our observer coordinate (if it is a vertex of a polygon)
             // from seeing vertices from inside the polygon
             // Essentially we build artificial walls based on the edges we know obstruct vision (those adjacent)
@@ -164,7 +184,7 @@ bool VistreeGenerator::is_vertex_visible(const OpenEdges &open_edges,
             auto barrier_polyline_vertices = std::vector<Coordinate>();
             barrier_polyline_vertices.reserve(3);
 
-            const auto &vertex_segments = vertices_and_segments.at(observer_coordinate);
+            const auto &vertex_segments = _vertices_and_segments.at(observer_coordinate);
             for (size_t i = 0; i < vertex_segments.size(); ++i) {
                 barrier_polyline_vertices.push_back(vertex_segments[i]->get_endpoint_1());
                 if (i != 0)

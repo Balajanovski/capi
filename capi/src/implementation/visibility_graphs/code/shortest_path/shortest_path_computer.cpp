@@ -6,8 +6,8 @@
 #include <algorithm>
 
 #include "shortest_path_computer.hpp"
-#include "visgraph/vistree_generator.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
+#include "constants/constants.hpp"
 
 struct AStarHeapElement {
     Coordinate node;
@@ -15,7 +15,8 @@ struct AStarHeapElement {
     double heuristic_distance_to_destination;
 };
 
-ShortestPathComputer::ShortestPathComputer(const Graph &graph): _graph(graph), _periodic_polygons(make_polygons_periodic(graph.get_polygons())) { }
+ShortestPathComputer::ShortestPathComputer(const Graph &graph): _graph(graph), _index(graph), _tree_gen(
+        make_polygons_periodic(graph.get_polygons())) { }
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination) const {
     const auto modified_graph = create_modified_graph(source, destination);
@@ -97,16 +98,18 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
                     distance_measurement(a, b, true));
 }
 
-#include <iostream>
-
 Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
     auto modified_graph = Graph(_graph);
+    const auto source_dest_distance = source.spherical_distance(destination) + EPSILON_TOLERANCE;
 
     const auto found_source = modified_graph.has_vertex(source);
     if (!found_source) {
         modified_graph.add_vertex(source);
+
+        const auto candidate_edges = make_segments_periodic(_index.segments_within_distance_of_point(source, source_dest_distance));
+
         for (const auto &visible_vertex :
-            VistreeGenerator::get_visible_vertices_from_root(source, _periodic_polygons, false)) {
+                _tree_gen.get_visible_vertices_from_candidate_segments(source, candidate_edges, false)) {
             modified_graph.add_edge(source, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
@@ -114,8 +117,11 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
     const auto found_destination = modified_graph.has_vertex(destination);
     if (!found_destination) {
         modified_graph.add_vertex(destination);
+
+        const auto candidate_edges = make_segments_periodic(_index.segments_within_distance_of_point(destination, source_dest_distance));
+
         for (const auto &visible_vertex :
-            VistreeGenerator::get_visible_vertices_from_root(destination, _periodic_polygons, false)) {
+                _tree_gen.get_visible_vertices_from_candidate_segments(destination, candidate_edges, false)) {
             modified_graph.add_edge(destination, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }

@@ -6,6 +6,8 @@
 #define CAPI_LINE_SEGMENT_HPP
 
 #include <optional>
+#include <s2/s2polyline.h>
+#include <memory>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/orientation/orientation.hpp"
@@ -25,6 +27,8 @@ class LineSegment {
 
     bool operator==(const LineSegment &other) const;
     bool operator!=(const LineSegment &other) const;
+
+    [[nodiscard]] S2Polyline *to_s2_polyline() const;
 
   private:
     Coordinate _endpoint_1;

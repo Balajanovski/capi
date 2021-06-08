@@ -10,6 +10,8 @@
 #include "types/polygon/polygon.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "datastructures/graph/graph.hpp"
+#include "datastructures/spatial_segment_index/spatial_segment_index.hpp"
+#include "visgraph/vistree_generator.hpp"
 
 class ShortestPathComputer {
   public:
@@ -21,10 +23,11 @@ class ShortestPathComputer {
     static double distance_measurement(const Coordinate &a, const Coordinate &b, bool is_meridian_spanning);
     static double heuristic_distance_measurement(const Coordinate &a, const Coordinate &b);
 
-    Graph create_modified_graph(const Coordinate &source, const Coordinate &destination) const;
+    [[nodiscard]] Graph create_modified_graph(const Coordinate &source, const Coordinate &destination) const;
 
     Graph _graph;
-    std::vector<Polygon> _periodic_polygons;
+    SpatialSegmentIndex _index;
+    VistreeGenerator _tree_gen;
 };
 
 #endif // CAPI_SHORTEST_PATH_COMPUTER_HPP
