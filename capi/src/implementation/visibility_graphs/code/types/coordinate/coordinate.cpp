@@ -4,8 +4,8 @@
 
 #include <cmath>
 #include <fmt/format.h>
-#include <stdexcept>
 #include <s2/s2latlng.h>
+#include <stdexcept>
 
 #include "coordinate.hpp"
 
@@ -15,7 +15,8 @@
 Coordinate::Coordinate() : _longitude_microdegrees(0), _latitude_microdegrees(0) {}
 
 Coordinate::Coordinate(double longitude, double latitude)
-    : _longitude_microdegrees(DEGREES_TO_MICRODEGREES(longitude)), _latitude_microdegrees(DEGREES_TO_MICRODEGREES(latitude)) {}
+    : _longitude_microdegrees(DEGREES_TO_MICRODEGREES(longitude)),
+      _latitude_microdegrees(DEGREES_TO_MICRODEGREES(latitude)) {}
 
 Coordinate::Coordinate(int32_t longitude_microdegrees, int32_t latitude_microdegrees)
     : _longitude_microdegrees(longitude_microdegrees), _latitude_microdegrees(latitude_microdegrees) {}
@@ -39,13 +40,15 @@ int64_t Coordinate::get_latitude_microdegrees_long() const { return _latitude_mi
 int64_t Coordinate::get_longitude_microdegrees_long() const { return _longitude_microdegrees; }
 
 bool Coordinate::operator==(const Coordinate &other) const {
-    return _longitude_microdegrees == other._longitude_microdegrees && _latitude_microdegrees == other._latitude_microdegrees;
+    return _longitude_microdegrees == other._longitude_microdegrees &&
+           _latitude_microdegrees == other._latitude_microdegrees;
 }
 
 bool Coordinate::operator!=(const Coordinate &other) const { return !(*this == other); }
 
 Coordinate Coordinate::operator+(const Coordinate &other) const {
-    return {_longitude_microdegrees + other._longitude_microdegrees, _latitude_microdegrees + other._latitude_microdegrees};
+    return {_longitude_microdegrees + other._longitude_microdegrees,
+            _latitude_microdegrees + other._latitude_microdegrees};
 }
 
 Coordinate Coordinate::operator-() const { return {-_longitude_microdegrees, -_latitude_microdegrees}; }
@@ -68,7 +71,7 @@ double Coordinate::dot_product(const Coordinate &other) const {
     return (longitude * other_longitude) + (latitude * other_latitude);
 }
 
-int64_t Coordinate::dot_product_microdegrees(const Coordinate& other) const {
+int64_t Coordinate::dot_product_microdegrees(const Coordinate &other) const {
     const auto longitude = get_longitude_microdegrees_long();
     const auto latitude = get_latitude_microdegrees_long();
     const auto other_longitude = other.get_longitude_microdegrees_long();
@@ -87,7 +90,8 @@ double Coordinate::cross_product_magnitude(const Coordinate &other) const {
 }
 
 int64_t Coordinate::cross_product_magnitude_microdegrees(const Coordinate &other) const {
-    return (get_longitude_microdegrees_long() * other.get_latitude_microdegrees_long()) - (other.get_longitude_microdegrees_long() * get_latitude_microdegrees_long());
+    return (get_longitude_microdegrees_long() * other.get_latitude_microdegrees_long()) -
+           (other.get_longitude_microdegrees_long() * get_latitude_microdegrees_long());
 }
 
 double Coordinate::magnitude_squared() const {
@@ -151,9 +155,7 @@ std::string Coordinate::to_string_representation() const {
     return fmt::format("({},{})", get_longitude(), get_latitude());
 }
 
-S2Point Coordinate::to_s2_point() const {
-    return S2Point(to_s2_lat_lng());
-}
+S2Point Coordinate::to_s2_point() const { return S2Point(to_s2_lat_lng()); }
 
 S2LatLng Coordinate::to_s2_lat_lng() const {
     return S2LatLng::FromE6(get_latitude_microdegrees(), get_longitude_microdegrees());

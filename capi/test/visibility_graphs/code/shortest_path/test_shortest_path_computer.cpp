@@ -10,16 +10,16 @@
 
 TEST_CASE("ShortestPathComputer shortest path") {
     const auto poly1 = Polygon({
-                                   Coordinate(1., 0.),
-                                   Coordinate(0., 1.5),
-                                   Coordinate(-1., 0.),
-                               });
+        Coordinate(1., 0.),
+        Coordinate(0., 1.5),
+        Coordinate(-1., 0.),
+    });
 
     const auto poly2 = Polygon({
-                                   Coordinate(4., 0.),
-                                   Coordinate(3., 1.),
-                                   Coordinate(2., 0.),
-                               });
+        Coordinate(4., 0.),
+        Coordinate(3., 1.),
+        Coordinate(2., 0.),
+    });
 
     const auto graph = VisgraphGenerator::generate({poly1, poly2});
     const auto a = Coordinate(-2., 0.);
@@ -37,16 +37,16 @@ TEST_CASE("ShortestPathComputer shortest path") {
 
 TEST_CASE("ShortestPathComputer shortest path over meridian") {
     const auto poly1 = Polygon({
-                                   Coordinate(179., 0.),
-                                   Coordinate(178., 1.5),
-                                   Coordinate(177., 0.),
-                               });
+        Coordinate(179., 0.),
+        Coordinate(178., 1.5),
+        Coordinate(177., 0.),
+    });
 
     const auto poly2 = Polygon({
-                                   Coordinate(2., 0.),
-                                   Coordinate(1., 1.),
-                                   Coordinate(0., 0.),
-                               });
+        Coordinate(2., 0.),
+        Coordinate(1., 1.),
+        Coordinate(0., 0.),
+    });
 
     const auto graph = VisgraphGenerator::generate({poly1, poly2});
     const auto a = Coordinate(176., 0.);

@@ -5,9 +5,9 @@
 #ifndef CAPI_LINE_SEGMENT_HPP
 #define CAPI_LINE_SEGMENT_HPP
 
+#include <memory>
 #include <optional>
 #include <s2/s2polyline.h>
-#include <memory>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/orientation/orientation.hpp"
@@ -36,7 +36,7 @@ class LineSegment {
 };
 
 namespace std {
-template <> struct hash<LineSegment> { std::size_t operator()(const LineSegment& segment) const; };
+template <> struct hash<LineSegment> { std::size_t operator()(const LineSegment &segment) const; };
 } // namespace std
 
 #endif // CAPI_LINE_SEGMENT_HPP

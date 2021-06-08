@@ -4,7 +4,6 @@
 
 #include "open_edges.hpp"
 
-
 void OpenEdges::add_edge(int64_t distance, const LineSegment &segment) {
     _edges_sorted_by_distance.emplace(distance, segment);
     _edge_to_distance_mapping[segment] = distance;
@@ -27,10 +26,6 @@ void OpenEdges::remove_edge(const LineSegment &segment) {
     }
 }
 
-LineSegment OpenEdges::closest_edge() const {
-    return _edges_sorted_by_distance.begin()->second;
-}
+LineSegment OpenEdges::closest_edge() const { return _edges_sorted_by_distance.begin()->second; }
 
-bool OpenEdges::empty() const {
-    return _edges_sorted_by_distance.empty();
-}
+bool OpenEdges::empty() const { return _edges_sorted_by_distance.empty(); }

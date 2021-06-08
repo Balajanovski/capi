@@ -2,8 +2,8 @@
 // Created by James.Balajan on 8/06/2021.
 //
 
-#include <s2/s2closest_edge_query.h>
 #include <memory>
+#include <s2/s2closest_edge_query.h>
 
 #include "spatial_segment_index.hpp"
 
@@ -24,11 +24,10 @@ SpatialSegmentIndex::~SpatialSegmentIndex() {
     }
 }
 
-std::vector<LineSegment>
-SpatialSegmentIndex::segments_within_distance_of_point(const Coordinate &point, double distance_in_radians) const {
+std::vector<LineSegment> SpatialSegmentIndex::segments_within_distance_of_point(const Coordinate &point,
+                                                                                double distance_in_radians) const {
     S2ClosestEdgeQuery query(&_index);
-    query.mutable_options()->set_max_distance(
-            S1Angle::Radians(distance_in_radians));
+    query.mutable_options()->set_max_distance(S1Angle::Radians(distance_in_radians));
 
     decltype(query)::PointTarget target(point.to_s2_point());
     const auto results = query.FindClosestEdges(&target);

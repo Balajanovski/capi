@@ -7,9 +7,9 @@
 
 #include <optional>
 #include <ostream>
-#include <string>
-#include <s2/s2point.h>
 #include <s2/s2latlng.h>
+#include <s2/s2point.h>
+#include <string>
 
 #include "types/orientation/orientation.hpp"
 
@@ -18,7 +18,7 @@ class Coordinate {
     Coordinate();
     Coordinate(double longitude, double latitude);
     Coordinate(int32_t longitude_microdegrees, int32_t latitude_microdegrees);
-    explicit Coordinate(const S2Point& point);
+    explicit Coordinate(const S2Point &point);
 
     // Getters
     [[nodiscard]] double get_latitude() const;
@@ -57,6 +57,7 @@ class Coordinate {
 
     // Distance
     [[nodiscard]] double spherical_distance(const Coordinate &other) const;
+
   private:
     // Coordinates are stored in microdegrees
     int32_t _longitude_microdegrees;

@@ -6,15 +6,15 @@
 #define CAPI_OPEN_EDGES_HPP
 
 #include <map>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 
 #include "types/line_segment/line_segment.hpp"
 
 class OpenEdges {
   public:
-    void add_edge(int64_t distance, const LineSegment& segment);
-    void remove_edge(const LineSegment& segment);
+    void add_edge(int64_t distance, const LineSegment &segment);
+    void remove_edge(const LineSegment &segment);
 
     [[nodiscard]] LineSegment closest_edge() const;
     [[nodiscard]] bool empty() const;

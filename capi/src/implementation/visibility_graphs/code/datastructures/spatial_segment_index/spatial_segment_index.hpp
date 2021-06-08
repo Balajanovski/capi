@@ -9,21 +9,21 @@
 #include <s2/s2polyline.h>
 #include <vector>
 
+#include "datastructures/graph/graph.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
-#include "datastructures/graph/graph.hpp"
-
 
 class SpatialSegmentIndex {
-public:
+  public:
     explicit SpatialSegmentIndex(const Graph &graph);
     ~SpatialSegmentIndex();
 
-    [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point, double distance_in_radians) const;
-private:
+    [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
+                                                                             double distance_in_radians) const;
+
+  private:
     MutableS2ShapeIndex _index;
-    std::vector<S2Polyline*> _polylines;
+    std::vector<S2Polyline *> _polylines;
 };
 
-
-#endif //CAPI_SPATIAL_INDEX_HPP
+#endif // CAPI_SPATIAL_INDEX_HPP

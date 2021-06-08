@@ -7,16 +7,17 @@
 
 #include <vector>
 
-#include "types/polygon/polygon.hpp"
-#include "types/coordinate/coordinate.hpp"
 #include "datastructures/graph/graph.hpp"
 #include "datastructures/spatial_segment_index/spatial_segment_index.hpp"
+#include "types/coordinate/coordinate.hpp"
+#include "types/polygon/polygon.hpp"
 #include "visgraph/vistree_generator.hpp"
 
 class ShortestPathComputer {
   public:
-    explicit ShortestPathComputer(const Graph& graph);
+    explicit ShortestPathComputer(const Graph &graph);
     [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination) const;
+
   private:
     static constexpr double GREEDINESS_WEIGHTING = 1.1;
 

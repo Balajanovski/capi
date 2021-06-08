@@ -2,12 +2,12 @@
 // Created by James.Balajan on 3/06/2021.
 //
 
-#include <queue>
 #include <algorithm>
+#include <queue>
 
-#include "shortest_path_computer.hpp"
-#include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "constants/constants.hpp"
+#include "coordinate_periodicity/coordinate_periodicity.hpp"
+#include "shortest_path_computer.hpp"
 
 struct AStarHeapElement {
     Coordinate node;
@@ -15,16 +15,19 @@ struct AStarHeapElement {
     double heuristic_distance_to_destination;
 };
 
-ShortestPathComputer::ShortestPathComputer(const Graph &graph): _graph(graph), _index(graph), _tree_gen(
-        make_polygons_periodic(graph.get_polygons())) { }
+ShortestPathComputer::ShortestPathComputer(const Graph &graph)
+    : _graph(graph), _index(graph), _tree_gen(make_polygons_periodic(graph.get_polygons())) {}
 
-std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination) const {
+std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
+                                                            const Coordinate &destination) const {
     const auto modified_graph = create_modified_graph(source, destination);
     const auto source_destination_distance = heuristic_distance_measurement(source, destination);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
-      return (a.distance_to_source + a.heuristic_distance_to_destination*ShortestPathComputer::GREEDINESS_WEIGHTING) >
-             (b.distance_to_source + b.heuristic_distance_to_destination*ShortestPathComputer::GREEDINESS_WEIGHTING);
+        return (a.distance_to_source +
+                a.heuristic_distance_to_destination * ShortestPathComputer::GREEDINESS_WEIGHTING) >
+               (b.distance_to_source +
+                b.heuristic_distance_to_destination * ShortestPathComputer::GREEDINESS_WEIGHTING);
     };
 
     auto pq = std::priority_queue<AStarHeapElement, std::vector<AStarHeapElement>, decltype(comparison_func)>(
@@ -50,8 +53,9 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
 
             const auto edge_dist = distance_measurement(neighbor, top.node, meridian_spanning);
             const auto neighbor_dist_to_source = top.distance_to_source + edge_dist;
-            if (edge_dist > source_destination_distance || (distances_to_source.find(neighbor) != distances_to_source.end() &&
-                distances_to_source.at(neighbor) <= neighbor_dist_to_source)) {
+            if (edge_dist > source_destination_distance ||
+                (distances_to_source.find(neighbor) != distances_to_source.end() &&
+                 distances_to_source.at(neighbor) <= neighbor_dist_to_source)) {
                 continue;
             }
 
@@ -94,8 +98,7 @@ double ShortestPathComputer::distance_measurement(const Coordinate &a, const Coo
 }
 
 double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a, const Coordinate &b) {
-    return std::min(distance_measurement(a, b, false),
-                    distance_measurement(a, b, true));
+    return std::min(distance_measurement(a, b, false), distance_measurement(a, b, true));
 }
 
 Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
@@ -106,10 +109,11 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
     if (!found_source) {
         modified_graph.add_vertex(source);
 
-        const auto candidate_edges = make_segments_periodic(_index.segments_within_distance_of_point(source, source_dest_distance));
+        const auto candidate_edges =
+            make_segments_periodic(_index.segments_within_distance_of_point(source, source_dest_distance));
 
         for (const auto &visible_vertex :
-                _tree_gen.get_visible_vertices_from_candidate_segments(source, candidate_edges, false)) {
+             _tree_gen.get_visible_vertices_from_candidate_segments(source, candidate_edges, false)) {
             modified_graph.add_edge(source, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
@@ -118,10 +122,11 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
     if (!found_destination) {
         modified_graph.add_vertex(destination);
 
-        const auto candidate_edges = make_segments_periodic(_index.segments_within_distance_of_point(destination, source_dest_distance));
+        const auto candidate_edges =
+            make_segments_periodic(_index.segments_within_distance_of_point(destination, source_dest_distance));
 
         for (const auto &visible_vertex :
-                _tree_gen.get_visible_vertices_from_candidate_segments(destination, candidate_edges, false)) {
+             _tree_gen.get_visible_vertices_from_candidate_segments(destination, candidate_edges, false)) {
             modified_graph.add_edge(destination, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }

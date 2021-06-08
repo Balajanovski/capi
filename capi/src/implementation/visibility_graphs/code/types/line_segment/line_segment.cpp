@@ -2,8 +2,8 @@
 // Created by James.Balajan on 31/03/2021.
 //
 
-#include <stdexcept>
 #include <s2/s2point.h>
+#include <stdexcept>
 
 #include "constants/constants.hpp"
 #include "line_segment.hpp"
@@ -111,10 +111,10 @@ bool LineSegment::operator==(const LineSegment &other) const {
 bool LineSegment::operator!=(const LineSegment &other) const { return !((*this) == other); }
 
 S2Polyline *LineSegment::to_s2_polyline() const {
-    return new S2Polyline(std::vector<S2Point> { _endpoint_1.to_s2_point(), _endpoint_2.to_s2_point() });
+    return new S2Polyline(std::vector<S2Point>{_endpoint_1.to_s2_point(), _endpoint_2.to_s2_point()});
 }
 
-std::size_t std::hash<LineSegment>::operator()(const LineSegment& segment) const {
+std::size_t std::hash<LineSegment>::operator()(const LineSegment &segment) const {
     const std::size_t coord_1_hash = hash<Coordinate>()(segment.get_endpoint_1());
     const std::size_t coord_2_hash = hash<Coordinate>()(segment.get_endpoint_2());
     return coord_1_hash ^ (coord_2_hash + 0x9e3779b9 + (coord_1_hash << 6) + (coord_1_hash >> 2));

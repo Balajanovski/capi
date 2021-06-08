@@ -11,8 +11,8 @@
 
 #include "datastructures/graph/graph.hpp"
 #include "serialization/graph_serializer.hpp"
-#include "visgraph/visgraph_generator.hpp"
 #include "shortest_path/shortest_path_computer.hpp"
+#include "visgraph/visgraph_generator.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)

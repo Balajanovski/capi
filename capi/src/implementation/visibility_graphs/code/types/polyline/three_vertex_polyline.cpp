@@ -8,7 +8,7 @@
 #include "constants/constants.hpp"
 #include "three_vertex_polyline.hpp"
 
-ThreeVertexPolyline::ThreeVertexPolyline(Coordinate v1, Coordinate v2, Coordinate v3) : _v1(v1), _v2(v2), _v3(v3) { }
+ThreeVertexPolyline::ThreeVertexPolyline(Coordinate v1, Coordinate v2, Coordinate v3) : _v1(v1), _v2(v2), _v3(v3) {}
 
 bool ThreeVertexPolyline::point_visible(const Coordinate &coordinate) const {
     Coordinate vec_1 = _v1 - _v2;
