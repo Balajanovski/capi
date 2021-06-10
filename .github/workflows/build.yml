@@ -26,6 +26,8 @@ jobs:
           export CXX=g++-9
       - name: Install Cmake
         run: python -m pip install --no-cache-dir cmake==3.16.8
+      - name: S2 deps
+        run: sudo apt install libgflags-dev libgoogle-glog-dev libgtest-dev libssl-dev
       - name: Install TBB
         run: sudo apt install -yqq libtbb-dev
       - name: Install LibGeos
