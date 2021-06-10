@@ -147,3 +147,10 @@ TEST_CASE("Coordinate hash") {
     REQUIRE(std::hash<Coordinate>()(coord1) == std::hash<Coordinate>()(coord3));
     REQUIRE(std::hash<Coordinate>()(coord1) != std::hash<Coordinate>()(coord2));
 }
+
+TEST_CASE("Coordinate spherical distance") {
+    const auto coord1 = Coordinate(0., 0.);
+    const auto coord2 = Coordinate(70., 80.);
+
+    REQUIRE(std::abs(coord1.spherical_distance(coord2) - 1.5113701814) < 0.00001);
+}

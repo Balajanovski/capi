@@ -9,13 +9,13 @@
 #include <s2/s2polyline.h>
 #include <vector>
 
-#include "datastructures/graph/graph.hpp"
+#include "types/polygon/polygon.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
 
 class SpatialSegmentIndex {
   public:
-    explicit SpatialSegmentIndex(const Graph &graph);
+    explicit SpatialSegmentIndex(const std::vector<Polygon> &polygons);
     ~SpatialSegmentIndex();
 
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,

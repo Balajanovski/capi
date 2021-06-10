@@ -7,9 +7,8 @@
 
 #include "spatial_segment_index.hpp"
 
-SpatialSegmentIndex::SpatialSegmentIndex(const Graph &graph) {
-    int i = 0;
-    for (const auto &polygon : graph.get_polygons()) {
+SpatialSegmentIndex::SpatialSegmentIndex(const std::vector<Polygon> &polygons) {
+    for (const auto &polygon : polygons) {
         for (const auto &segment : polygon.get_line_segments()) {
             const auto polyline = segment.to_s2_polyline();
             _index.Add(std::make_unique<S2Polyline::Shape>(polyline));

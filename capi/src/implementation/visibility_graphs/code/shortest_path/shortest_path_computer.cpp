@@ -16,7 +16,7 @@ struct AStarHeapElement {
 };
 
 ShortestPathComputer::ShortestPathComputer(const Graph &graph)
-    : _graph(graph), _index(graph), _tree_gen(make_polygons_periodic(graph.get_polygons())) {}
+    : _graph(graph), _index(graph.get_polygons()), _tree_gen(make_polygons_periodic(graph.get_polygons())) {}
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
                                                             const Coordinate &destination) const {
