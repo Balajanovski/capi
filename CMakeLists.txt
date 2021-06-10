@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules"
 set(CMAKE_CXX_FLAGS "-Ofast -Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
+set(EXAMPLE_TARGET "${PROJECT_NAME}_example")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
 
 # OpenMP
@@ -13,6 +14,17 @@ find_package(OpenMP REQUIRED)
 
 # TBB
 find_package(TBB REQUIRED)
+
+# S2
+include(FetchContent)
+find_package(Git REQUIRED)
+FetchContent_Declare(
+        s2
+        GIT_REPOSITORY https://github.com/google/s2geometry.git
+        GIT_TAG v0.9.0
+        BUILD_COMMAND make
+)
+FetchContent_MakeAvailable(s2)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
@@ -61,6 +73,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
+        s2
         tbb)
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
@@ -81,4 +94,16 @@ add_executable(${TEST_TARGET}
 
 target_link_libraries(${TEST_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
+        s2
+        tbb)
+
+add_executable(${EXAMPLE_TARGET}
+        ${VIS_GRAPH_IMPLEMENTATION_FILES}
+        ${VIS_GRAPH_IMPL_DIR}/example.cpp
+        ${MIO_SOURCE}
+        ${FMT_SOURCE})
+
+target_link_libraries(${EXAMPLE_TARGET} PRIVATE
+        OpenMP::OpenMP_CXX
+        s2
         tbb)

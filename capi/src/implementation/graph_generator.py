@@ -1,11 +1,11 @@
 import os
+import time
 import typing
 from functools import reduce
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader
 from capi.src.implementation.visibility_graphs import (
-    VisGraph,
     VisGraphCoord,
     VisGraphPolygon,
     generate_visgraph,
@@ -14,6 +14,7 @@ from capi.src.implementation.visibility_graphs import (
 )
 from capi.src.interfaces.graph_generator import IGraphGenerator
 from capi.src.interfaces.shapefiles.shapefile_reader import IShapefileReader
+from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 
 class GraphGenerator(IGraphGenerator):
@@ -66,11 +67,6 @@ class GraphGenerator(IGraphGenerator):
 
 
 if __name__ == "__main__":
-    import os
-    import time
-
-    from capi.test.test_files.test_files_dir import TEST_FILES_DIR
-
     gen = GraphGenerator()
 
     start_time = time.time()

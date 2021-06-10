@@ -10,13 +10,14 @@ from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 
 class TestPathInterpolator(unittest.TestCase):
-    _EPSILON_TOLERANCE = 0.01
-    _SHAPEFILE_FILE_PATH = os.path.join(TEST_FILES_DIR, "GSHHS_c_L1.shp")
+    _GRAPH_FILE_PATH = os.path.join(TEST_FILES_DIR, "graph")
+    _INTERPOLATOR = PathInterpolator(
+        visibility_graph_file_path=_GRAPH_FILE_PATH,
+    )
 
     def test_copenhagen_to_singapore(self):
         copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
         singapore_coordinates = Coordinate(latitude=1, longitude=104)
-        graph_file_path = os.path.join(TEST_FILES_DIR, "graph")
 
         expected_path = [
             self._make_coordinate(13.00, 55.00),
@@ -47,20 +48,32 @@ class TestPathInterpolator(unittest.TestCase):
             self._make_coordinate(104.00, 1.00),
         ]
 
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=graph_file_path, shapefile_file_path=self._SHAPEFILE_FILE_PATH
-        )
-        path = interpolator.interpolate(copenhagen_coordinates, singapore_coordinates)
+        path = self._INTERPOLATOR.interpolate(copenhagen_coordinates, singapore_coordinates)
 
-        self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
+        self._assert_paths_equal(expected_path, path)
+
+    def test_copenhagen_to_stockholm(self):
+        copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
+        stockholm_coordinates = Coordinate(latitude=59.30, longitude=19.162)
+
+        expected_path = [
+            self._make_coordinate(13, 55),
+            self._make_coordinate(14.1966, 55.382),
+            self._make_coordinate(15.848332999, 56.073722),
+            self._make_coordinate(18.71244399998, 59.278332999996),
+            self._make_coordinate(19.162, 59.3),
+        ]
+
+        path = self._INTERPOLATOR.interpolate(copenhagen_coordinates, stockholm_coordinates)
+
+        self._assert_paths_equal(expected_path, path)
 
     def test_cross_meridian(self):
         coords_1 = Coordinate(latitude=1, longitude=104)
         coords_2 = Coordinate(latitude=37, longitude=-125)
-        graph_file_path = os.path.join(TEST_FILES_DIR, "graph")
 
         expected_path = [
-            self._make_coordinate(104, 1.00),
+            self._make_coordinate(104.0, 1.00),
             self._make_coordinate(116.74586, 7.034528),
             self._make_coordinate(123.012472, 9.040389),
             self._make_coordinate(123.451306, 9.194139),
@@ -68,35 +81,19 @@ class TestPathInterpolator(unittest.TestCase):
             self._make_coordinate(-125.0, 37.0),
         ]
 
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=graph_file_path,
-            shapefile_file_path=self._SHAPEFILE_FILE_PATH,
-        )
-        path = interpolator.interpolate(coords_1, coords_2)
+        path = self._INTERPOLATOR.interpolate(coords_1, coords_2)
 
-        self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
+        self._assert_paths_equal(expected_path, path)
 
     def test_non_intersecting(self):
         coords_1 = self._make_coordinate(-79.80740, 9.13017)
         coords_2 = self._make_coordinate(-79.81564, 9.14596)
-        graph_file_path = os.path.join(TEST_FILES_DIR, "graph")
 
         expected_path = [coords_1, coords_2]
 
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=graph_file_path,
-            shapefile_file_path=self._SHAPEFILE_FILE_PATH,
-        )
-        path = interpolator.interpolate(coords_1, coords_2)
+        path = self._INTERPOLATOR.interpolate(coords_1, coords_2)
 
-        self._assert_paths_equal(expected_path, path, self._EPSILON_TOLERANCE)
-
-    @staticmethod
-    def _get_path_length(path: typing.Sequence[Coordinate]) -> float:
-        length = 0
-        for i in range(1, len(path)):
-            length += haversine((path[i - 1].latitude, path[i - 1].longitude), (path[i].latitude, path[i].longitude))
-        return length
+        self._assert_paths_equal(expected_path, path)
 
     @staticmethod
     def _make_coordinate(longitude: float, latitude: float) -> Coordinate:
@@ -109,11 +106,29 @@ class TestPathInterpolator(unittest.TestCase):
     def _assert_paths_equal(
         path_1: typing.Sequence[Coordinate],
         path_2: typing.Sequence[Coordinate],
-        epsilon_tolerance: float,
     ) -> None:
-        for coord_1, coord_2 in zip(path_1, path_2):
-            if (
-                abs(coord_1.longitude - coord_2.longitude) > epsilon_tolerance
-                or abs(coord_1.latitude - coord_2.latitude) > epsilon_tolerance
-            ):
-                raise AssertionError(f"Paths do not equal within epsilon tolerance of {epsilon_tolerance}")
+        dist = TestPathInterpolator._path_difference(path_1, path_2)
+        tolerance = 240
+
+        if dist > tolerance:
+            raise AssertionError(f"Paths do not equal within tolerance of {tolerance}")
+
+    @staticmethod
+    def _path_difference(path1: typing.Sequence[Coordinate], path2: typing.Sequence[Coordinate]) -> float:
+        if len(path1) < len(path2):
+            s_path = path1
+            l_path = path2
+        else:
+            s_path = path2
+            l_path = path1
+
+        path_diff_sum = 0.0
+        for l_path_pt in l_path:
+            shortest_dist_to_l_path = float("inf")
+            for s_path_pt in s_path:
+                shortest_dist_to_l_path = min(
+                    shortest_dist_to_l_path,
+                    haversine((l_path_pt.latitude, l_path_pt.longitude), (s_path_pt.latitude, s_path_pt.longitude)),
+                )
+            path_diff_sum += shortest_dist_to_l_path
+        return path_diff_sum / len(s_path)

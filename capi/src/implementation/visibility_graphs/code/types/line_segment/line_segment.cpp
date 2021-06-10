@@ -2,6 +2,7 @@
 // Created by James.Balajan on 31/03/2021.
 //
 
+#include <s2/s2point.h>
 #include <stdexcept>
 
 #include "constants/constants.hpp"
@@ -68,10 +69,15 @@ std::optional<Coordinate> LineSegment::intersection_with_segment(const LineSegme
 Coordinate LineSegment::get_tangent_vector() const { return _endpoint_2 - _endpoint_1; }
 
 Orientation LineSegment::orientation_of_point_to_segment(const Coordinate &point) const {
-    const auto signed_area = (_endpoint_2.get_longitude() - _endpoint_1.get_longitude()) *
-                                 (point.get_latitude() - _endpoint_1.get_latitude()) -
-                             (_endpoint_2.get_latitude() - _endpoint_1.get_latitude()) *
-                                 (point.get_longitude() - _endpoint_1.get_longitude());
+    const auto point_lon = static_cast<int64_t>(point.get_longitude_microdegrees());
+    const auto point_lat = static_cast<int64_t>(point.get_latitude_microdegrees());
+    const auto point_1_lon = static_cast<int64_t>(_endpoint_1.get_longitude_microdegrees());
+    const auto point_1_lat = static_cast<int64_t>(_endpoint_1.get_latitude_microdegrees());
+    const auto point_2_lon = static_cast<int64_t>(_endpoint_2.get_longitude_microdegrees());
+    const auto point_2_lat = static_cast<int64_t>(_endpoint_2.get_latitude_microdegrees());
+
+    const auto signed_area = (point_2_lon - point_1_lon) * (point_lat - point_1_lat) -
+                             (point_2_lat - point_1_lat) * (point_lon - point_1_lon);
     if (signed_area > EPSILON_TOLERANCE) {
         return Orientation::COUNTER_CLOCKWISE;
     }
@@ -103,3 +109,13 @@ bool LineSegment::operator==(const LineSegment &other) const {
 }
 
 bool LineSegment::operator!=(const LineSegment &other) const { return !((*this) == other); }
+
+S2Polyline *LineSegment::to_s2_polyline() const {
+    return new S2Polyline(std::vector<S2Point>{_endpoint_1.to_s2_point(), _endpoint_2.to_s2_point()});
+}
+
+std::size_t std::hash<LineSegment>::operator()(const LineSegment &segment) const {
+    const std::size_t coord_1_hash = hash<Coordinate>()(segment.get_endpoint_1());
+    const std::size_t coord_2_hash = hash<Coordinate>()(segment.get_endpoint_2());
+    return coord_1_hash ^ (coord_2_hash + 0x9e3779b9 + (coord_1_hash << 6) + (coord_1_hash >> 2));
+}

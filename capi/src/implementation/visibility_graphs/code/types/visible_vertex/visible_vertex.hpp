@@ -15,4 +15,6 @@ struct VisibleVertex {
     bool operator!=(const VisibleVertex &other) const;
 };
 
+std::ostream &operator<<(std::ostream &outs, const VisibleVertex &coord);
+
 #endif // CAPI_VISIBLE_VERTEX_HPP

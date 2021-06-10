@@ -17,6 +17,23 @@ Polygon::Polygon(const std::vector<Coordinate> &vertices) : _vertices(Polygon::p
 
 const std::vector<Coordinate> &Polygon::get_vertices() const { return _vertices; }
 
+std::vector<LineSegment> Polygon::get_line_segments() const {
+    auto segments = std::vector<LineSegment>();
+    const auto num_poly_vertices = _vertices.size();
+    segments.reserve(num_poly_vertices);
+
+    for (long i = 0; i < _vertices.size(); ++i) {
+        long next_idx = (i + 1) % num_poly_vertices;
+
+        const auto &curr_vertex = _vertices[i];
+        const auto &next_vertex = _vertices[next_idx];
+
+        segments.emplace_back(curr_vertex, next_vertex);
+    }
+
+    return segments;
+}
+
 bool Polygon::operator==(const Polygon &other) const { return (_vertices == other._vertices); }
 
 bool Polygon::operator!=(const Polygon &other) const { return !(*this == other); }
@@ -69,6 +86,17 @@ std::vector<Coordinate> Polygon::remove_collinear_vertices(const std::vector<Coo
     }
 
     return filtered_vertices;
+}
+
+S2Loop *Polygon::to_s2_loop() const {
+    auto verts = std::vector<S2Point>();
+    verts.reserve(_vertices.size());
+
+    for (const auto &vertex : _vertices) {
+        verts.push_back(vertex.to_s2_point());
+    }
+
+    return new S2Loop(verts);
 }
 
 std::string Polygon::to_string_representation() const {

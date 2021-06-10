@@ -6,10 +6,12 @@
 #define CAPI_POLYGON_HPP
 
 #include <initializer_list>
+#include <s2/s2loop.h>
 #include <string>
 #include <vector>
 
 #include "types/coordinate/coordinate.hpp"
+#include "types/line_segment/line_segment.hpp"
 
 class Polygon {
   public:
@@ -18,9 +20,12 @@ class Polygon {
     explicit Polygon(const std::vector<Coordinate> &vertices);
 
     [[nodiscard]] const std::vector<Coordinate> &get_vertices() const;
+    [[nodiscard]] std::vector<LineSegment> get_line_segments() const;
 
     bool operator==(const Polygon &other) const;
     bool operator!=(const Polygon &other) const;
+
+    [[nodiscard]] S2Loop *to_s2_loop() const;
 
     [[nodiscard]] std::string to_string_representation() const;
 

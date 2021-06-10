@@ -28,6 +28,7 @@ the visibility graph computation.
 
 - OpenMP
 - TBB (Thread Building Blocks)
+- [S2Geometry](https://github.com/google/s2geometry)
 
 ## CAPI History
 

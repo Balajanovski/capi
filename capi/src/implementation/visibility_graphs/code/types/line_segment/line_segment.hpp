@@ -5,7 +5,9 @@
 #ifndef CAPI_LINE_SEGMENT_HPP
 #define CAPI_LINE_SEGMENT_HPP
 
+#include <memory>
 #include <optional>
+#include <s2/s2polyline.h>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/orientation/orientation.hpp"
@@ -26,9 +28,15 @@ class LineSegment {
     bool operator==(const LineSegment &other) const;
     bool operator!=(const LineSegment &other) const;
 
+    [[nodiscard]] S2Polyline *to_s2_polyline() const;
+
   private:
     Coordinate _endpoint_1;
     Coordinate _endpoint_2;
 };
+
+namespace std {
+template <> struct hash<LineSegment> { std::size_t operator()(const LineSegment &segment) const; };
+} // namespace std
 
 #endif // CAPI_LINE_SEGMENT_HPP

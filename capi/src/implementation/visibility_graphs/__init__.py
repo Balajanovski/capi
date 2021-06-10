@@ -2,6 +2,7 @@ from capi.src.implementation.visibility_graphs._vis_graph import (  # type: igno
     VisGraph,
     VisGraphCoord,
     VisGraphPolygon,
+    VisGraphShortestPathComputer,
     __doc__,
     __version__,
     generate_visgraph,

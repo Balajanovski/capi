@@ -22,23 +22,25 @@ TEST_CASE("Line Segment Intersection with segment") {
     const auto line_segment = LineSegment(endpoint_1, endpoint_2);
 
     REQUIRE(Coordinate(1.5, 1.5) ==
-            line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(2, 2))).value());
+            line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(2., 2.))).value());
     REQUIRE_FALSE(
-        line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(1.1, 1.1))).has_value());
+        line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(1.1, 1.1))).has_value());
     REQUIRE(Coordinate(1.0, 2.0) ==
-            line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(1, 2))).value());
+            line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(1., 2.))).value());
     REQUIRE(Coordinate(2.0, 1.0) ==
-            line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(2, 1))).value());
-    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(0, 0))).has_value());
-    REQUIRE_FALSE(line_segment.intersection_with_segment(LineSegment(Coordinate(1, 1), Coordinate(0, 2))).has_value());
+            line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(2., 1.))).value());
+    REQUIRE_FALSE(
+        line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(0., 0.))).has_value());
+    REQUIRE_FALSE(
+        line_segment.intersection_with_segment(LineSegment(Coordinate(1., 1.), Coordinate(0., 2.))).has_value());
     REQUIRE_FALSE(
         line_segment.intersection_with_segment(LineSegment(Coordinate(1.5, 1.5), Coordinate(2.5, 0.5))).has_value());
     REQUIRE_FALSE(
         line_segment.intersection_with_segment(LineSegment(Coordinate(1.5, 1.5), Coordinate(0.5, 2.5))).has_value());
-    REQUIRE(Coordinate(2, 1) ==
-            line_segment.intersection_with_segment(LineSegment(Coordinate(3, 0), Coordinate(2, 1))).value());
-    REQUIRE(Coordinate(1, 2) ==
-            line_segment.intersection_with_segment(LineSegment(Coordinate(0, 3), Coordinate(1, 2))).value());
+    REQUIRE(Coordinate(2., 1.) ==
+            line_segment.intersection_with_segment(LineSegment(Coordinate(3., 0.), Coordinate(2., 1.))).value());
+    REQUIRE(Coordinate(1., 2.) ==
+            line_segment.intersection_with_segment(LineSegment(Coordinate(0., 3.), Coordinate(1., 2.))).value());
 }
 
 TEST_CASE("Line Segment Equals operator") {
@@ -55,7 +57,7 @@ TEST_CASE("Line Segment Equals operator") {
 }
 
 TEST_CASE("Line Segment Orientation of point to segment") {
-    const auto segment = LineSegment(Coordinate(1, 0), Coordinate(0, 1));
+    const auto segment = LineSegment(Coordinate(1., 0.), Coordinate(0., 1.));
     const auto p1 = Coordinate(0.3, 0.2);
     const auto p2 = Coordinate(0.5, 0.5);
     const auto p3 = Coordinate(0.7, 0.8);
@@ -66,13 +68,13 @@ TEST_CASE("Line Segment Orientation of point to segment") {
 }
 
 TEST_CASE("Line Segment On Segment") {
-    const auto segment = LineSegment(Coordinate(1, 0), Coordinate(0, 1));
+    const auto segment = LineSegment(Coordinate(1., 0.), Coordinate(0., 1.));
 
-    REQUIRE(segment.on_segment(Coordinate(1, 0)));
-    REQUIRE(segment.on_segment(Coordinate(0, 1)));
+    REQUIRE(segment.on_segment(Coordinate(1., 0.)));
+    REQUIRE(segment.on_segment(Coordinate(0., 1.)));
     REQUIRE(segment.on_segment(Coordinate(0.5, 0.5)));
-    REQUIRE_FALSE(segment.on_segment(Coordinate(2, -1)));
-    REQUIRE_FALSE(segment.on_segment(Coordinate(-1, 2)));
-    REQUIRE_FALSE(segment.on_segment(Coordinate(0, 0)));
-    REQUIRE_FALSE(segment.on_segment(Coordinate(1, 1)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(2., -1.)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(-1., 2.)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(0., 0.)));
+    REQUIRE_FALSE(segment.on_segment(Coordinate(1., 1.)));
 }
