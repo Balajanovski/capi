@@ -11,7 +11,6 @@
 #include "datastructures/spatial_segment_index/spatial_segment_index.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
-#include "visgraph/vistree_generator.hpp"
 
 class ShortestPathComputer {
   public:
@@ -28,7 +27,6 @@ class ShortestPathComputer {
 
     Graph _graph;
     SpatialSegmentIndex _index;
-    VistreeGenerator _tree_gen;
 };
 
 #endif // CAPI_SHORTEST_PATH_COMPUTER_HPP

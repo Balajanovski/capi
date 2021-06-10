@@ -88,6 +88,17 @@ std::vector<Coordinate> Polygon::remove_collinear_vertices(const std::vector<Coo
     return filtered_vertices;
 }
 
+S2Loop *Polygon::to_s2_loop() const {
+    auto verts = std::vector<S2Point>();
+    verts.reserve(_vertices.size());
+
+    for (const auto &vertex : _vertices) {
+        verts.push_back(vertex.to_s2_point());
+    }
+
+    return new S2Loop(verts);
+}
+
 std::string Polygon::to_string_representation() const {
     auto outs = std::stringstream();
 

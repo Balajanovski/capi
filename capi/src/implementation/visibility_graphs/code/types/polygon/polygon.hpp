@@ -8,6 +8,7 @@
 #include <initializer_list>
 #include <string>
 #include <vector>
+#include <s2/s2loop.h>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
@@ -23,6 +24,8 @@ class Polygon {
 
     bool operator==(const Polygon &other) const;
     bool operator!=(const Polygon &other) const;
+
+    [[nodiscard]] S2Loop *to_s2_loop() const;
 
     [[nodiscard]] std::string to_string_representation() const;
 

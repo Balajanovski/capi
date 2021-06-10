@@ -50,3 +50,23 @@ TEST_CASE("Test does_segment_intersect_with_segments") {
     REQUIRE(index.does_segment_intersect_with_segments(seg1));
     REQUIRE_FALSE(index.does_segment_intersect_with_segments(seg2));
 }
+
+TEST_CASE("Test is point contained") {
+    const auto polygons = std::vector<Polygon> {
+            Polygon({
+                            Coordinate(1., 1.),
+                            Coordinate(1., -1.),
+                            Coordinate(-1., -1.),
+                            Coordinate(-1., 1.),
+                    })
+    };
+    const auto index = SpatialSegmentIndex(polygons);
+
+    const auto p1 = Coordinate(0., 0.);
+    const auto p2 = Coordinate(1., 1.);
+    const auto p3 = Coordinate(2., 0.);
+
+    REQUIRE(index.is_point_contained(p1));
+    REQUIRE_FALSE(index.is_point_contained(p2));
+    REQUIRE_FALSE(index.is_point_contained(p3));
+}

@@ -16,10 +16,16 @@ struct AStarHeapElement {
 };
 
 ShortestPathComputer::ShortestPathComputer(const Graph &graph)
-    : _graph(graph), _index(graph.get_polygons()), _tree_gen(make_polygons_periodic(graph.get_polygons())) {}
+    : _graph(graph), _index(graph.get_polygons()) {}
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
                                                             const Coordinate &destination) const {
+    const auto source_is_on_land = _index.is_point_contained(source);
+    const auto destination_is_on_land = _index.is_point_contained(destination);
+    if (source_is_on_land || destination_is_on_land) {
+        return std::vector<Coordinate> {};
+    }
+
     if (!_index.does_segment_intersect_with_segments(LineSegment(source, destination))) {
         return std::vector<Coordinate> {source, destination};
     }
@@ -107,31 +113,20 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
 
 Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
     auto modified_graph = Graph(_graph);
-    const auto source_dest_distance = source.spherical_distance(destination) + EPSILON_TOLERANCE;
 
-    const auto found_source = modified_graph.has_vertex(source);
-    if (!found_source) {
-        modified_graph.add_vertex(source);
+    const auto normalized_source = coordinate_from_periodic_coordinate(source);
+    const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
 
-        const auto candidate_edges =
-            make_segments_periodic(_index.segments_within_distance_of_point(source, source_dest_distance));
-
-        for (const auto &visible_vertex :
-             _tree_gen.get_visible_vertices_from_candidate_segments(source, candidate_edges, false)) {
-            modified_graph.add_edge(source, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
-        }
-    }
-
-    const auto found_destination = modified_graph.has_vertex(destination);
-    if (!found_destination) {
-        modified_graph.add_vertex(destination);
-
-        const auto candidate_edges =
-            make_segments_periodic(_index.segments_within_distance_of_point(destination, source_dest_distance));
-
-        for (const auto &visible_vertex :
-             _tree_gen.get_visible_vertices_from_candidate_segments(destination, candidate_edges, false)) {
-            modified_graph.add_edge(destination, visible_vertex.coord, visible_vertex.is_visible_across_meridian);
+    const auto points_to_add = std::vector<Coordinate> {normalized_source, normalized_destination};
+    for (size_t i = 0; i < points_to_add.size(); ++i) { // NOLINT
+        const auto point = points_to_add[i];
+        const auto found_point = modified_graph.has_vertex(point);
+        if (!found_point) {
+            modified_graph.add_vertex(point);
+            const auto candidate_edge = _index.closest_segment_to_point(point);
+            for (const auto &visible_vertex : std::vector<Coordinate> {candidate_edge.get_endpoint_1(), candidate_edge.get_endpoint_2()}) {
+                modified_graph.add_edge(point, visible_vertex, std::abs(point.get_longitude() - visible_vertex.get_longitude()) > (LONGITUDE_PERIOD * 0.5));
+            }
         }
     }
 

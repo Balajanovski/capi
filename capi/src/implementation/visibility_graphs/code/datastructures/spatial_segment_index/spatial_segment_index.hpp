@@ -6,7 +6,7 @@
 #define CAPI_SPATIAL_INDEX_HPP
 
 #include <s2/mutable_s2shape_index.h>
-#include <s2/s2polyline.h>
+#include <s2/s2loop.h>
 #include <vector>
 
 #include "types/polygon/polygon.hpp"
@@ -20,11 +20,14 @@ class SpatialSegmentIndex {
 
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
                                                                              double distance_in_radians) const;
+    [[nodiscard]] LineSegment closest_segment_to_point(const Coordinate &point) const;
+
     [[nodiscard]] bool does_segment_intersect_with_segments(const LineSegment &segment) const;
+    [[nodiscard]] bool is_point_contained(const Coordinate &point) const;
 
   private:
     MutableS2ShapeIndex _index;
-    std::vector<S2Polyline *> _polylines;
+    std::vector<S2Loop *> _loops;
 };
 
 #endif // CAPI_SPATIAL_INDEX_HPP
