@@ -71,18 +71,6 @@ class TestPathInterpolator(unittest.TestCase):
 
         self._assert_paths_equal(expected_path, path)
 
-    def test_50_km_distance(self):
-        coords_1 = Coordinate(latitude=54.73928, longitude=10.73809)
-        coords_2 = Coordinate(latitude=54.76034, longitude=10.66828)
-
-
-
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=self._GRAPH_FILE_PATH,
-        )
-        path = interpolator.interpolate(coords_1, coords_2)
-        pass
-
     def test_cross_meridian(self):
         coords_1 = Coordinate(latitude=1, longitude=104)
         coords_2 = Coordinate(latitude=37, longitude=-125)
