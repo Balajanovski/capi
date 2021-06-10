@@ -48,7 +48,7 @@ class TestPathInterpolator(unittest.TestCase):
         ]
 
         interpolator = PathInterpolator(
-            visibility_graph_file_path=graph_file_path, shapefile_file_path=self._SHAPEFILE_FILE_PATH
+            visibility_graph_file_path=graph_file_path,
         )
         path = interpolator.interpolate(copenhagen_coordinates, singapore_coordinates)
 
@@ -60,7 +60,7 @@ class TestPathInterpolator(unittest.TestCase):
         graph_file_path = os.path.join(TEST_FILES_DIR, "graph")
 
         interpolator = PathInterpolator(
-            visibility_graph_file_path=graph_file_path, shapefile_file_path=self._SHAPEFILE_FILE_PATH
+            visibility_graph_file_path=graph_file_path,
         )
         path = interpolator.interpolate(copenhagen_coordinates, stockholm_coordinates)
 
@@ -80,7 +80,6 @@ class TestPathInterpolator(unittest.TestCase):
 
         interpolator = PathInterpolator(
             visibility_graph_file_path=graph_file_path,
-            shapefile_file_path=self._SHAPEFILE_FILE_PATH,
         )
         path = interpolator.interpolate(coords_1, coords_2)
 
@@ -95,7 +94,6 @@ class TestPathInterpolator(unittest.TestCase):
 
         interpolator = PathInterpolator(
             visibility_graph_file_path=graph_file_path,
-            shapefile_file_path=self._SHAPEFILE_FILE_PATH,
         )
         path = interpolator.interpolate(coords_1, coords_2)
 

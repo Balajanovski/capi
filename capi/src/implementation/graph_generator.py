@@ -1,11 +1,9 @@
-import os
 import typing
 from functools import reduce
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader
 from capi.src.implementation.visibility_graphs import (
-    VisGraph,
     VisGraphCoord,
     VisGraphPolygon,
     generate_visgraph,
