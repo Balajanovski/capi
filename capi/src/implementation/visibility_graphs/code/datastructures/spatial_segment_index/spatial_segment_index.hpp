@@ -20,6 +20,7 @@ class SpatialSegmentIndex {
 
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
                                                                              double distance_in_radians) const;
+    [[nodiscard]] bool does_segment_intersect_with_segments(const LineSegment &segment) const;
 
   private:
     MutableS2ShapeIndex _index;

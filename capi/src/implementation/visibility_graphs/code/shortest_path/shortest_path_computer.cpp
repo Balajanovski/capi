@@ -20,6 +20,10 @@ ShortestPathComputer::ShortestPathComputer(const Graph &graph)
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
                                                             const Coordinate &destination) const {
+    if (!_index.does_segment_intersect_with_segments(LineSegment(source, destination))) {
+        return std::vector<Coordinate> {source, destination};
+    }
+
     const auto modified_graph = create_modified_graph(source, destination);
     const auto source_destination_distance = heuristic_distance_measurement(source, destination);
 

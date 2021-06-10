@@ -31,3 +31,22 @@ TEST_CASE("Test segments within distance of point") {
         LineSegment(Coordinate(1., 1.), Coordinate(1.,  -1.))
     });
 }
+
+
+TEST_CASE("Test does_segment_intersect_with_segments") {
+    const auto polygons = std::vector<Polygon> {
+        Polygon({
+            Coordinate(1., 1.),
+            Coordinate(1., -1.),
+            Coordinate(-1., -1.),
+            Coordinate(-1., 1.),
+        })
+    };
+    const auto index = SpatialSegmentIndex(polygons);
+
+    const auto seg1 = LineSegment(Coordinate(0., 0.), Coordinate(1., 0.));
+    const auto seg2 = LineSegment(Coordinate(50., 0.), Coordinate(60., 0.));
+
+    REQUIRE(index.does_segment_intersect_with_segments(seg1));
+    REQUIRE_FALSE(index.does_segment_intersect_with_segments(seg2));
+}

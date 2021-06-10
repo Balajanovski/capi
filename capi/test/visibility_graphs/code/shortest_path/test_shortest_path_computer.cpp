@@ -60,3 +60,13 @@ TEST_CASE("ShortestPathComputer shortest path over meridian") {
     REQUIRE(shortest_path_ab == shortest_path_ba);
     REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176., 0.), Coordinate(1., 1.)});
 }
+
+TEST_CASE("ShortestPathComputer shortest path without obstacles") {
+    const auto graph = VisgraphGenerator::generate({});
+    const auto a = Coordinate(176., 0.);
+    const auto b = Coordinate(1., 1.);
+    const auto path_computer = ShortestPathComputer(graph);
+
+    const auto shortest_path = path_computer.shortest_path(a, b);
+    REQUIRE(shortest_path == std::vector<Coordinate> {a, b});
+}

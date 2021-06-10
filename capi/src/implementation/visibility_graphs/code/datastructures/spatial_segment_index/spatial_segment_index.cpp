@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <s2/s2closest_edge_query.h>
+#include <s2/s2crossing_edge_query.h>
 
 #include "spatial_segment_index.hpp"
 
@@ -43,4 +44,12 @@ std::vector<LineSegment> SpatialSegmentIndex::segments_within_distance_of_point(
     }
 
     return segments;
+}
+
+
+bool SpatialSegmentIndex::does_segment_intersect_with_segments(const LineSegment &segment) const {
+    S2CrossingEdgeQuery query(&_index);
+
+    const auto results = query.GetCrossingEdges(segment.get_endpoint_1().to_s2_point(), segment.get_endpoint_2().to_s2_point(), S2CrossingEdgeQuery::CrossingType::ALL);
+    return !results.empty();
 }

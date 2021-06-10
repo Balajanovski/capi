@@ -77,7 +77,7 @@ int64_t Coordinate::dot_product_microdegrees(const Coordinate &other) const {
     const auto other_longitude = other.get_longitude_microdegrees_long();
     const auto other_latitude = other.get_latitude_microdegrees_long();
 
-    return (longitude * other_longitude / 1000000) + (latitude * other_latitude / 1000000);
+    return (longitude * other_longitude) + (latitude * other_latitude);
 }
 
 double Coordinate::cross_product_magnitude(const Coordinate &other) const {
@@ -105,7 +105,7 @@ int64_t Coordinate::magnitude_squared_microdegrees() const {
     const auto longitude = get_longitude_microdegrees_long();
     const auto latitude = get_latitude_microdegrees_long();
 
-    return (longitude * longitude / 1000000) + (latitude * latitude / 1000000);
+    return (longitude * longitude) + (latitude * latitude);
 }
 
 double Coordinate::magnitude() const { return std::sqrt(magnitude_squared()); }
