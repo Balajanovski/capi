@@ -5,10 +5,8 @@ import hypothesis
 import hypothesis.strategies as st
 
 from capi.src.hypothesis_strategies.coordinate import coordinate_strategy
-from capi.src.hypothesis_strategies.polygon import polygon_strategy
 from capi.src.implementation.datastructures.polygon import Polygon
 from capi.src.implementation.dtos.coordinate import Coordinate
-from capi.src.interfaces.datastructures.polygon import IPolygon
 
 
 class TestPolygon(unittest.TestCase):

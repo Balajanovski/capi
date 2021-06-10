@@ -11,6 +11,9 @@ from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
 class TestPathInterpolator(unittest.TestCase):
     _GRAPH_FILE_PATH = os.path.join(TEST_FILES_DIR, "graph")
+    _INTERPOLATOR = PathInterpolator(
+        visibility_graph_file_path=_GRAPH_FILE_PATH,
+    )
 
     def test_copenhagen_to_singapore(self):
         copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
@@ -45,10 +48,7 @@ class TestPathInterpolator(unittest.TestCase):
             self._make_coordinate(104.00, 1.00),
         ]
 
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=self._GRAPH_FILE_PATH,
-        )
-        path = interpolator.interpolate(copenhagen_coordinates, singapore_coordinates)
+        path = self._INTERPOLATOR.interpolate(copenhagen_coordinates, singapore_coordinates)
 
         self._assert_paths_equal(expected_path, path)
 
@@ -64,10 +64,7 @@ class TestPathInterpolator(unittest.TestCase):
             self._make_coordinate(19.162, 59.3),
         ]
 
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=self._GRAPH_FILE_PATH,
-        )
-        path = interpolator.interpolate(copenhagen_coordinates, stockholm_coordinates)
+        path = self._INTERPOLATOR.interpolate(copenhagen_coordinates, stockholm_coordinates)
 
         self._assert_paths_equal(expected_path, path)
 
@@ -84,10 +81,7 @@ class TestPathInterpolator(unittest.TestCase):
             self._make_coordinate(-125.0, 37.0),
         ]
 
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=self._GRAPH_FILE_PATH,
-        )
-        path = interpolator.interpolate(coords_1, coords_2)
+        path = self._INTERPOLATOR.interpolate(coords_1, coords_2)
 
         self._assert_paths_equal(expected_path, path)
 
@@ -97,10 +91,7 @@ class TestPathInterpolator(unittest.TestCase):
 
         expected_path = [coords_1, coords_2]
 
-        interpolator = PathInterpolator(
-            visibility_graph_file_path=self._GRAPH_FILE_PATH,
-        )
-        path = interpolator.interpolate(coords_1, coords_2)
+        path = self._INTERPOLATOR.interpolate(coords_1, coords_2)
 
         self._assert_paths_equal(expected_path, path)
 
