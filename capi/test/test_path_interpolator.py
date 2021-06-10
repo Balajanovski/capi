@@ -117,7 +117,7 @@ class TestPathInterpolator(unittest.TestCase):
         path_2: typing.Sequence[Coordinate],
     ) -> None:
         dist = TestPathInterpolator._path_difference(path_1, path_2)
-        tolerance = 160
+        tolerance = 240
 
         if dist > tolerance:
             raise AssertionError(f"Paths do not equal within tolerance of {tolerance}")
@@ -131,7 +131,7 @@ class TestPathInterpolator(unittest.TestCase):
             s_path = path2
             l_path = path1
 
-        path_diff_sum = 0
+        path_diff_sum = 0.0
         for l_path_pt in l_path:
             shortest_dist_to_l_path = float("inf")
             for s_path_pt in s_path:

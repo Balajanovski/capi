@@ -16,9 +16,16 @@ find_package(OpenMP REQUIRED)
 find_package(TBB REQUIRED)
 
 # S2
-set(S2_LIB /usr/local/lib/libs2.so)
-set(S2_HEADERS /usr/local/include/s2)
-include_directories(S2_HEADERS)
+include(FetchContent)
+find_package(Git REQUIRED)
+FetchContent_Declare(
+        s2
+        GIT_REPOSITORY https://github.com/google/s2geometry.git
+        GIT_TAG v0.9.0
+        BUILD_COMMAND make
+)
+FetchContent_MakeAvailable(s2)
+target_link_libraries(capi PRIVATE s2)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
