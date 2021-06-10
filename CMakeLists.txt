@@ -25,7 +25,6 @@ FetchContent_Declare(
         BUILD_COMMAND make
 )
 FetchContent_MakeAvailable(s2)
-target_link_libraries(capi PRIVATE s2)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
@@ -74,7 +73,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
+        s2
         tbb)
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
@@ -95,7 +94,7 @@ add_executable(${TEST_TARGET}
 
 target_link_libraries(${TEST_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
+        s2
         tbb)
 
 add_executable(${EXAMPLE_TARGET}
@@ -106,5 +105,5 @@ add_executable(${EXAMPLE_TARGET}
 
 target_link_libraries(${EXAMPLE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
+        s2
         tbb)
