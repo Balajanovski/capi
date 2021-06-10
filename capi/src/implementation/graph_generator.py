@@ -1,7 +1,7 @@
 import os
+import time
 import typing
 from functools import reduce
-import time
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.shapefiles.shapefile_reader import ShapefileReader

@@ -2,11 +2,7 @@ import typing
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate
-from capi.src.implementation.visibility_graphs import (
-    VisGraphCoord,
-    VisGraphShortestPathComputer,
-    load_graph_from_file,
-)
+from capi.src.implementation.visibility_graphs import VisGraphCoord, VisGraphShortestPathComputer, load_graph_from_file
 from capi.src.interfaces.path_interpolator import IPathInterpolator
 
 
