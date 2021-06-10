@@ -1,4 +1,3 @@
-import time
 import typing
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
@@ -17,9 +16,7 @@ class PathInterpolator(IPathInterpolator):
         visibility_graph_file_path: str,
     ):
         graph_paths = GraphFilePaths(visibility_graph_file_path)
-        s = time.time()
         graph = load_graph_from_file(graph_paths.default_graph_path)
-        print(f"Loading graph takes: {time.time() - s} seconds")
 
         self._shortest_path_computer = VisGraphShortestPathComputer(graph)
 
@@ -27,9 +24,7 @@ class PathInterpolator(IPathInterpolator):
         point_1 = VisGraphCoord(coord_1.longitude, coord_1.latitude)
         point_2 = VisGraphCoord(coord_2.longitude, coord_2.latitude)
 
-        s = time.time()
         path = self._get_shortest_path(point_1, point_2)
-        print(f"Shortest path takes: {time.time() - s} seconds")
 
         return path
 
