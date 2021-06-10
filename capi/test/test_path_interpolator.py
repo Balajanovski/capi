@@ -76,7 +76,7 @@ class TestPathInterpolator(unittest.TestCase):
         coords_2 = Coordinate(latitude=37, longitude=-125)
 
         expected_path = [
-            self._make_coordinate(104., 1.00),
+            self._make_coordinate(104.0, 1.00),
             self._make_coordinate(116.74586, 7.034528),
             self._make_coordinate(123.012472, 9.040389),
             self._make_coordinate(123.451306, 9.194139),
@@ -135,8 +135,9 @@ class TestPathInterpolator(unittest.TestCase):
         for l_path_pt in l_path:
             shortest_dist_to_l_path = float("inf")
             for s_path_pt in s_path:
-                shortest_dist_to_l_path = min(shortest_dist_to_l_path,
-                                              haversine((l_path_pt.latitude, l_path_pt.longitude),
-                                                        (s_path_pt.latitude, s_path_pt.longitude)))
+                shortest_dist_to_l_path = min(
+                    shortest_dist_to_l_path,
+                    haversine((l_path_pt.latitude, l_path_pt.longitude), (s_path_pt.latitude, s_path_pt.longitude)),
+                )
             path_diff_sum += shortest_dist_to_l_path
         return path_diff_sum / len(s_path)

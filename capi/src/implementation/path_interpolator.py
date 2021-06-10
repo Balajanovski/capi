@@ -1,10 +1,13 @@
-import typing
 import time
+import typing
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate
-from capi.src.implementation.visibility_graphs import VisGraph, VisGraphCoord, load_graph_from_file, VisGraphShortestPathComputer
-from capi.src.interfaces.intersection_prechecker_factory import IIntersectionPrecheckerFactory
+from capi.src.implementation.visibility_graphs import (
+    VisGraphCoord,
+    VisGraphShortestPathComputer,
+    load_graph_from_file,
+)
 from capi.src.interfaces.path_interpolator import IPathInterpolator
 
 
