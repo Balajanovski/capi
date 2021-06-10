@@ -24,6 +24,18 @@ jobs:
           sudo apt install -yqq gcc-9 g++-9
           export CC=gcc-9
           export CXX=g++-9
+      - name: Install S2
+        run: |
+          python -m pip install --no-cache-dir cmake==3.16.8
+          sudo apt install libgflags-dev libgoogle-glog-dev libgtest-dev libssl-dev git
+          git clone https://github.com/google/s2geometry.git
+          cd s2geometry
+          mkdir build
+          cd build
+          cmake ..
+          make
+          sudo make install
+          cd ../..
       - name: Install TBB
         run: sudo apt install -yqq libtbb-dev
       - name: Install LibGeos
