@@ -6,9 +6,9 @@
 #define CAPI_POLYGON_HPP
 
 #include <initializer_list>
+#include <s2/s2loop.h>
 #include <string>
 #include <vector>
-#include <s2/s2loop.h>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"

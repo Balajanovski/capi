@@ -58,15 +58,16 @@ TEST_CASE("ShortestPathComputer shortest path over meridian") {
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176., 0.), Coordinate(177., 0.), Coordinate(2., 0.), Coordinate(1., 1.)});
+    REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176., 0.), Coordinate(177., 0.), Coordinate(2., 0.),
+                                                        Coordinate(1., 1.)});
 }
 
 TEST_CASE("ShortestPathComputer shortest path in land") {
     const auto poly = Polygon({
-       Coordinate(1., 1.),
-       Coordinate(1., -1.),
-       Coordinate(-1., -1.),
-       Coordinate(-1., 1.),
+        Coordinate(1., 1.),
+        Coordinate(1., -1.),
+        Coordinate(-1., -1.),
+        Coordinate(-1., 1.),
     });
 
     const auto graph = VisgraphGenerator::generate({poly});
@@ -92,5 +93,5 @@ TEST_CASE("ShortestPathComputer shortest path without obstacles") {
     const auto path_computer = ShortestPathComputer(graph);
 
     const auto shortest_path = path_computer.shortest_path(a, b);
-    REQUIRE(shortest_path == std::vector<Coordinate> {a, b});
+    REQUIRE(shortest_path == std::vector<Coordinate>{a, b});
 }

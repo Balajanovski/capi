@@ -4,8 +4,8 @@
 
 #include <memory>
 #include <s2/s2closest_edge_query.h>
-#include <s2/s2crossing_edge_query.h>
 #include <s2/s2contains_point_query.h>
+#include <s2/s2crossing_edge_query.h>
 
 #include "spatial_segment_index.hpp"
 
@@ -47,7 +47,6 @@ std::vector<LineSegment> SpatialSegmentIndex::segments_within_distance_of_point(
     return segments;
 }
 
-
 LineSegment SpatialSegmentIndex::closest_segment_to_point(const Coordinate &point) const {
     S2ClosestEdgeQuery query(&_index);
     query.mutable_options()->set_max_results(1);
@@ -63,14 +62,14 @@ LineSegment SpatialSegmentIndex::closest_segment_to_point(const Coordinate &poin
     return LineSegment(Coordinate(edge.v0), Coordinate(edge.v1));
 }
 
-
 bool SpatialSegmentIndex::does_segment_intersect_with_segments(const LineSegment &segment) const {
     S2CrossingEdgeQuery query(&_index);
 
-    const auto results = query.GetCrossingEdges(segment.get_endpoint_1().to_s2_point(), segment.get_endpoint_2().to_s2_point(), S2CrossingEdgeQuery::CrossingType::ALL);
+    const auto results =
+        query.GetCrossingEdges(segment.get_endpoint_1().to_s2_point(), segment.get_endpoint_2().to_s2_point(),
+                               S2CrossingEdgeQuery::CrossingType::ALL);
     return !results.empty();
 }
-
 
 bool SpatialSegmentIndex::is_point_contained(const Coordinate &point) const {
     S2ContainsPointQueryOptions options(S2VertexModel::OPEN);

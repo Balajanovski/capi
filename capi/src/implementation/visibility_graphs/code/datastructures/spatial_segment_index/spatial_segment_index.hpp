@@ -9,9 +9,9 @@
 #include <s2/s2loop.h>
 #include <vector>
 
-#include "types/polygon/polygon.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
+#include "types/polygon/polygon.hpp"
 
 class SpatialSegmentIndex {
   public:
