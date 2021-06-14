@@ -16,15 +16,9 @@ find_package(OpenMP REQUIRED)
 find_package(TBB REQUIRED)
 
 # S2
-include(FetchContent)
-find_package(Git REQUIRED)
-FetchContent_Declare(
-        s2
-        GIT_REPOSITORY https://github.com/google/s2geometry.git
-        GIT_TAG v0.9.0
-        BUILD_COMMAND make
-)
-FetchContent_MakeAvailable(s2)
+set(S2_LIB /usr/local/lib/libs2.so)
+set(S2_HEADERS /usr/local/include/s2)
+include_directories(S2_HEADERS)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
@@ -73,7 +67,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        s2
+        ${S2_LIB}
         tbb)
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
@@ -94,7 +88,7 @@ add_executable(${TEST_TARGET}
 
 target_link_libraries(${TEST_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        s2
+        ${S2_LIB}
         tbb)
 
 add_executable(${EXAMPLE_TARGET}
@@ -105,5 +99,5 @@ add_executable(${EXAMPLE_TARGET}
 
 target_link_libraries(${EXAMPLE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        s2
+        ${S2_LIB}
         tbb)
