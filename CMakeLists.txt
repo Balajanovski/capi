@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
 project(capi VERSION "2.3.2")
 
+# guard against in-source builds
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+    message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
 set(CMAKE_CXX_FLAGS "-Ofast -Wall -Wextra")
@@ -9,6 +14,12 @@ set(TEST_TARGET "${PROJECT_NAME}_test")
 set(EXAMPLE_TARGET "${PROJECT_NAME}_example")
 set(CPP_LIBS_DIR ${CMAKE_SOURCE_DIR}/capi/cpp_libs)
 
+# Include CMake modules
+include(FetchContent)
+
+# Git
+find_package(Git REQUIRED)
+
 # OpenMP
 find_package(OpenMP REQUIRED)
 
@@ -16,9 +27,15 @@ find_package(OpenMP REQUIRED)
 find_package(TBB REQUIRED)
 
 # S2
-set(S2_LIB /usr/local/lib/libs2.so)
-set(S2_HEADERS /usr/local/include/s2)
-include_directories(S2_HEADERS)
+find_package(SWIG 4.0 COMPONENTS python)
+FetchContent_Declare(
+    s2
+    GIT_REPOSITORY https://github.com/google/s2geometry.git
+    GIT_TAG v0.9.0
+    BUILD_COMMAND make
+)
+
+FetchContent_MakeAvailable(s2)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
 # provided hints ourselves.
@@ -29,7 +46,7 @@ if(SKBUILD)
     set(DUMMY "${PYTHON_VERSION_STRING}")  # Not needed, silences a warning
 endif()
 
-find_package(Python REQUIRED COMPONENTS Interpreter Development)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 # Scikit-Build does not add your site-packages to the search path automatically,
 # so we need to add it _or_ the pybind11 specific directory here.
@@ -67,7 +84,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
+        s2
         tbb)
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
@@ -88,7 +105,7 @@ add_executable(${TEST_TARGET}
 
 target_link_libraries(${TEST_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
+        s2
         tbb)
 
 add_executable(${EXAMPLE_TARGET}
@@ -99,5 +116,5 @@ add_executable(${EXAMPLE_TARGET}
 
 target_link_libraries(${EXAMPLE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
+        s2
         tbb)
