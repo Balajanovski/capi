@@ -19,13 +19,19 @@ ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), 
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
                                                             const Coordinate &destination) const {
-    const auto source_is_on_land = _index.is_point_contained(source);
-    const auto destination_is_on_land = _index.is_point_contained(destination);
-
     const auto normalized_source = coordinate_from_periodic_coordinate(source);
     const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
+
+    const auto source_is_on_land = _index.is_point_contained(normalized_source);
+    const auto destination_is_on_land = _index.is_point_contained(normalized_destination);
+
+    if (source_is_on_land || destination_is_on_land) {
+        return std::vector<Coordinate>{source, destination};
+    }
+
     const auto intersections = _index.intersect_with_segments(LineSegment(normalized_source, normalized_destination));
-    if ((source_is_on_land || destination_is_on_land) || intersections.empty()) {
+
+    if (intersections.empty()) {
         return std::vector<Coordinate>{source, destination};
     }
 
