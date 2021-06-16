@@ -19,17 +19,23 @@ ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), 
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
                                                             const Coordinate &destination) const {
-    const auto source_is_on_land = _index.is_point_contained(source);
-    const auto destination_is_on_land = _index.is_point_contained(destination);
-    if (source_is_on_land || destination_is_on_land) {
-        return std::vector<Coordinate>{};
-    }
+    const auto normalized_source = coordinate_from_periodic_coordinate(source);
+    const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
 
-    if (!_index.does_segment_intersect_with_segments(LineSegment(source, destination))) {
+    const auto source_is_on_land = _index.is_point_contained(normalized_source);
+    const auto destination_is_on_land = _index.is_point_contained(normalized_destination);
+
+    if (source_is_on_land || destination_is_on_land) {
         return std::vector<Coordinate>{source, destination};
     }
 
-    const auto modified_graph = create_modified_graph(source, destination);
+    const auto intersections = _index.intersect_with_segments(LineSegment(normalized_source, normalized_destination));
+
+    if (intersections.empty()) {
+        return std::vector<Coordinate>{source, destination};
+    }
+
+    const auto modified_graph = create_modified_graph(normalized_source, normalized_destination, intersections);
     const auto source_destination_distance = heuristic_distance_measurement(source, destination);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
@@ -110,26 +116,43 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
     return std::min(distance_measurement(a, b, false), distance_measurement(a, b, true));
 }
 
-Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
+Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination, const std::vector<LineSegment> &intersections) const {
+    if (_graph.has_vertex(source) && _graph.has_vertex(destination)) {
+        return _graph;
+    }
+
+    if (intersections.empty()) {
+        return _graph;
+    }
+
     auto modified_graph = Graph(_graph);
 
-    const auto normalized_source = coordinate_from_periodic_coordinate(source);
-    const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
+    if (!_graph.has_vertex(source)) {
+        modified_graph.add_vertex(source);
+        const auto closest_edge = intersections.front();
 
-    const auto points_to_add = std::vector<Coordinate>{normalized_source, normalized_destination};
-    for (size_t i = 0; i < points_to_add.size(); ++i) { // NOLINT
-        const auto point = points_to_add[i];
-        const auto found_point = modified_graph.has_vertex(point);
-        if (!found_point) {
-            modified_graph.add_vertex(point);
-            const auto candidate_edge = _index.closest_segment_to_point(point);
-            for (const auto &visible_vertex :
-                 std::vector<Coordinate>{candidate_edge.get_endpoint_1(), candidate_edge.get_endpoint_2()}) {
-                modified_graph.add_edge(point, visible_vertex,
-                                        std::abs(point.get_longitude() - visible_vertex.get_longitude()) >
-                                            (LONGITUDE_PERIOD * 0.5));
-            }
-        }
+        const auto p1 = closest_edge.get_endpoint_1();
+        const auto p2 = closest_edge.get_endpoint_2();
+
+        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+
+        modified_graph.add_edge(source, p1, is_meridian_crossing_1);
+        modified_graph.add_edge(source, p2, is_meridian_crossing_2);
+    }
+
+    if (!_graph.has_vertex(destination)) {
+        modified_graph.add_vertex(destination);
+        const auto closest_edge = intersections.back();
+
+        const auto p1 = closest_edge.get_endpoint_1();
+        const auto p2 = closest_edge.get_endpoint_2();
+
+        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+
+        modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
+        modified_graph.add_edge(destination, p2, is_meridian_crossing_2);
     }
 
     return modified_graph;
