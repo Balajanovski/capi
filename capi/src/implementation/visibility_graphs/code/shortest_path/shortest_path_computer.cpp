@@ -22,11 +22,14 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     const auto source_is_on_land = _index.is_point_contained(source);
     const auto destination_is_on_land = _index.is_point_contained(destination);
 
-    if ((source_is_on_land || destination_is_on_land) || (!_index.does_segment_intersect_with_segments(LineSegment(source, destination)))) {
+    const auto normalized_source = coordinate_from_periodic_coordinate(source);
+    const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
+    const auto intersections = _index.intersect_with_segments(LineSegment(normalized_source, normalized_destination));
+    if ((source_is_on_land || destination_is_on_land) || intersections.empty()) {
         return std::vector<Coordinate>{source, destination};
     }
 
-    const auto modified_graph = create_modified_graph(source, destination);
+    const auto modified_graph = create_modified_graph(normalized_source, normalized_destination, intersections);
     const auto source_destination_distance = heuristic_distance_measurement(source, destination);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
@@ -107,51 +110,43 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
     return std::min(distance_measurement(a, b, false), distance_measurement(a, b, true));
 }
 
-Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
-    const auto normalized_source = coordinate_from_periodic_coordinate(source);
-    const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
-
-    if (_graph.has_vertex(normalized_source) && _graph.has_vertex(normalized_destination)) {
+Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination, const std::vector<LineSegment> &intersections) const {
+    if (_graph.has_vertex(source) && _graph.has_vertex(destination)) {
         return _graph;
     }
 
-    const auto intersected_edges = _index.intersect_with_segments(LineSegment(normalized_source, normalized_destination));
-
-    if (intersected_edges.empty()) {
-        // TODO what we want is a graph with just a single segment
-        // that way no need to special case further
-        // A* will trivially return shortest path
+    if (intersections.empty()) {
         return _graph;
     }
 
     auto modified_graph = Graph(_graph);
 
-    if (!_graph.has_vertex(normalized_source)) {
-        modified_graph.add_vertex(normalized_source);
-        const auto closest_edge = intersected_edges.front();
+    if (!_graph.has_vertex(source)) {
+        modified_graph.add_vertex(source);
+        const auto closest_edge = intersections.front();
 
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto is_meridian_crossing_1 = std::abs(normalized_source.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
-        const auto is_meridian_crossing_2 = std::abs(normalized_source.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
 
-        modified_graph.add_edge(normalized_source, p1, is_meridian_crossing_1);
-        modified_graph.add_edge(normalized_source, p2, is_meridian_crossing_2);
+        modified_graph.add_edge(source, p1, is_meridian_crossing_1);
+        modified_graph.add_edge(source, p2, is_meridian_crossing_2);
     }
 
-    if (!_graph.has_vertex(normalized_destination)) {
-        modified_graph.add_vertex(normalized_destination);
-        const auto closest_edge = intersected_edges.back();
+    if (!_graph.has_vertex(destination)) {
+        modified_graph.add_vertex(destination);
+        const auto closest_edge = intersections.back();
 
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto is_meridian_crossing_1 = std::abs(normalized_destination.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
-        const auto is_meridian_crossing_2 = std::abs(normalized_destination.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
 
-        modified_graph.add_edge(normalized_destination, p1, is_meridian_crossing_1);
-        modified_graph.add_edge(normalized_destination, p2, is_meridian_crossing_2);
+        modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
+        modified_graph.add_edge(destination, p2, is_meridian_crossing_2);
     }
 
     return modified_graph;
