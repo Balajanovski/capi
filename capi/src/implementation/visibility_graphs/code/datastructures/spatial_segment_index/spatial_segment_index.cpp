@@ -81,7 +81,7 @@ std::vector<LineSegment> SpatialSegmentIndex::intersect_with_segments(const Line
         return S2::GetDistance(p1, e1.v0(), e1.v1()) < S2::GetDistance(p1, e2.v0(), e2.v1());
     });
 
-    std::transform(edges.begin(), edges.end(), result.begin(), s2_to_capi_line_segment);
+    std::transform(edges.begin(), edges.end(), std::back_inserter(result), s2_to_capi_line_segment);
 
     return result;
 }
