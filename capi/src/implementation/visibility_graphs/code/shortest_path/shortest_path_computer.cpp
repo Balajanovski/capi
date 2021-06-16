@@ -150,8 +150,8 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto is_meridian_crossing_1 = std::abs(normalized_destination.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
         const auto is_meridian_crossing_2 = std::abs(normalized_destination.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
 
-        modified_graph.add_edge(normalized_source, p1, is_meridian_crossing_1);
-        modified_graph.add_edge(normalized_source, p2, is_meridian_crossing_2);
+        modified_graph.add_edge(normalized_destination, p1, is_meridian_crossing_1);
+        modified_graph.add_edge(normalized_destination, p2, is_meridian_crossing_2);
     }
 
     return modified_graph;
