@@ -40,9 +40,12 @@ jobs:
           python -m pip install --no-cache-dir -r requirements_test.txt
       - name: Build C++ backend library
         run: |
-          cmake .
+          mkdir build
+          cd build
+          cmake ..
           make
           cp _vis_graph.*.so capi/src/implementation/visibility_graphs/
+          cd ..
       - name: Run C++ tests
         run: ./capi_test
       - name: Run Python tests
