@@ -74,10 +74,8 @@ class TestPathInterpolator(unittest.TestCase):
 
         expected_path = [
             self._make_coordinate(104.0, 1.00),
-            self._make_coordinate(116.74586, 7.034528),
-            self._make_coordinate(123.012472, 9.040389),
-            self._make_coordinate(123.451306, 9.194139),
-            self._make_coordinate(126.06253, 10.0621),
+            self._make_coordinate(119.879944, 16.396221999999998),
+            self._make_coordinate(120.62169399999999, 18.547943999999998),
             self._make_coordinate(-125.0, 37.0),
         ]
 
