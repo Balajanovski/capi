@@ -77,13 +77,9 @@ TEST_CASE("ShortestPathComputer shortest path in land") {
     const auto d = Coordinate(-2., 0.);
     const auto path_computer = ShortestPathComputer(graph);
 
-    const auto ab = path_computer.shortest_path(a, b);
-    const auto ac = path_computer.shortest_path(a, c);
-    const auto da = path_computer.shortest_path(d, a);
-
-    REQUIRE(ab.empty());
-    REQUIRE(ac.empty());
-    REQUIRE(da.empty());
+    REQUIRE_THROWS(path_computer.shortest_path(a, b));
+    REQUIRE_THROWS(path_computer.shortest_path(a, c));
+    REQUIRE_THROWS(path_computer.shortest_path(d, a));
 }
 
 TEST_CASE("ShortestPathComputer shortest path without obstacles") {
