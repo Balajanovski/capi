@@ -33,8 +33,6 @@ jobs:
       - name: Install Python Dependencies
         run: |
           python -m pip install --no-cache-dir cython wheel
-          python -m pip install --no-cache-dir shapely==1.8a1 --no-binary shapely
-          python -m pip install --no-cache-dir pygeos --no-binary pygeos
           python -m pip install --no-cache-dir -r requirements_test.txt
       - name: Build C++ backend library
         run: |
