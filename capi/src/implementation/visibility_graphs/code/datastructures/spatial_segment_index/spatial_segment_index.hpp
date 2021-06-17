@@ -7,6 +7,9 @@
 
 #include <s2/mutable_s2shape_index.h>
 #include <s2/s2loop.h>
+#include <s2/s2contains_point_query.h>
+#include <s2/s2closest_edge_query.h>
+#include <s2/s2crossing_edge_query.h>
 #include <s2/s2shapeutil_shape_edge.h>
 #include <vector>
 
@@ -31,6 +34,9 @@ class SpatialSegmentIndex {
 
   private:
     MutableS2ShapeIndex _index;
+    std::unique_ptr<S2CrossingEdgeQuery> _crossing_edge_query;
+    std::unique_ptr<S2ContainsPointQuery<MutableS2ShapeIndex>> _contains_point_query;
+    std::unique_ptr<S2ClosestEdgeQuery> _closest_edge_query;
     std::vector<S2Loop *> _loops;
     static LineSegment s2_to_capi_line_segment(s2shapeutil::ShapeEdge edge);
 };
