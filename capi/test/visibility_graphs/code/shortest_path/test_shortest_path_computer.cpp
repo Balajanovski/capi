@@ -58,7 +58,7 @@ TEST_CASE("ShortestPathComputer shortest path over meridian") {
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176., 0.), Coordinate(177., 0.), Coordinate(2., 0.),
+    REQUIRE(shortest_path_ab == std::vector<Coordinate>{Coordinate(176., 0.),
                                                         Coordinate(1., 1.)});
 }
 

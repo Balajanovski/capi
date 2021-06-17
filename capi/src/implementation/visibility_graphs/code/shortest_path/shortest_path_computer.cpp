@@ -26,7 +26,7 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     const auto destination_is_on_land = _index.is_point_contained(normalized_destination);
 
     if (source_is_on_land || destination_is_on_land) {
-        return std::vector<Coordinate>{source, destination};
+        return std::vector<Coordinate>{};
     }
 
     const auto intersections = _index.intersect_with_segments(LineSegment(normalized_source, normalized_destination));

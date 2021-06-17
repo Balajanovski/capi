@@ -27,7 +27,6 @@ find_package(OpenMP REQUIRED)
 find_package(TBB REQUIRED)
 
 # S2
-find_package(SWIG 4.0 COMPONENTS python)
 FetchContent_Declare(
     s2
     GIT_REPOSITORY https://github.com/google/s2geometry.git
@@ -46,7 +45,7 @@ if(SKBUILD)
     set(DUMMY "${PYTHON_VERSION_STRING}")  # Not needed, silences a warning
 endif()
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(Python REQUIRED COMPONENTS Interpreter Development)
 
 # Scikit-Build does not add your site-packages to the search path automatically,
 # so we need to add it _or_ the pybind11 specific directory here.
