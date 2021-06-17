@@ -44,10 +44,10 @@ jobs:
           cd build
           cmake ..
           make
-          cp _vis_graph.*.so capi/src/implementation/visibility_graphs/
+          cp _vis_graph.*.so ../capi/src/implementation/visibility_graphs/
           cd ..
       - name: Run C++ tests
-        run: ./capi_test
+        run: ./build/capi_test
       - name: Run Python tests
         run: python run_tests.py
       - name: Install pypa/build
