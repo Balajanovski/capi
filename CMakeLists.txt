@@ -27,7 +27,6 @@ find_package(OpenMP REQUIRED)
 find_package(TBB REQUIRED)
 
 # S2
-find_package(SWIG 4.0 COMPONENTS python)
 FetchContent_Declare(
     s2
     GIT_REPOSITORY https://github.com/google/s2geometry.git
