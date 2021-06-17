@@ -28,6 +28,16 @@ jobs:
         run: python -m pip install --no-cache-dir cmake==3.16.8
       - name: S2 deps
         run: sudo apt install libgflags-dev libgoogle-glog-dev libgtest-dev libssl-dev git
+      - name: S2
+        run: |
+          git clone https://github.com/google/s2geometry.git
+          cd s2geometry
+          mkdir build
+          cd build
+          cmake ..
+          make
+          sudo make install
+          cd ../..
       - name: Install TBB
         run: sudo apt install -yqq libtbb-dev
       - name: Install Python Dependencies
