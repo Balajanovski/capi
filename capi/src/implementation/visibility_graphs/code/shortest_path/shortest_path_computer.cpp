@@ -7,6 +7,7 @@
 
 #include "constants/constants.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
+#include <s2/s2earth.h>
 #include "shortest_path_computer.hpp"
 
 struct AStarHeapElement {
@@ -20,12 +21,16 @@ ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
                                                             const Coordinate &destination) const {
     const auto normalized_source = coordinate_from_periodic_coordinate(source);
-    const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
-
     const auto source_is_on_land = _index.is_point_contained(normalized_source);
+
+    if (source_is_on_land) {
+        return std::vector<Coordinate>{source, destination};
+    }
+
+    const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
     const auto destination_is_on_land = _index.is_point_contained(normalized_destination);
 
-    if (source_is_on_land || destination_is_on_land) {
+    if (destination_is_on_land) {
         return std::vector<Coordinate>{source, destination};
     }
 
@@ -126,6 +131,7 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
     }
 
     auto modified_graph = Graph(_graph);
+    const auto half_longitude_period = LONGITUDE_PERIOD * 0.5;
 
     if (!_graph.has_vertex(source)) {
         modified_graph.add_vertex(source);
@@ -134,11 +140,19 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
-        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > half_longitude_period;
+        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > half_longitude_period;
 
         modified_graph.add_edge(source, p1, is_meridian_crossing_1);
         modified_graph.add_edge(source, p2, is_meridian_crossing_2);
+
+        const auto max_distance = std::min(S1Angle(source.to_s2_point(), p1.to_s2_point()), S1Angle(source.to_s2_point(), p2.to_s2_point()));
+        const auto p3 = _index.closest_point_to_point(source, S2Earth::ToKm(max_distance));
+        if (p3.has_value()) {
+            const auto is_meridian_crossing_3 =
+                std::abs(source.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
+            modified_graph.add_edge(source, p3.value(), is_meridian_crossing_3);
+        }
     }
 
     if (!_graph.has_vertex(destination)) {
@@ -148,11 +162,18 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
-        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > half_longitude_period;
+        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > half_longitude_period;
 
         modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
         modified_graph.add_edge(destination, p2, is_meridian_crossing_2);
+        const auto max_distance = std::min(S1Angle(destination.to_s2_point(), p1.to_s2_point()), S1Angle(destination.to_s2_point(), p2.to_s2_point()));
+        const auto p3 = _index.closest_point_to_point(destination, S2Earth::ToKm(max_distance));
+        if (p3.has_value()) {
+            const auto is_meridian_crossing_3 =
+                std::abs(destination.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
+            modified_graph.add_edge(destination, p3.value(), is_meridian_crossing_3);
+        }
     }
 
     return modified_graph;

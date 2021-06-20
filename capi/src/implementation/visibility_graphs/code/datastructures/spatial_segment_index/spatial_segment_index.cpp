@@ -3,23 +3,30 @@
 //
 
 #include <memory>
+#include <s2/s2closest_point_query.h>
+#include <s2/s2closest_edge_query_testing.h>
 #include <s2/s2closest_edge_query.h>
 #include <s2/s2contains_point_query.h>
 #include <s2/s2crossing_edge_query.h>
+#include <s2/s2earth.h>
 #include "spatial_segment_index.hpp"
 
 SpatialSegmentIndex::SpatialSegmentIndex(const std::vector<Polygon> &polygons) {
     _loops.reserve(polygons.size());
 
     for (const auto &polygon : polygons) {
+        for (const auto &point : polygon.get_vertices()) {
+            _point_index.Add(point.to_s2_point(), 0);
+        }
         const auto loop = polygon.to_s2_loop();
-        _index.Add(std::make_unique<S2Loop::Shape>(loop));
+        _shape_index.Add(std::make_unique<S2Loop::Shape>(loop));
         _loops.push_back(loop);
     }
 
-    _contains_point_query = std::make_unique<S2ContainsPointQuery<MutableS2ShapeIndex>>(&_index, S2ContainsPointQueryOptions(S2VertexModel::OPEN));
-    _crossing_edge_query = std::make_unique<S2CrossingEdgeQuery>(&_index);
-    _closest_edge_query = std::make_unique<S2ClosestEdgeQuery>(&_index);
+    _closest_point_query = std::make_unique<S2ClosestPointQuery<int>>(&_point_index);
+    _contains_point_query = std::make_unique<S2ContainsPointQuery<MutableS2ShapeIndex>>(&_shape_index, S2ContainsPointQueryOptions(S2VertexModel::OPEN));
+    _crossing_edge_query = std::make_unique<S2CrossingEdgeQuery>(&_shape_index);
+    _closest_edge_query = std::make_unique<S2ClosestEdgeQuery>(&_shape_index);
 }
 
 SpatialSegmentIndex::~SpatialSegmentIndex() {
@@ -61,6 +68,21 @@ LineSegment SpatialSegmentIndex::closest_segment_to_point(const Coordinate &poin
 
     const auto edge = _closest_edge_query->GetEdge(result);
     return LineSegment(Coordinate(edge.v0), Coordinate(edge.v1));
+}
+
+std::optional<Coordinate> SpatialSegmentIndex::closest_point_to_point(const Coordinate &point, std::optional<double> max_distance) const {
+    if (max_distance.has_value()) {
+        const auto radius = S1Angle::Radians(S2Earth::KmToRadians(max_distance.value()));
+        _closest_point_query->mutable_options()->set_max_distance(radius);
+    }
+    S2ClosestPointQueryPointTarget target(point.to_s2_point());
+    const auto result = _closest_point_query->FindClosestPoint(&target);
+
+    if (result.is_empty()) {
+        return std::nullopt;
+    }
+
+    return Coordinate(result.point());
 }
 
 bool SpatialSegmentIndex::does_segment_intersect_with_segments(const LineSegment &segment) const {
