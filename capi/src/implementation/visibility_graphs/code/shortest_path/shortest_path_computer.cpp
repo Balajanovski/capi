@@ -8,6 +8,7 @@
 #include "constants/constants.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include <s2/s2earth.h>
+#include <s2/s2edge_distances.h>
 #include "shortest_path_computer.hpp"
 
 struct AStarHeapElement {
@@ -137,17 +138,17 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         modified_graph.add_vertex(source);
         const auto closest_edge = intersections.front();
 
-        const auto p1 = closest_edge.get_endpoint_1();
-        const auto p2 = closest_edge.get_endpoint_2();
+        const auto s2source = source.to_s2_point();
+        const auto s2p1 = closest_edge.get_endpoint_1().to_s2_point();
+        const auto s2p2 = closest_edge.get_endpoint_2().to_s2_point();
+        const auto p0 = Coordinate(S2::Project(s2source, s2p1, s2p2));
+        const auto is_meridian_crossing = std::abs(source.get_longitude() - p0.get_longitude()) > half_longitude_period;
 
-        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > half_longitude_period;
-        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > half_longitude_period;
+        modified_graph.add_edge(source, p0, is_meridian_crossing);
 
-        modified_graph.add_edge(source, p1, is_meridian_crossing_1);
-        modified_graph.add_edge(source, p2, is_meridian_crossing_2);
-
-        const auto max_distance = std::min(S1Angle(source.to_s2_point(), p1.to_s2_point()), S1Angle(source.to_s2_point(), p2.to_s2_point()));
+        const auto max_distance = std::min(S1Angle(s2source, s2p1), S1Angle(s2source, s2p2));
         const auto p3 = _index.closest_point_to_point(source, S2Earth::ToKm(max_distance));
+
         if (p3.has_value()) {
             const auto is_meridian_crossing_3 =
                 std::abs(source.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
@@ -159,16 +160,17 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         modified_graph.add_vertex(destination);
         const auto closest_edge = intersections.back();
 
-        const auto p1 = closest_edge.get_endpoint_1();
-        const auto p2 = closest_edge.get_endpoint_2();
+        const auto s2destination = destination.to_s2_point();
+        const auto s2p1 = closest_edge.get_endpoint_1().to_s2_point();
+        const auto s2p2 = closest_edge.get_endpoint_2().to_s2_point();
+        const auto p0 = Coordinate(S2::Project(s2destination, s2p1, s2p2));
+        const auto is_meridian_crossing = std::abs(destination.get_longitude() - p0.get_longitude()) > half_longitude_period;
 
-        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > half_longitude_period;
-        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > half_longitude_period;
+        modified_graph.add_edge(destination, p0, is_meridian_crossing);
 
-        modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
-        modified_graph.add_edge(destination, p2, is_meridian_crossing_2);
-        const auto max_distance = std::min(S1Angle(destination.to_s2_point(), p1.to_s2_point()), S1Angle(destination.to_s2_point(), p2.to_s2_point()));
+        const auto max_distance = std::min(S1Angle(s2destination, s2p1), S1Angle(destination.to_s2_point(), s2p2));
         const auto p3 = _index.closest_point_to_point(destination, S2Earth::ToKm(max_distance));
+
         if (p3.has_value()) {
             const auto is_meridian_crossing_3 =
                 std::abs(destination.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
