@@ -136,7 +136,18 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
 
     if (!_graph.has_vertex(source)) {
         modified_graph.add_vertex(source);
-        const auto p3 = _index.closest_point_to_point(source);
+        const auto closest_edge = intersections.front();
+
+        const auto s2source = source.to_s2_point();
+        const auto s2p1 = closest_edge.get_endpoint_1().to_s2_point();
+        const auto s2p2 = closest_edge.get_endpoint_2().to_s2_point();
+        const auto p0 = Coordinate(S2::Project(s2source, s2p1, s2p2));
+        const auto is_meridian_crossing = std::abs(source.get_longitude() - p0.get_longitude()) > half_longitude_period;
+
+        modified_graph.add_edge(source, p0, is_meridian_crossing);
+
+        const auto max_distance = std::min(S1Angle(s2source, s2p1), S1Angle(s2source, s2p2));
+        const auto p3 = _index.closest_point_to_point(source, S2Earth::ToKm(max_distance));
 
         if (p3.has_value()) {
             const auto is_meridian_crossing_3 =
@@ -147,7 +158,18 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
 
     if (!_graph.has_vertex(destination)) {
         modified_graph.add_vertex(destination);
-        const auto p3 = _index.closest_point_to_point(destination);
+        const auto closest_edge = intersections.back();
+
+        const auto s2destination = destination.to_s2_point();
+        const auto s2p1 = closest_edge.get_endpoint_1().to_s2_point();
+        const auto s2p2 = closest_edge.get_endpoint_2().to_s2_point();
+        const auto p0 = Coordinate(S2::Project(s2destination, s2p1, s2p2));
+        const auto is_meridian_crossing = std::abs(destination.get_longitude() - p0.get_longitude()) > half_longitude_period;
+
+        modified_graph.add_edge(destination, p0, is_meridian_crossing);
+
+        const auto max_distance = std::min(S1Angle(s2destination, s2p1), S1Angle(destination.to_s2_point(), s2p2));
+        const auto p3 = _index.closest_point_to_point(destination, S2Earth::ToKm(max_distance));
 
         if (p3.has_value()) {
             const auto is_meridian_crossing_3 =
