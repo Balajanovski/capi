@@ -6,7 +6,6 @@
 #include <queue>
 
 #include "constants/constants.hpp"
-#include "types/line_segment/line_segment.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include <s2/s2earth.h>
 #include "shortest_path_computer.hpp"
@@ -141,22 +140,14 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto segments1 = _index.intersect_with_segments(LineSegment(source, p1));
-        const auto segments2 = _index.intersect_with_segments(LineSegment(source, p2));
+        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > half_longitude_period;
+        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > half_longitude_period;
 
-        if (segments1.empty()) {
-            const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > half_longitude_period;
-            modified_graph.add_edge(source, p1, is_meridian_crossing_1);
-        }
+        modified_graph.add_edge(source, p1, is_meridian_crossing_1);
+        modified_graph.add_edge(source, p2, is_meridian_crossing_2);
 
-        if (segments2.empty()) {
-            const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > half_longitude_period;
-            modified_graph.add_edge(source, p2, is_meridian_crossing_2);
-        }
-
-        const auto max_distance = S2Earth::ToKm(S1Angle(source.to_s2_point(), destination.to_s2_point()));
-        const auto p3 = _index.closest_point_to_point(source, max_distance);
-
+        const auto max_distance = std::min(S1Angle(source.to_s2_point(), p1.to_s2_point()), S1Angle(source.to_s2_point(), p2.to_s2_point()));
+        const auto p3 = _index.closest_point_to_point(source, S2Earth::ToKm(max_distance));
         if (p3.has_value()) {
             const auto is_meridian_crossing_3 =
                 std::abs(source.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
@@ -171,22 +162,13 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto segments1 = _index.intersect_with_segments(LineSegment(destination, p1));
-        const auto segments2 = _index.intersect_with_segments(LineSegment(destination, p2));
+        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > half_longitude_period;
+        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > half_longitude_period;
 
-        if (segments1.empty()) {
-            const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > half_longitude_period;
-            modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
-        }
-
-        if (segments2.empty()) {
-            const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > half_longitude_period;
-            modified_graph.add_edge(destination, p2, is_meridian_crossing_2);
-        }
-
-        const auto max_distance = S2Earth::ToKm(S1Angle(destination.to_s2_point(), source.to_s2_point()));
-        const auto p3 = _index.closest_point_to_point(destination, max_distance);
-
+        modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
+        modified_graph.add_edge(destination, p2, is_meridian_crossing_2);
+        const auto max_distance = std::min(S1Angle(destination.to_s2_point(), p1.to_s2_point()), S1Angle(destination.to_s2_point(), p2.to_s2_point()));
+        const auto p3 = _index.closest_point_to_point(destination, S2Earth::ToKm(max_distance));
         if (p3.has_value()) {
             const auto is_meridian_crossing_3 =
                 std::abs(destination.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
