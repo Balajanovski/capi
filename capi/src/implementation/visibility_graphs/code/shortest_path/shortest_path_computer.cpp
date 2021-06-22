@@ -138,11 +138,6 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto visible_points = _index.points_visible_within_distance(source, source.to_s2_point().Angle(destination.to_s2_point()));
 
         for (const auto &p : visible_points) {
-            if (!_graph.has_vertex(p)) {
-                const auto error = fmt::format("Point ({}, {}) not in the graph", p.get_latitude(), p.get_longitude());
-                throw std::runtime_error(error);
-            }
-
             const auto is_meridian_crossing =
                 std::abs(source.get_longitude() - p.get_longitude()) > half_longitude_period;
             modified_graph.add_edge(source, p, is_meridian_crossing);
@@ -154,10 +149,6 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto visible_points = _index.points_visible_within_distance(destination, destination.to_s2_point().Angle(source.to_s2_point()));
 
         for (const auto &p : visible_points) {
-            if (!_graph.has_vertex(p)) {
-                const auto error = fmt::format("Point ({}, {}) not in the graph", p.get_latitude(), p.get_longitude());
-                throw std::runtime_error(error);
-            }
             const auto is_meridian_crossing =
                 std::abs(destination.get_longitude() - p.get_longitude()) > half_longitude_period;
             modified_graph.add_edge(destination, p, is_meridian_crossing);
