@@ -40,7 +40,7 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
         return std::vector<Coordinate>{source, destination};
     }
 
-    const auto modified_graph = create_modified_graph(normalized_source, normalized_destination, intersections);
+    const auto modified_graph = create_modified_graph(normalized_source, normalized_destination);
     const auto source_destination_distance = heuristic_distance_measurement(source, destination);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
@@ -121,11 +121,7 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
     return std::min(distance_measurement(a, b, false), distance_measurement(a, b, true));
 }
 
-Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination, const std::vector<LineSegment> &intersections) const {
-    if (intersections.empty()) {
-        return _graph;
-    }
-
+Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
     if (_graph.has_vertex(source) && _graph.has_vertex(destination)) {
         return _graph;
     }
@@ -135,9 +131,10 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
 
     if (!_graph.has_vertex(source)) {
         modified_graph.add_vertex(source);
-        const auto visible_points = _index.points_visible_within_distance(source, source.to_s2_point().Angle(destination.to_s2_point()));
+        const auto reachable_vertices =
+            _index.reachable_vertices(source, source.to_s2_point().Angle(destination.to_s2_point()));
 
-        for (const auto &p : visible_points) {
+        for (const auto &p : reachable_vertices) {
             const auto is_meridian_crossing =
                 std::abs(source.get_longitude() - p.get_longitude()) > half_longitude_period;
             modified_graph.add_edge(source, p, is_meridian_crossing);
@@ -146,9 +143,10 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
 
     if (!_graph.has_vertex(destination)) {
         modified_graph.add_vertex(destination);
-        const auto visible_points = _index.points_visible_within_distance(destination, destination.to_s2_point().Angle(source.to_s2_point()));
+        const auto reachable_vertices =
+            _index.reachable_vertices(destination, destination.to_s2_point().Angle(source.to_s2_point()));
 
-        for (const auto &p : visible_points) {
+        for (const auto &p : reachable_vertices) {
             const auto is_meridian_crossing =
                 std::abs(destination.get_longitude() - p.get_longitude()) > half_longitude_period;
             modified_graph.add_edge(destination, p, is_meridian_crossing);

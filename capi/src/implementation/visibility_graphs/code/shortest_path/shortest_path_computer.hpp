@@ -23,7 +23,7 @@ class ShortestPathComputer {
     static double distance_measurement(const Coordinate &a, const Coordinate &b, bool is_meridian_spanning);
     static double heuristic_distance_measurement(const Coordinate &a, const Coordinate &b);
 
-    [[nodiscard]] Graph create_modified_graph(const Coordinate &source, const Coordinate &destination, const std::vector<LineSegment> &intersections) const;
+    [[nodiscard]] Graph create_modified_graph(const Coordinate &source, const Coordinate &destination) const;
 
     Graph _graph;
     SpatialSegmentIndex _index;

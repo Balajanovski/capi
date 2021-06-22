@@ -71,8 +71,8 @@ LineSegment SpatialSegmentIndex::closest_segment_to_point(const Coordinate &poin
     return LineSegment(Coordinate(edge.v0), Coordinate(edge.v1));
 }
 
-std::vector<Coordinate> SpatialSegmentIndex::points_visible_within_distance(const Coordinate &point, const double distance_in_radians) const {
-    _closest_edge_query->mutable_options()->set_max_distance(S1Angle::Radians(distance_in_radians));
+std::vector<Coordinate> SpatialSegmentIndex::reachable_vertices(const Coordinate &point, double max_edge_distance_in_radians) const {
+    _closest_edge_query->mutable_options()->set_max_distance(S1Angle::Radians(max_edge_distance_in_radians));
 
     S2ClosestEdgeQuery::PointTarget target(point.to_s2_point());
     const auto closest_edges = _closest_edge_query->FindClosestEdges(&target);

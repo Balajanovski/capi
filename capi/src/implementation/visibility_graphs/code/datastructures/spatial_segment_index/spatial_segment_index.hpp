@@ -27,8 +27,8 @@ class SpatialSegmentIndex {
 
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
                                                                              double distance_in_radians) const;
-    [[nodiscard]] std::vector<Coordinate> points_visible_within_distance(const Coordinate &point,
-                                                                         double distance_in_radians) const;
+    [[nodiscard]] std::vector<Coordinate> reachable_vertices(const Coordinate &point,
+                                                             double max_edge_distance_in_radians) const;
     [[nodiscard]] LineSegment closest_segment_to_point(const Coordinate &point) const;
     [[nodiscard]] std::optional<Coordinate> closest_point_to_point(const Coordinate &point, std::optional<double> max_distance_radians = std::nullopt) const;
 
