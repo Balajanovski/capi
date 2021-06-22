@@ -133,7 +133,7 @@ std::vector<LineSegment> SpatialSegmentIndex::intersect_with_segments(const Line
     auto p1 = segment.get_endpoint_1().to_s2_point();
     const auto p2 = segment.get_endpoint_2().to_s2_point();
     std::vector<LineSegment> result;
-    auto edges = _crossing_edge_query->GetCrossingEdges(p1, p2,S2CrossingEdgeQuery::CrossingType::ALL);
+    auto edges = _crossing_edge_query->GetCrossingEdges(p1, p2,S2CrossingEdgeQuery::CrossingType::INTERIOR);
 
     std::sort(edges.begin(), edges.end(), [&p1](s2shapeutil::ShapeEdge &e1, s2shapeutil::ShapeEdge &e2) -> bool {
         return S2::GetDistance(p1, e1.v0(), e1.v1()) < S2::GetDistance(p1, e2.v0(), e2.v1());
