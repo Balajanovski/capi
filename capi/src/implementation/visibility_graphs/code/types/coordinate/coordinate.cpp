@@ -9,20 +9,18 @@
 
 #include "coordinate.hpp"
 
-#define DEGREES_TO_MICRODEGREES(x) (static_cast<int32_t>(1e6 * (x)))
 #define MICRODEGREES_TO_DEGREES(x) (1e-6 * (x))
 
 Coordinate::Coordinate() : _longitude_microdegrees(0), _latitude_microdegrees(0) {}
 
-Coordinate::Coordinate(double longitude, double latitude)
-    : _longitude_microdegrees(DEGREES_TO_MICRODEGREES(longitude)),
-      _latitude_microdegrees(DEGREES_TO_MICRODEGREES(latitude)) {}
+Coordinate::Coordinate(double longitude, double latitude) : Coordinate(S2LatLng::FromDegrees(latitude, longitude)) {}
 
 Coordinate::Coordinate(int32_t longitude_microdegrees, int32_t latitude_microdegrees)
     : _longitude_microdegrees(longitude_microdegrees), _latitude_microdegrees(latitude_microdegrees) {}
 
-Coordinate::Coordinate(const S2Point &point) {
-    const auto lat_lng = S2LatLng(point);
+Coordinate::Coordinate(const S2Point &point) : Coordinate(S2LatLng(point)) {}
+
+Coordinate::Coordinate(const S2LatLng &lat_lng) {
     _latitude_microdegrees = lat_lng.lat().e6();
     _longitude_microdegrees = lat_lng.lng().e6();
 }

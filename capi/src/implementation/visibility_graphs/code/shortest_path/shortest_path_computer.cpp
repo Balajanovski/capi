@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <queue>
-
+#include <fmt/core.h>
 #include "constants/constants.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include <s2/s2earth.h>
@@ -122,11 +122,11 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
 }
 
 Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination, const std::vector<LineSegment> &intersections) const {
-    if (_graph.has_vertex(source) && _graph.has_vertex(destination)) {
+    if (intersections.empty()) {
         return _graph;
     }
 
-    if (intersections.empty()) {
+    if (_graph.has_vertex(source) && _graph.has_vertex(destination)) {
         return _graph;
     }
 
@@ -135,44 +135,32 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
 
     if (!_graph.has_vertex(source)) {
         modified_graph.add_vertex(source);
-        const auto closest_edge = intersections.front();
+        const auto visible_points = _index.points_visible_within_distance(source, source.to_s2_point().Angle(destination.to_s2_point()));
 
-        const auto p1 = closest_edge.get_endpoint_1();
-        const auto p2 = closest_edge.get_endpoint_2();
+        for (const auto &p : visible_points) {
+            if (!_graph.has_vertex(p)) {
+                const auto error = fmt::format("Point ({}, {}) not in the graph", p.get_latitude(), p.get_longitude());
+                throw std::runtime_error(error);
+            }
 
-        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > half_longitude_period;
-        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > half_longitude_period;
-
-        modified_graph.add_edge(source, p1, is_meridian_crossing_1);
-        modified_graph.add_edge(source, p2, is_meridian_crossing_2);
-
-        const auto max_distance = std::min(S1Angle(source.to_s2_point(), p1.to_s2_point()), S1Angle(source.to_s2_point(), p2.to_s2_point()));
-        const auto p3 = _index.closest_point_to_point(source, S2Earth::ToKm(max_distance));
-        if (p3.has_value()) {
-            const auto is_meridian_crossing_3 =
-                std::abs(source.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
-            modified_graph.add_edge(source, p3.value(), is_meridian_crossing_3);
+            const auto is_meridian_crossing =
+                std::abs(source.get_longitude() - p.get_longitude()) > half_longitude_period;
+            modified_graph.add_edge(source, p, is_meridian_crossing);
         }
     }
 
     if (!_graph.has_vertex(destination)) {
         modified_graph.add_vertex(destination);
-        const auto closest_edge = intersections.back();
+        const auto visible_points = _index.points_visible_within_distance(destination, destination.to_s2_point().Angle(source.to_s2_point()));
 
-        const auto p1 = closest_edge.get_endpoint_1();
-        const auto p2 = closest_edge.get_endpoint_2();
-
-        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > half_longitude_period;
-        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > half_longitude_period;
-
-        modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
-        modified_graph.add_edge(destination, p2, is_meridian_crossing_2);
-        const auto max_distance = std::min(S1Angle(destination.to_s2_point(), p1.to_s2_point()), S1Angle(destination.to_s2_point(), p2.to_s2_point()));
-        const auto p3 = _index.closest_point_to_point(destination, S2Earth::ToKm(max_distance));
-        if (p3.has_value()) {
-            const auto is_meridian_crossing_3 =
-                std::abs(destination.get_longitude() - p3.value().get_longitude()) > half_longitude_period;
-            modified_graph.add_edge(destination, p3.value(), is_meridian_crossing_3);
+        for (const auto &p : visible_points) {
+            if (!_graph.has_vertex(p)) {
+                const auto error = fmt::format("Point ({}, {}) not in the graph", p.get_latitude(), p.get_longitude());
+                throw std::runtime_error(error);
+            }
+            const auto is_meridian_crossing =
+                std::abs(destination.get_longitude() - p.get_longitude()) > half_longitude_period;
+            modified_graph.add_edge(destination, p, is_meridian_crossing);
         }
     }
 

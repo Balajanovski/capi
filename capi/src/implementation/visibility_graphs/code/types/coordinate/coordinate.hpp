@@ -18,6 +18,7 @@ class Coordinate {
     Coordinate();
     Coordinate(double longitude, double latitude);
     Coordinate(int32_t longitude_microdegrees, int32_t latitude_microdegrees);
+    Coordinate(const S2LatLng &lat_lng);
     explicit Coordinate(const S2Point &point);
 
     // Getters
