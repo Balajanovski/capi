@@ -1,4 +1,5 @@
 import typing
+import math
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate
@@ -16,16 +17,16 @@ class PathInterpolator(IPathInterpolator):
 
         self._shortest_path_computer = VisGraphShortestPathComputer(graph)
 
-    def interpolate(self, coord_1: Coordinate, coord_2: Coordinate) -> typing.Sequence[Coordinate]:
+    def interpolate(self, coord_1: Coordinate, coord_2: Coordinate, search_distance_from_source_limit: float = math.inf) -> typing.Sequence[Coordinate]:
         point_1 = VisGraphCoord(coord_1.longitude, coord_1.latitude)
         point_2 = VisGraphCoord(coord_2.longitude, coord_2.latitude)
 
-        path = self._get_shortest_path(point_1, point_2)
+        path = self._get_shortest_path(point_1, point_2, search_distance_from_source_limit)
 
         return path
 
-    def _get_shortest_path(self, start: VisGraphCoord, end: VisGraphCoord) -> typing.Sequence[Coordinate]:
-        path = self._shortest_path_computer.shortest_path(start, end)
+    def _get_shortest_path(self, start: VisGraphCoord, end: VisGraphCoord, search_distance_from_source_limit: float) -> typing.Sequence[Coordinate]:
+        path = self._shortest_path_computer.shortest_path(start, end, search_distance_from_source_limit)
         return self._convert_visgraph_coords_list_to_coordinates(path)
 
     @staticmethod
