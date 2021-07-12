@@ -6,6 +6,7 @@
 #define CAPI_SHORTEST_PATH_COMPUTER_HPP
 
 #include <vector>
+#include <cmath>
 
 #include "datastructures/graph/graph.hpp"
 #include "datastructures/spatial_segment_index/spatial_segment_index.hpp"
@@ -15,7 +16,7 @@
 class ShortestPathComputer {
   public:
     explicit ShortestPathComputer(const Graph &graph);
-    [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination) const;
+    [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination, double maximum_distance_to_search_from_source = INFINITY) const;
 
   private:
     static constexpr double GREEDINESS_WEIGHTING = 1.1;

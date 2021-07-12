@@ -18,7 +18,8 @@ struct AStarHeapElement {
 ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), _index(graph.get_polygons()) {}
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
-                                                            const Coordinate &destination) const {
+                                                            const Coordinate &destination,
+                                                            double maximum_distance_to_search_from_source) const {
     const auto normalized_source = coordinate_from_periodic_coordinate(source);
     const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
 
@@ -50,7 +51,7 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     pq.push(AStarHeapElement{
         .node = source,
         .distance_to_source = 0,
-        .heuristic_distance_to_destination = heuristic_distance_measurement(source, destination),
+        .heuristic_distance_to_destination = source_destination_distance,
     });
 
     auto prev_coord = std::unordered_map<Coordinate, Coordinate>();
@@ -68,7 +69,9 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
 
             const auto edge_dist = distance_measurement(neighbor, top.node, meridian_spanning);
             const auto neighbor_dist_to_source = top.distance_to_source + edge_dist;
+            const auto neighbor_direct_distance_to_source = heuristic_distance_measurement(source, neighbor);
             if (edge_dist > source_destination_distance ||
+                neighbor_direct_distance_to_source > maximum_distance_to_search_from_source ||
                 (distances_to_source.find(neighbor) != distances_to_source.end() &&
                  distances_to_source.at(neighbor) <= neighbor_dist_to_source)) {
                 continue;
