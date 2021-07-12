@@ -6,6 +6,7 @@
 // Created by James.Balajan on 30/03/2021.
 //
 
+#include <cmath>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
@@ -60,7 +61,13 @@ PYBIND11_MODULE(_vis_graph, m) {
 
     py::class_<ShortestPathComputer>(m, "VisGraphShortestPathComputer")
         .def(py::init<const Graph &>())
-        .def("shortest_path", &ShortestPathComputer::shortest_path);
+        .def(
+            "shortest_path",
+            [](ShortestPathComputer &self, const Coordinate &source, const Coordinate &destination,
+               double maximum_distance_to_search_from_source) {
+                return self.shortest_path(source, destination, maximum_distance_to_search_from_source);
+            },
+            py::arg("source"), py::arg("destination"), py::arg("maximum_distance_to_search_from_source") = INFINITY);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
     m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,

@@ -52,6 +52,13 @@ class TestPathInterpolator(unittest.TestCase):
 
         self._assert_paths_equal(expected_path, path)
 
+    def test_copenhagen_to_singapore_distance_limit(self):
+        copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
+        singapore_coordinates = Coordinate(latitude=1, longitude=104)
+
+        with self.assertRaises(RuntimeError):
+            self._INTERPOLATOR.interpolate(copenhagen_coordinates, singapore_coordinates, 1)
+
     def test_copenhagen_to_stockholm(self):
         copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
         stockholm_coordinates = Coordinate(latitude=59.30, longitude=19.162)
