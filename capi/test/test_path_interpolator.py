@@ -14,76 +14,88 @@ class TestPathInterpolator(unittest.TestCase):
     _INTERPOLATOR = PathInterpolator(
         visibility_graph_file_path=_GRAPH_FILE_PATH,
     )
+    
+    _COPENHAGEN_COORDINATES = Coordinate(latitude=55, longitude=13)
+    _SINGAPORE_COORDINATES = Coordinate(latitude=1, longitude=104)
+    _STOCKHOLM_COORDINATES = Coordinate(latitude=59.30, longitude=19.162)
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._COPENHAGEN_TO_SINGAPORE_PATH = [
+            TestPathInterpolator._make_coordinate(13.00, 55.00),
+            TestPathInterpolator._make_coordinate(12.68, 55.59),
+            TestPathInterpolator._make_coordinate(12.31, 56.13),
+            TestPathInterpolator._make_coordinate(10.66, 57.74),
+            TestPathInterpolator._make_coordinate(8.60, 57.12),
+            TestPathInterpolator._make_coordinate(1.39, 51.15),
+            TestPathInterpolator._make_coordinate(-1.94, 49.73),
+            TestPathInterpolator._make_coordinate(-4.78, 48.51),
+            TestPathInterpolator._make_coordinate(-9.30, 43.05),
+            TestPathInterpolator._make_coordinate(-9.50, 38.78),
+            TestPathInterpolator._make_coordinate(-9.00, 37.02),
+            TestPathInterpolator._make_coordinate(-5.61, 36.00),
+            TestPathInterpolator._make_coordinate(3.90, 36.93),
+            TestPathInterpolator._make_coordinate(9.74, 37.35),
+            TestPathInterpolator._make_coordinate(11.04, 37.09),
+            TestPathInterpolator._make_coordinate(31.92, 31.53),
+            TestPathInterpolator._make_coordinate(32.28, 31.23),
+            TestPathInterpolator._make_coordinate(32.57, 29.93),
+            TestPathInterpolator._make_coordinate(43.46, 12.67),
+            TestPathInterpolator._make_coordinate(50.80, 11.99),
+            TestPathInterpolator._make_coordinate(80.26, 6.00),
+            TestPathInterpolator._make_coordinate(95.23, 5.58),
+            TestPathInterpolator._make_coordinate(97.50, 5.26),
+            TestPathInterpolator._make_coordinate(103.51, 1.27),
+            TestPathInterpolator._make_coordinate(103.97, 1.00),
+            TestPathInterpolator._make_coordinate(104.00, 1.00),
+        ]
+
+        cls._COPENHAGEN_TO_STOCKHOLM_PATH = [
+            TestPathInterpolator._make_coordinate(13, 55),
+            TestPathInterpolator._make_coordinate(14.1966, 55.382),
+            TestPathInterpolator._make_coordinate(15.848332999, 56.073722),
+            TestPathInterpolator._make_coordinate(18.71244399998, 59.278332999996),
+            TestPathInterpolator._make_coordinate(19.162, 59.3),
+        ]
 
     def test_copenhagen_to_singapore(self):
-        copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
-        singapore_coordinates = Coordinate(latitude=1, longitude=104)
+        path = self._INTERPOLATOR.interpolate(self._COPENHAGEN_COORDINATES, self._SINGAPORE_COORDINATES)
 
-        expected_path = [
-            self._make_coordinate(13.00, 55.00),
-            self._make_coordinate(12.68, 55.59),
-            self._make_coordinate(12.31, 56.13),
-            self._make_coordinate(10.66, 57.74),
-            self._make_coordinate(8.60, 57.12),
-            self._make_coordinate(1.39, 51.15),
-            self._make_coordinate(-1.94, 49.73),
-            self._make_coordinate(-4.78, 48.51),
-            self._make_coordinate(-9.30, 43.05),
-            self._make_coordinate(-9.50, 38.78),
-            self._make_coordinate(-9.00, 37.02),
-            self._make_coordinate(-5.61, 36.00),
-            self._make_coordinate(3.90, 36.93),
-            self._make_coordinate(9.74, 37.35),
-            self._make_coordinate(11.04, 37.09),
-            self._make_coordinate(31.92, 31.53),
-            self._make_coordinate(32.28, 31.23),
-            self._make_coordinate(32.57, 29.93),
-            self._make_coordinate(43.46, 12.67),
-            self._make_coordinate(50.80, 11.99),
-            self._make_coordinate(80.26, 6.00),
-            self._make_coordinate(95.23, 5.58),
-            self._make_coordinate(97.50, 5.26),
-            self._make_coordinate(103.51, 1.27),
-            self._make_coordinate(103.97, 1.00),
-            self._make_coordinate(104.00, 1.00),
-        ]
-
-        path = self._INTERPOLATOR.interpolate(copenhagen_coordinates, singapore_coordinates)
-
-        self._assert_paths_equal(expected_path, path)
+        self._assert_paths_equal(self._COPENHAGEN_TO_SINGAPORE_PATH, path)
 
     def test_copenhagen_to_singapore_distance_limit(self):
-        copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
-        singapore_coordinates = Coordinate(latitude=1, longitude=104)
-
         with self.assertRaises(RuntimeError):
-            self._INTERPOLATOR.interpolate(copenhagen_coordinates, singapore_coordinates, 1)
+            self._INTERPOLATOR.interpolate(self._COPENHAGEN_COORDINATES, self._SINGAPORE_COORDINATES, 1)
 
     def test_copenhagen_to_stockholm(self):
-        copenhagen_coordinates = Coordinate(latitude=55, longitude=13)
-        stockholm_coordinates = Coordinate(latitude=59.30, longitude=19.162)
+        path = self._INTERPOLATOR.interpolate(self._COPENHAGEN_COORDINATES, self._STOCKHOLM_COORDINATES)
 
-        expected_path = [
-            self._make_coordinate(13, 55),
-            self._make_coordinate(14.1966, 55.382),
-            self._make_coordinate(15.848332999, 56.073722),
-            self._make_coordinate(18.71244399998, 59.278332999996),
-            self._make_coordinate(19.162, 59.3),
+        self._assert_paths_equal(self._COPENHAGEN_TO_STOCKHOLM_PATH, path)
+        
+    def test_batch_interpolate(self):
+        paths = self._INTERPOLATOR.batch_interpolate(
+            [
+                (self._COPENHAGEN_COORDINATES, self._SINGAPORE_COORDINATES),
+                (self._COPENHAGEN_COORDINATES, self._STOCKHOLM_COORDINATES),
+            ]
+        )
+        expected_paths = [
+            self._COPENHAGEN_TO_SINGAPORE_PATH,
+            self._COPENHAGEN_TO_STOCKHOLM_PATH,
         ]
 
-        path = self._INTERPOLATOR.interpolate(copenhagen_coordinates, stockholm_coordinates)
-
-        self._assert_paths_equal(expected_path, path)
+        for expected_path, path in zip(expected_paths, paths):
+            self._assert_paths_equal(expected_path, path)
 
     def test_cross_meridian(self):
         coords_1 = Coordinate(latitude=1, longitude=104)
         coords_2 = Coordinate(latitude=37, longitude=-125)
 
         expected_path = [
-            self._make_coordinate(104.0, 1.00),
-            self._make_coordinate(119.879944, 16.396221999999998),
-            self._make_coordinate(120.62169399999999, 18.547943999999998),
-            self._make_coordinate(-125.0, 37.0),
+            TestPathInterpolator._make_coordinate(104.0, 1.00),
+            TestPathInterpolator._make_coordinate(119.879944, 16.396221999999998),
+            TestPathInterpolator._make_coordinate(120.62169399999999, 18.547943999999998),
+            TestPathInterpolator._make_coordinate(-125.0, 37.0),
         ]
 
         path = self._INTERPOLATOR.interpolate(coords_1, coords_2)
@@ -91,8 +103,8 @@ class TestPathInterpolator(unittest.TestCase):
         self._assert_paths_equal(expected_path, path)
 
     def test_non_intersecting(self):
-        coords_1 = self._make_coordinate(-79.80740, 9.13017)
-        coords_2 = self._make_coordinate(-79.81564, 9.14596)
+        coords_1 = TestPathInterpolator._make_coordinate(-79.80740, 9.13017)
+        coords_2 = TestPathInterpolator._make_coordinate(-79.81564, 9.14596)
 
         expected_path = [coords_1, coords_2]
 

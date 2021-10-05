@@ -106,6 +106,19 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     return path;
 }
 
+std::vector<std::vector<Coordinate>> ShortestPathComputer::shortest_paths(
+        const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
+        double maximum_distance_to_search_from_source) const {
+    auto paths = std::vector<std::vector<Coordinate>>(source_dest_pairs.size());
+
+#pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source) default(none)
+    for (size_t i = 0; i < source_dest_pairs.size(); ++i) {
+        paths[i] = shortest_path(source_dest_pairs[i].first, source_dest_pairs[i].second, maximum_distance_to_search_from_source);
+    }
+
+    return paths;
+}
+
 double ShortestPathComputer::distance_measurement(const Coordinate &a, const Coordinate &b, bool is_meridian_spanning) {
     if (!is_meridian_spanning) {
         return (a - b).magnitude();
