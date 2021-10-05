@@ -2,11 +2,11 @@
 // Created by James.Balajan on 8/06/2021.
 //
 
+#include "spatial_segment_index.hpp"
 #include <memory>
 #include <s2/s2closest_edge_query.h>
 #include <s2/s2contains_point_query.h>
 #include <s2/s2crossing_edge_query.h>
-#include "spatial_segment_index.hpp"
 
 SpatialSegmentIndex::SpatialSegmentIndex(const std::vector<Polygon> &polygons) {
     _loops.reserve(polygons.size());
@@ -75,7 +75,7 @@ std::vector<LineSegment> SpatialSegmentIndex::intersect_with_segments(const Line
     auto p1 = segment.get_endpoint_1().to_s2_point();
     const auto p2 = segment.get_endpoint_2().to_s2_point();
     std::vector<LineSegment> result;
-    auto edges = query.GetCrossingEdges(p1, p2,S2CrossingEdgeQuery::CrossingType::ALL);
+    auto edges = query.GetCrossingEdges(p1, p2, S2CrossingEdgeQuery::CrossingType::ALL);
 
     std::sort(edges.begin(), edges.end(), [&p1](s2shapeutil::ShapeEdge &e1, s2shapeutil::ShapeEdge &e2) -> bool {
         return S2::GetDistance(p1, e1.v0(), e1.v1()) < S2::GetDistance(p1, e2.v0(), e2.v1());
