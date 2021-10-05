@@ -17,5 +17,5 @@ class IPathInterpolator(abc.ABC):
         self,
         coord_pairs: typing.Sequence[typing.Tuple[Coordinate, Coordinate]],
         search_distance_from_source_limit: float = math.inf,
-    ) -> typing.Sequence[typing.Sequence[Coordinate]]:
+    ) -> typing.Sequence[typing.Optional[typing.Sequence[Coordinate]]]:
         pass
