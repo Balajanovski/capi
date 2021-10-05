@@ -31,7 +31,7 @@ class PathInterpolator(IPathInterpolator):
         self,
         coord_pairs: typing.Sequence[typing.Tuple[Coordinate, Coordinate]],
         search_distance_from_source_limit: float = math.inf,
-    ) -> typing.Sequence[typing.Sequence[Coordinate]]:
+    ) -> typing.Sequence[typing.Optional[typing.Sequence[Coordinate]]]:
         _coord_pairs = [
             (
                 VisGraphCoord(pair[0].longitude, pair[0].latitude),
@@ -52,10 +52,10 @@ class PathInterpolator(IPathInterpolator):
         self,
         coord_pairs: typing.Sequence[typing.Tuple[VisGraphCoord, VisGraphCoord]],
         search_distance_from_source_limit: float = math.inf,
-    ) -> typing.Sequence[typing.Sequence[Coordinate]]:
+    ) -> typing.Sequence[typing.Optional[typing.Sequence[Coordinate]]]:
         paths = self._shortest_path_computer.shortest_paths(coord_pairs, search_distance_from_source_limit)
 
-        return [self._convert_visgraph_coords_list_to_coordinates(path) for path in paths]
+        return [self._convert_visgraph_coords_list_to_coordinates(path) if path is not None else None for path in paths]
 
     @staticmethod
     def _convert_visgraph_coords_list_to_coordinates(
