@@ -17,8 +17,7 @@ struct AStarHeapElement {
 
 ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), _index(graph.get_polygons()) {}
 
-std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source,
-                                                            const Coordinate &destination,
+std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination,
                                                             double maximum_distance_to_search_from_source) const {
     const auto normalized_source = coordinate_from_periodic_coordinate(source);
     const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
@@ -106,14 +105,15 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     return path;
 }
 
-std::vector<std::vector<Coordinate>> ShortestPathComputer::shortest_paths(
-        const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
-        double maximum_distance_to_search_from_source) const {
+std::vector<std::vector<Coordinate>>
+ShortestPathComputer::shortest_paths(const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
+                                     double maximum_distance_to_search_from_source) const {
     auto paths = std::vector<std::vector<Coordinate>>(source_dest_pairs.size());
 
 #pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source) default(none)
     for (size_t i = 0; i < source_dest_pairs.size(); ++i) {
-        paths[i] = shortest_path(source_dest_pairs[i].first, source_dest_pairs[i].second, maximum_distance_to_search_from_source);
+        paths[i] = shortest_path(source_dest_pairs[i].first, source_dest_pairs[i].second,
+                                 maximum_distance_to_search_from_source);
     }
 
     return paths;
@@ -132,7 +132,8 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
     return std::min(distance_measurement(a, b, false), distance_measurement(a, b, true));
 }
 
-Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination, const std::vector<LineSegment> &intersections) const {
+Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination,
+                                                  const std::vector<LineSegment> &intersections) const {
     if (_graph.has_vertex(source) && _graph.has_vertex(destination)) {
         return _graph;
     }
@@ -150,8 +151,10 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto is_meridian_crossing_1 = std::abs(source.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
-        const auto is_meridian_crossing_2 = std::abs(source.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_1 =
+            std::abs(source.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_2 =
+            std::abs(source.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
 
         modified_graph.add_edge(source, p1, is_meridian_crossing_1);
         modified_graph.add_edge(source, p2, is_meridian_crossing_2);
@@ -164,8 +167,10 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         const auto p1 = closest_edge.get_endpoint_1();
         const auto p2 = closest_edge.get_endpoint_2();
 
-        const auto is_meridian_crossing_1 = std::abs(destination.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
-        const auto is_meridian_crossing_2 = std::abs(destination.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_1 =
+            std::abs(destination.get_longitude() - p1.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
+        const auto is_meridian_crossing_2 =
+            std::abs(destination.get_longitude() - p2.get_longitude()) > (LONGITUDE_PERIOD * 0.5);
 
         modified_graph.add_edge(destination, p1, is_meridian_crossing_1);
         modified_graph.add_edge(destination, p2, is_meridian_crossing_2);

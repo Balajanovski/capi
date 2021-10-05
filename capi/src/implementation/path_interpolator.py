@@ -28,12 +28,17 @@ class PathInterpolator(IPathInterpolator):
         return path
 
     def batch_interpolate(
-        self, coord_pairs: typing.Sequence[typing.Tuple[Coordinate, Coordinate]], search_distance_from_source_limit: float = math.inf
+        self,
+        coord_pairs: typing.Sequence[typing.Tuple[Coordinate, Coordinate]],
+        search_distance_from_source_limit: float = math.inf,
     ) -> typing.Sequence[typing.Sequence[Coordinate]]:
-        _coord_pairs = [(
-            VisGraphCoord(pair[0].longitude, pair[0].latitude),
-            VisGraphCoord(pair[1].longitude, pair[1].latitude),
-        ) for pair in coord_pairs]
+        _coord_pairs = [
+            (
+                VisGraphCoord(pair[0].longitude, pair[0].latitude),
+                VisGraphCoord(pair[1].longitude, pair[1].latitude),
+            )
+            for pair in coord_pairs
+        ]
 
         return self._batch_get_shortest_path(_coord_pairs, search_distance_from_source_limit)
 
@@ -44,14 +49,13 @@ class PathInterpolator(IPathInterpolator):
         return self._convert_visgraph_coords_list_to_coordinates(path)
 
     def _batch_get_shortest_path(
-        self, coord_pairs: typing.Sequence[typing.Tuple[VisGraphCoord, VisGraphCoord]], search_distance_from_source_limit: float = math.inf
+        self,
+        coord_pairs: typing.Sequence[typing.Tuple[VisGraphCoord, VisGraphCoord]],
+        search_distance_from_source_limit: float = math.inf,
     ) -> typing.Sequence[typing.Sequence[Coordinate]]:
         paths = self._shortest_path_computer.shortest_paths(coord_pairs, search_distance_from_source_limit)
 
-        return [
-            self._convert_visgraph_coords_list_to_coordinates(path)
-            for path in paths
-        ]
+        return [self._convert_visgraph_coords_list_to_coordinates(path) for path in paths]
 
     @staticmethod
     def _convert_visgraph_coords_list_to_coordinates(

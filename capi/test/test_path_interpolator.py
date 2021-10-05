@@ -14,10 +14,12 @@ class TestPathInterpolator(unittest.TestCase):
     _INTERPOLATOR = PathInterpolator(
         visibility_graph_file_path=_GRAPH_FILE_PATH,
     )
-    
+
     _COPENHAGEN_COORDINATES = Coordinate(latitude=55, longitude=13)
     _SINGAPORE_COORDINATES = Coordinate(latitude=1, longitude=104)
     _STOCKHOLM_COORDINATES = Coordinate(latitude=59.30, longitude=19.162)
+    _COPENHAGEN_TO_SINGAPORE_PATH: typing.List[Coordinate] = []
+    _COPENHAGEN_TO_STOCKHOLM_PATH: typing.List[Coordinate] = []
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -71,7 +73,7 @@ class TestPathInterpolator(unittest.TestCase):
         path = self._INTERPOLATOR.interpolate(self._COPENHAGEN_COORDINATES, self._STOCKHOLM_COORDINATES)
 
         self._assert_paths_equal(self._COPENHAGEN_TO_STOCKHOLM_PATH, path)
-        
+
     def test_batch_interpolate(self):
         paths = self._INTERPOLATOR.batch_interpolate(
             [

@@ -14,6 +14,8 @@ class IPathInterpolator(abc.ABC):
 
     @abc.abstractmethod
     def batch_interpolate(
-        self, coord_pairs: typing.Sequence[typing.Tuple[Coordinate, Coordinate]], search_distance_from_source_limit: float = math.inf
+        self,
+        coord_pairs: typing.Sequence[typing.Tuple[Coordinate, Coordinate]],
+        search_distance_from_source_limit: float = math.inf,
     ) -> typing.Sequence[typing.Sequence[Coordinate]]:
         pass

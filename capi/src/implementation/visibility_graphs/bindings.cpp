@@ -71,7 +71,7 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def(
             "shortest_paths",
             [](ShortestPathComputer &self, const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
-                    double maximum_distance_to_search_from_source){
+               double maximum_distance_to_search_from_source) {
                 return self.shortest_paths(source_dest_pairs, maximum_distance_to_search_from_source);
             },
             py::arg("source_dest_pairs"), py::arg("maximum_distance_to_search_from_source") = INFINITY);
