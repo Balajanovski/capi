@@ -73,18 +73,22 @@ TEST_CASE("ShortestPathComputer shortest paths") {
     const auto graph = VisgraphGenerator::generate({poly});
     const auto a1 = Coordinate(-1.5, 0.5);
     const auto a2 = Coordinate(-1.5, -0.5);
+    const auto a3 = Coordinate(0., 0.);
+
     const auto b = Coordinate(1.5, 0.);
 
     const auto source_dest_pairs = std::vector<std::pair<Coordinate, Coordinate>> {
         std::make_pair(a1, b),
         std::make_pair(a2, b),
+        std::make_pair(a3, b),
     };
     const auto path_computer = ShortestPathComputer(graph);
 
     const auto shortest_paths = path_computer.shortest_paths(source_dest_pairs);
     const auto expected_shortest_paths = std::vector<std::vector<Coordinate>>{
-        std::vector<Coordinate> {a1, Coordinate(0., 1.), b},
-        std::vector<Coordinate> {a2, Coordinate(0., -1.), b},
+        std::make_optional(std::vector<Coordinate> {a1, Coordinate(0., 1.), b}),
+        std::make_optional(std::vector<Coordinate> {a2, Coordinate(0., -1.), b}),
+        std::nullopt,
     };
 
     REQUIRE(shortest_paths == expected_shortest_paths);
