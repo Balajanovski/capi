@@ -85,7 +85,7 @@ TEST_CASE("ShortestPathComputer shortest paths") {
     const auto path_computer = ShortestPathComputer(graph);
 
     const auto shortest_paths = path_computer.shortest_paths(source_dest_pairs);
-    const auto expected_shortest_paths = std::vector<std::vector<Coordinate>>{
+    const auto expected_shortest_paths = std::vector<std::optional<std::vector<Coordinate>>>{
         std::make_optional(std::vector<Coordinate> {a1, Coordinate(0., 1.), b}),
         std::make_optional(std::vector<Coordinate> {a2, Coordinate(0., -1.), b}),
         std::nullopt,
