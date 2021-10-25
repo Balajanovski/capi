@@ -78,3 +78,22 @@ TEST_CASE("Line Segment On Segment") {
     REQUIRE_FALSE(segment.on_segment(Coordinate(0., 0.)));
     REQUIRE_FALSE(segment.on_segment(Coordinate(1., 1.)));
 }
+
+TEST_CASE("Line Segment Project") {
+    const auto segment_1 = LineSegment(Coordinate(0., 1.), Coordinate(1., 0.));
+    const auto segment_2 = LineSegment(Coordinate(179., 0.), Coordinate(-179., 0.));
+
+    const auto point_1 = Coordinate(1., 1.);
+    const auto point_2 = Coordinate(179.5, 1.);
+
+    const auto proj_point_1 = segment_1.project(point_1);
+    const auto proj_point_2 = segment_2.project(point_2);
+
+    const auto expected_proj_point_1 = Coordinate(0.5, 0.5);
+    const auto expected_proj_point_2 = Coordinate(179.5, 0.);
+
+    REQUIRE(std::abs(proj_point_1.get_longitude() - expected_proj_point_1.get_longitude()) < 0.0001);
+    REQUIRE(std::abs(proj_point_1.get_latitude() - expected_proj_point_1.get_latitude()) < 0.0001);
+    REQUIRE(std::abs(proj_point_2.get_longitude() - expected_proj_point_2.get_longitude()) < 0.0001);
+    REQUIRE(std::abs(proj_point_2.get_latitude() - expected_proj_point_2.get_latitude()) < 0.0001);
+}

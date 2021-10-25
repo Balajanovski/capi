@@ -114,6 +114,30 @@ TEST_CASE("ShortestPathComputer shortest path in land") {
     REQUIRE_THROWS(path_computer.shortest_path(d, a));
 }
 
+TEST_CASE("ShortestPathComputer shortest path in land correction") {
+    const auto poly = Polygon({
+                                      Coordinate(1., 1.),
+                                      Coordinate(1., -1.),
+                                      Coordinate(-1., -1.),
+                                      Coordinate(-1., 1.),
+                              });
+
+    const auto graph = VisgraphGenerator::generate({poly});
+    const auto a = Coordinate(-0.75, -0.0);
+    const auto b = Coordinate(1.25, -0.1);
+    const auto path_computer = ShortestPathComputer(graph);
+
+    const auto path = path_computer.shortest_path(a, b, INFINITY, true);
+    const auto expected_path = std::vector<Coordinate>{
+        Coordinate(-1.,-0.0),
+        Coordinate(-1.,-1.),
+        Coordinate(1.,-1.),
+        Coordinate(1.25,-0.1),
+    };
+
+    REQUIRE(path == expected_path);
+}
+
 TEST_CASE("ShortestPathComputer shortest path without obstacles") {
     const auto graph = VisgraphGenerator::generate({});
     const auto a = Coordinate(176., 0.);

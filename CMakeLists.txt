@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(capi VERSION "2.3.9")
+project(capi VERSION "2.4.1")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -8,7 +8,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
-set(CMAKE_CXX_FLAGS "-Ofast -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
 set(EXAMPLE_TARGET "${PROJECT_NAME}_example")
