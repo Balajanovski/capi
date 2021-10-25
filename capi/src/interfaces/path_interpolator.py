@@ -8,7 +8,11 @@ from capi.src.implementation.dtos.coordinate import Coordinate
 class IPathInterpolator(abc.ABC):
     @abc.abstractmethod
     def interpolate(
-        self, coord_1: Coordinate, coord_2: Coordinate, search_distance_from_source_limit: float = math.inf, correct_vertices_on_land: bool = False
+        self,
+        coord_1: Coordinate,
+        coord_2: Coordinate,
+        search_distance_from_source_limit: float = math.inf,
+        correct_vertices_on_land: bool = False,
     ) -> typing.Sequence[Coordinate]:
         pass
 
