@@ -65,16 +65,20 @@ PYBIND11_MODULE(_vis_graph, m) {
             "shortest_path",
             [](ShortestPathComputer &self, const Coordinate &source, const Coordinate &destination,
                double maximum_distance_to_search_from_source, bool correct_vertices_on_land) {
-                return self.shortest_path(source, destination, maximum_distance_to_search_from_source, correct_vertices_on_land);
+                return self.shortest_path(source, destination, maximum_distance_to_search_from_source,
+                                          correct_vertices_on_land);
             },
-            py::arg("source"), py::arg("destination"), py::arg("maximum_distance_to_search_from_source") = INFINITY, py::arg("correct_vertices_on_land") = false)
+            py::arg("source"), py::arg("destination"), py::arg("maximum_distance_to_search_from_source") = INFINITY,
+            py::arg("correct_vertices_on_land") = false)
         .def(
             "shortest_paths",
             [](ShortestPathComputer &self, const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
                double maximum_distance_to_search_from_source, bool correct_vertices_on_land) {
-                return self.shortest_paths(source_dest_pairs, maximum_distance_to_search_from_source, correct_vertices_on_land);
+                return self.shortest_paths(source_dest_pairs, maximum_distance_to_search_from_source,
+                                           correct_vertices_on_land);
             },
-            py::arg("source_dest_pairs"), py::arg("maximum_distance_to_search_from_source") = INFINITY, py::arg("correct_vertices_on_land") = false);
+            py::arg("source_dest_pairs"), py::arg("maximum_distance_to_search_from_source") = INFINITY,
+            py::arg("correct_vertices_on_land") = false);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
     m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,
