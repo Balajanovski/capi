@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <queue>
-#include <iostream>
 
 #include "constants/constants.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
@@ -20,13 +19,15 @@ ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), 
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination,
                                                             double maximum_distance_to_search_from_source,
-                                                            bool correct_vertices_on_land) const {
+                                                            bool correct_vertices_on_land,
+                                                            double a_star_greediness_weighting) const {
     const auto normalized_source = coordinate_from_periodic_coordinate(source);
     const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
 
-    const auto land_corrections = handle_land_collisions(normalized_source, normalized_destination, correct_vertices_on_land);
-    const auto& corrected_source = land_corrections.corrected_source;
-    const auto& corrected_dest = land_corrections.corrected_dest;
+    const auto land_corrections =
+        handle_land_collisions(normalized_source, normalized_destination, correct_vertices_on_land);
+    const auto &corrected_source = land_corrections.corrected_source;
+    const auto &corrected_dest = land_corrections.corrected_dest;
 
     auto intersections = _index.intersect_with_segments(LineSegment(corrected_source, corrected_dest));
     if (land_corrections.corrected_source_edge) {
@@ -41,10 +42,8 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     const auto source_destination_distance = heuristic_distance_measurement(corrected_source, corrected_dest);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
-        return (a.distance_to_source +
-                a.heuristic_distance_to_destination * ShortestPathComputer::GREEDINESS_WEIGHTING) >
-               (b.distance_to_source +
-                b.heuristic_distance_to_destination * ShortestPathComputer::GREEDINESS_WEIGHTING);
+        return (a.distance_to_source + a.heuristic_distance_to_destination * a_star_greediness_weighting) >
+               (b.distance_to_source + b.heuristic_distance_to_destination * a_star_greediness_weighting);
     };
 
     auto pq = std::priority_queue<AStarHeapElement, std::vector<AStarHeapElement>, decltype(comparison_func)>(
@@ -109,16 +108,18 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
 
 std::vector<std::optional<std::vector<Coordinate>>>
 ShortestPathComputer::shortest_paths(const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
-                                     double maximum_distance_to_search_from_source,
-                                     bool correct_vertices_on_land) const {
+                                     double maximum_distance_to_search_from_source, bool correct_vertices_on_land,
+                                     double a_star_greediness_weighting) const {
     auto paths = std::vector<std::optional<std::vector<Coordinate>>>(source_dest_pairs.size());
 
-#pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source, correct_vertices_on_land) default(none)
+#pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source,                      \
+                                correct_vertices_on_land, a_star_greediness_weighting) default(none)
     for (size_t i = 0; i < source_dest_pairs.size(); ++i) {
         try {
             paths[i] = std::make_optional(shortest_path(source_dest_pairs[i].first, source_dest_pairs[i].second,
-                                     maximum_distance_to_search_from_source, correct_vertices_on_land));
-        } catch(...) {
+                                                        maximum_distance_to_search_from_source,
+                                                        correct_vertices_on_land, a_star_greediness_weighting));
+        } catch (...) {
             paths[i] = std::nullopt;
         }
     }
@@ -140,8 +141,8 @@ double ShortestPathComputer::heuristic_distance_measurement(const Coordinate &a,
 }
 
 LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coordinate &source,
-                                                                               const Coordinate &destination,
-                                                                               bool correct_vertices_on_land) const {
+                                                                     const Coordinate &destination,
+                                                                     bool correct_vertices_on_land) const {
     const auto source_is_on_land = _index.is_point_contained(source);
     const auto destination_is_on_land = _index.is_point_contained(destination);
 
@@ -156,12 +157,13 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
         const auto closest_seg = _index.closest_segment_to_point(source);
         corrected_source = closest_seg.project(source);
         corrected_source_edge = std::make_optional(closest_seg);
-    } if (destination_is_on_land) {
+    }
+    if (destination_is_on_land) {
         const auto closest_seg = _index.closest_segment_to_point(destination);
         corrected_destination = closest_seg.project(destination);
     }
 
-    return LandCollisionCorrection {
+    return LandCollisionCorrection{
         .corrected_source = corrected_source,
         .corrected_dest = corrected_destination,
         .corrected_source_edge = corrected_source_edge,
