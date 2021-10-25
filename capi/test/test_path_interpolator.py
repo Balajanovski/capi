@@ -61,16 +61,25 @@ class TestPathInterpolator(unittest.TestCase):
         ]
 
     def test_copenhagen_to_singapore(self):
-        path = self._INTERPOLATOR.interpolate(self._COPENHAGEN_COORDINATES, self._SINGAPORE_COORDINATES)
+        path = self._INTERPOLATOR.interpolate(
+            self._COPENHAGEN_COORDINATES, self._SINGAPORE_COORDINATES, a_star_greediness_weighting=1.1
+        )
 
         self._assert_paths_equal(self._COPENHAGEN_TO_SINGAPORE_PATH, path)
 
     def test_copenhagen_to_singapore_distance_limit(self):
         with self.assertRaises(RuntimeError):
-            self._INTERPOLATOR.interpolate(self._COPENHAGEN_COORDINATES, self._SINGAPORE_COORDINATES, 1)
+            self._INTERPOLATOR.interpolate(
+                self._COPENHAGEN_COORDINATES,
+                self._SINGAPORE_COORDINATES,
+                search_distance_from_source_limit=1,
+                a_star_greediness_weighting=1.1,
+            )
 
     def test_copenhagen_to_stockholm(self):
-        path = self._INTERPOLATOR.interpolate(self._COPENHAGEN_COORDINATES, self._STOCKHOLM_COORDINATES)
+        path = self._INTERPOLATOR.interpolate(
+            self._COPENHAGEN_COORDINATES, self._STOCKHOLM_COORDINATES, a_star_greediness_weighting=1.1
+        )
 
         self._assert_paths_equal(self._COPENHAGEN_TO_STOCKHOLM_PATH, path)
 
@@ -79,7 +88,8 @@ class TestPathInterpolator(unittest.TestCase):
             [
                 (self._COPENHAGEN_COORDINATES, self._SINGAPORE_COORDINATES),
                 (self._COPENHAGEN_COORDINATES, self._STOCKHOLM_COORDINATES),
-            ]
+            ],
+            a_star_greediness_weighting=1.1,
         )
         expected_paths = [
             self._COPENHAGEN_TO_SINGAPORE_PATH,
@@ -100,7 +110,7 @@ class TestPathInterpolator(unittest.TestCase):
             TestPathInterpolator._make_coordinate(-125.0, 37.0),
         ]
 
-        path = self._INTERPOLATOR.interpolate(coords_1, coords_2)
+        path = self._INTERPOLATOR.interpolate(coords_1, coords_2, a_star_greediness_weighting=1.1)
 
         self._assert_paths_equal(expected_path, path)
 
@@ -110,7 +120,7 @@ class TestPathInterpolator(unittest.TestCase):
 
         expected_path = [coords_1, coords_2]
 
-        path = self._INTERPOLATOR.interpolate(coords_1, coords_2)
+        path = self._INTERPOLATOR.interpolate(coords_1, coords_2, a_star_greediness_weighting=1.1)
 
         self._assert_paths_equal(expected_path, path)
 

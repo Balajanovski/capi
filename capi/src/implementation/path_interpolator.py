@@ -23,11 +23,14 @@ class PathInterpolator(IPathInterpolator):
         coord_2: Coordinate,
         search_distance_from_source_limit: float = math.inf,
         correct_vertices_on_land: bool = False,
+        a_star_greediness_weighting: float = 1.0,
     ) -> typing.Sequence[Coordinate]:
         point_1 = VisGraphCoord(coord_1.longitude, coord_1.latitude)
         point_2 = VisGraphCoord(coord_2.longitude, coord_2.latitude)
 
-        path = self._get_shortest_path(point_1, point_2, search_distance_from_source_limit, correct_vertices_on_land)
+        path = self._get_shortest_path(
+            point_1, point_2, search_distance_from_source_limit, correct_vertices_on_land, a_star_greediness_weighting
+        )
 
         return path
 
@@ -36,6 +39,7 @@ class PathInterpolator(IPathInterpolator):
         coord_pairs: typing.Sequence[typing.Tuple[Coordinate, Coordinate]],
         search_distance_from_source_limit: float = math.inf,
         correct_vertices_on_land: bool = False,
+        a_star_greediness_weighting: float = 1.0,
     ) -> typing.Sequence[typing.Optional[typing.Sequence[Coordinate]]]:
         _coord_pairs = [
             (
@@ -45,7 +49,9 @@ class PathInterpolator(IPathInterpolator):
             for pair in coord_pairs
         ]
 
-        return self._batch_get_shortest_path(_coord_pairs, search_distance_from_source_limit, correct_vertices_on_land)
+        return self._batch_get_shortest_path(
+            _coord_pairs, search_distance_from_source_limit, correct_vertices_on_land, a_star_greediness_weighting
+        )
 
     def _get_shortest_path(
         self,
@@ -53,20 +59,26 @@ class PathInterpolator(IPathInterpolator):
         end: VisGraphCoord,
         search_distance_from_source_limit: float,
         correct_vertices_on_land: bool,
+        a_star_greediness_weighting: float,
     ) -> typing.Sequence[Coordinate]:
         path = self._shortest_path_computer.shortest_path(
-            start, end, search_distance_from_source_limit, correct_vertices_on_land
+            start,
+            end,
+            search_distance_from_source_limit,
+            correct_vertices_on_land,
+            a_star_greediness_weighting,
         )
         return self._convert_visgraph_coords_list_to_coordinates(path)
 
     def _batch_get_shortest_path(
         self,
         coord_pairs: typing.Sequence[typing.Tuple[VisGraphCoord, VisGraphCoord]],
-        search_distance_from_source_limit: float = math.inf,
-        correct_vertices_on_land: bool = False,
+        search_distance_from_source_limit: float,
+        correct_vertices_on_land: bool,
+        a_star_greediness_weighting: float,
     ) -> typing.Sequence[typing.Optional[typing.Sequence[Coordinate]]]:
         paths = self._shortest_path_computer.shortest_paths(
-            coord_pairs, search_distance_from_source_limit, correct_vertices_on_land
+            coord_pairs, search_distance_from_source_limit, correct_vertices_on_land, a_star_greediness_weighting
         )
 
         return [self._convert_visgraph_coords_list_to_coordinates(path) if path is not None else None for path in paths]

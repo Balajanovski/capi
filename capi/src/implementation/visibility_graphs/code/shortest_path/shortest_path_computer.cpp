@@ -19,7 +19,8 @@ ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), 
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination,
                                                             double maximum_distance_to_search_from_source,
-                                                            bool correct_vertices_on_land) const {
+                                                            bool correct_vertices_on_land,
+                                                            double a_star_greediness_weighting) const {
     const auto normalized_source = coordinate_from_periodic_coordinate(source);
     const auto normalized_destination = coordinate_from_periodic_coordinate(destination);
 
@@ -41,10 +42,8 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     const auto source_destination_distance = heuristic_distance_measurement(corrected_source, corrected_dest);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
-        return (a.distance_to_source +
-                a.heuristic_distance_to_destination * ShortestPathComputer::GREEDINESS_WEIGHTING) >
-               (b.distance_to_source +
-                b.heuristic_distance_to_destination * ShortestPathComputer::GREEDINESS_WEIGHTING);
+        return (a.distance_to_source + a.heuristic_distance_to_destination * a_star_greediness_weighting) >
+               (b.distance_to_source + b.heuristic_distance_to_destination * a_star_greediness_weighting);
     };
 
     auto pq = std::priority_queue<AStarHeapElement, std::vector<AStarHeapElement>, decltype(comparison_func)>(
@@ -109,17 +108,17 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
 
 std::vector<std::optional<std::vector<Coordinate>>>
 ShortestPathComputer::shortest_paths(const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
-                                     double maximum_distance_to_search_from_source,
-                                     bool correct_vertices_on_land) const {
+                                     double maximum_distance_to_search_from_source, bool correct_vertices_on_land,
+                                     double a_star_greediness_weighting) const {
     auto paths = std::vector<std::optional<std::vector<Coordinate>>>(source_dest_pairs.size());
 
 #pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source,                      \
-                                correct_vertices_on_land) default(none)
+                                correct_vertices_on_land, a_star_greediness_weighting) default(none)
     for (size_t i = 0; i < source_dest_pairs.size(); ++i) {
         try {
-            paths[i] =
-                std::make_optional(shortest_path(source_dest_pairs[i].first, source_dest_pairs[i].second,
-                                                 maximum_distance_to_search_from_source, correct_vertices_on_land));
+            paths[i] = std::make_optional(shortest_path(source_dest_pairs[i].first, source_dest_pairs[i].second,
+                                                        maximum_distance_to_search_from_source,
+                                                        correct_vertices_on_land, a_star_greediness_weighting));
         } catch (...) {
             paths[i] = std::nullopt;
         }
