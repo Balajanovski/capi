@@ -56,3 +56,19 @@ TEST_CASE("Test is point contained") {
     REQUIRE_FALSE(index.is_point_contained(p2));
     REQUIRE_FALSE(index.is_point_contained(p3));
 }
+
+TEST_CASE("Test closest segment to point") {
+    const auto vert_a = Coordinate(1., 1.);
+    const auto vert_b = Coordinate(1., -1.);
+    const auto vert_c = Coordinate(-1., -1.);
+    const auto vert_d = Coordinate(-1., 1.);
+
+    const auto polygons = std::vector<Polygon>{Polygon({vert_a, vert_b, vert_c, vert_d,})};
+    const auto index = SpatialSegmentIndex(polygons);
+
+    const auto query_a = Coordinate(1.5, 0.);
+    const auto closest_seg_a = index.closest_segment_to_point(query_a);
+    const auto expected_closest_seg_a = LineSegment(vert_a, vert_b);
+
+    REQUIRE(expected_closest_seg_a == closest_seg_a);
+}

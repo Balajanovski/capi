@@ -24,6 +24,7 @@ class LineSegment {
     [[nodiscard]] Coordinate get_tangent_vector() const;
     [[nodiscard]] Orientation orientation_of_point_to_segment(const Coordinate &point) const;
     [[nodiscard]] bool on_segment(const Coordinate &point) const;
+    [[nodiscard]] Coordinate project(const Coordinate &point) const;
 
     bool operator==(const LineSegment &other) const;
     bool operator!=(const LineSegment &other) const;

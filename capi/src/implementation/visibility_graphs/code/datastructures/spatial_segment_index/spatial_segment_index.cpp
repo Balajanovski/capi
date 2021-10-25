@@ -28,6 +28,7 @@ std::vector<LineSegment> SpatialSegmentIndex::segments_within_distance_of_point(
                                                                                 double distance_in_radians) const {
     S2ClosestEdgeQuery query(&_index);
     query.mutable_options()->set_max_distance(S1Angle::Radians(distance_in_radians));
+    query.mutable_options()->set_include_interiors(true);
 
     decltype(query)::PointTarget target(point.to_s2_point());
     const auto results = query.FindClosestEdges(&target);
@@ -49,6 +50,7 @@ std::vector<LineSegment> SpatialSegmentIndex::segments_within_distance_of_point(
 LineSegment SpatialSegmentIndex::closest_segment_to_point(const Coordinate &point) const {
     S2ClosestEdgeQuery query(&_index);
     query.mutable_options()->set_max_results(1);
+    query.mutable_options()->set_include_interiors(false);
 
     decltype(query)::PointTarget target(point.to_s2_point());
     const auto result = query.FindClosestEdge(&target);

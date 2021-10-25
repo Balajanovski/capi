@@ -103,6 +103,18 @@ bool LineSegment::on_segment(const Coordinate &point) const {
             (_endpoint_2.get_latitude() <= point.get_latitude() && point.get_latitude() <= _endpoint_1.get_latitude()));
 }
 
+Coordinate LineSegment::project(const Coordinate &point) const {
+    const auto point_s2 = point.to_s2_point();
+    const auto polyline_s2 = this->to_s2_polyline();
+
+    int next_vertex;
+    const auto projected_point_s2 = polyline_s2->Project(point_s2, &next_vertex);
+
+    delete polyline_s2;
+
+    return Coordinate(projected_point_s2);
+}
+
 bool LineSegment::operator==(const LineSegment &other) const {
     return ((_endpoint_1 == other._endpoint_1) && (_endpoint_2 == other._endpoint_2)) ||
            ((_endpoint_1 == other._endpoint_2) && (_endpoint_2 == other._endpoint_1));
