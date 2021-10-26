@@ -21,6 +21,7 @@ class SpatialSegmentIndex {
     explicit SpatialSegmentIndex(const std::vector<Polygon> &polygons);
     ~SpatialSegmentIndex();
 
+    [[nodiscard]] std::vector<Coordinate> reachable_vertices(const Coordinate &point, double distance_in_radians) const;
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
                                                                              double distance_in_radians) const;
     [[nodiscard]] LineSegment closest_segment_to_point(const Coordinate &point) const;
@@ -30,7 +31,8 @@ class SpatialSegmentIndex {
     [[nodiscard]] bool is_point_contained(const Coordinate &point) const;
 
   private:
-    MutableS2ShapeIndex _index;
+    MutableS2ShapeIndex _shape_index;
+
     std::vector<S2Loop *> _loops;
     static LineSegment s2_to_capi_line_segment(s2shapeutil::ShapeEdge edge);
 };
