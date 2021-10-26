@@ -105,8 +105,12 @@ class TestPathInterpolator(unittest.TestCase):
 
         expected_path = [
             TestPathInterpolator._make_coordinate(104.0, 1.00),
-            TestPathInterpolator._make_coordinate(119.879944, 16.396221999999998),
-            TestPathInterpolator._make_coordinate(120.62169399999999, 18.547943999999998),
+            TestPathInterpolator._make_coordinate(122.471194, 10.478333),
+            TestPathInterpolator._make_coordinate(123.194167, 11.004527999999999),
+            TestPathInterpolator._make_coordinate(124.311611, 11.565389),
+            TestPathInterpolator._make_coordinate(124.97874999999999, 11.399167),
+            TestPathInterpolator._make_coordinate(125.008389, 11.304532),
+            TestPathInterpolator._make_coordinate(125.75874999999999, 11.019139),
             TestPathInterpolator._make_coordinate(-125.0, 37.0),
         ]
 
@@ -133,14 +137,31 @@ class TestPathInterpolator(unittest.TestCase):
 
     @staticmethod
     def _assert_paths_equal(
-        path_1: typing.Sequence[Coordinate],
-        path_2: typing.Sequence[Coordinate],
+        expected_path: typing.Sequence[Coordinate],
+        actual_path: typing.Sequence[Coordinate],
     ) -> None:
-        dist = TestPathInterpolator._path_difference(path_1, path_2)
+        dist = TestPathInterpolator._path_difference(expected_path, actual_path)
         tolerance = 240
 
         if dist > tolerance:
-            raise AssertionError(f"Paths do not equal within tolerance of {tolerance}")
+            expected_path_len = TestPathInterpolator._path_length(expected_path)
+            actual_path_len = TestPathInterpolator._path_length(actual_path)
+
+            raise AssertionError(
+                f"Paths do not equal within tolerance of {tolerance}. "
+                f"Expected path len: {expected_path_len}. "
+                f"Actual path len: {actual_path_len}. "
+            )
+
+    @staticmethod
+    def _path_length(path: typing.Sequence[Coordinate]) -> float:
+        length = 0
+        for i in range(1, len(path)):
+            length += haversine(
+                (path[i - 1].latitude, path[i - 1].longitude),
+                (path[i].latitude, path[i].longitude),
+            )
+        return length
 
     @staticmethod
     def _path_difference(path1: typing.Sequence[Coordinate], path2: typing.Sequence[Coordinate]) -> float:

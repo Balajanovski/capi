@@ -4,10 +4,10 @@
 
 #include "spatial_segment_index.hpp"
 #include <memory>
-#include <unordered_set>
 #include <s2/s2closest_edge_query.h>
 #include <s2/s2contains_point_query.h>
 #include <s2/s2crossing_edge_query.h>
+#include <unordered_set>
 
 SpatialSegmentIndex::SpatialSegmentIndex(const std::vector<Polygon> &polygons) {
     _loops.reserve(polygons.size());
@@ -47,16 +47,17 @@ std::vector<Coordinate> SpatialSegmentIndex::reachable_vertices(const Coordinate
 
         const auto edge = closest_edge_query.GetEdge(result);
 
-        const auto v0_crossed_edges = crossing_edge_query.GetCrossingEdges(observer, edge.v0, S2CrossingEdgeQuery::CrossingType::INTERIOR);
+        const auto v0_crossed_edges =
+            crossing_edge_query.GetCrossingEdges(observer, edge.v0, S2CrossingEdgeQuery::CrossingType::INTERIOR);
         if (v0_crossed_edges.empty()) {
             visible_points.emplace(edge.v0);
         }
 
-        const auto v1_crossed_edges = crossing_edge_query.GetCrossingEdges(observer, edge.v1, S2CrossingEdgeQuery::CrossingType::INTERIOR);
+        const auto v1_crossed_edges =
+            crossing_edge_query.GetCrossingEdges(observer, edge.v1, S2CrossingEdgeQuery::CrossingType::INTERIOR);
         if (v1_crossed_edges.empty()) {
             visible_points.emplace(edge.v1);
         }
-
     }
 
     return std::vector<Coordinate>(visible_points.begin(), visible_points.end());

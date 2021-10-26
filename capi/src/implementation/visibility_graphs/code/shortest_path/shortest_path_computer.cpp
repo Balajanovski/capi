@@ -182,10 +182,12 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
     for (const auto &vertex_to_process : vertices_to_process) {
         if (!_graph.has_vertex(vertex_to_process)) {
             modified_graph.add_vertex(vertex_to_process);
-            const auto reachable_vertices = _index.reachable_vertices(vertex_to_process, source_dest_spherical_distance);
+            const auto reachable_vertices =
+                _index.reachable_vertices(vertex_to_process, source_dest_spherical_distance);
 
             for (const auto &point : reachable_vertices) {
-                const auto is_meridian_crossing = std::abs(vertex_to_process.get_longitude() - point.get_longitude()) > half_longitude_period;
+                const auto is_meridian_crossing =
+                    std::abs(vertex_to_process.get_longitude() - point.get_longitude()) > half_longitude_period;
                 modified_graph.add_edge(vertex_to_process, point, is_meridian_crossing);
             }
         }
