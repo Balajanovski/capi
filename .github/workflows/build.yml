@@ -49,12 +49,14 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..
           make
           cp _vis_graph.*.so ../capi/src/implementation/visibility_graphs/
           cd ..
       - name: Run C++ tests
-        run: ./build/capi_test
+        run: |
+          ./build/capi_test
+          gcov ../capi/test/test_main.cpp
       - name: Run Python tests
         run: python run_tests.py
       - name: Coverage report
