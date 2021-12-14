@@ -32,6 +32,7 @@ jobs:
         run: |
           git clone https://github.com/google/s2geometry.git
           cd s2geometry
+          git reset --hard 4c7cdae4eb7345fc8824c08af6b8d9581bf8febb
           mkdir build
           cd build
           cmake ..
@@ -48,14 +49,21 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..
           make
           cp _vis_graph.*.so ../capi/src/implementation/visibility_graphs/
           cd ..
       - name: Run C++ tests
-        run: ./build/capi_test
+        run: |
+          ./build/capi_test
+          gcov ../capi/test/test_main.cpp
       - name: Run Python tests
         run: python run_tests.py
+      - name: Coverage report
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${{ secrets.CODECOV_TOKEN }} -f python-test-out.xml
       - name: Install pypa/build
         run: >-
           python -m

@@ -1,5 +1,4 @@
 import os
-import time
 import typing
 from functools import reduce
 
@@ -65,7 +64,8 @@ class GraphGenerator(IGraphGenerator):
         return reduce(lambda a, b: a + b, map(lambda polygon: len(polygon.vertices), polygons))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
+    import time
     from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
     gen = GraphGenerator()

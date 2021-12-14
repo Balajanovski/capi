@@ -6,9 +6,16 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
+option(CODE_COVERAGE "Enable coverage reporting" OFF)
+if(CODE_COVERAGE)
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -O0 -g --coverage")
+else()
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -Ofast")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Ofast")
+
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
 set(EXAMPLE_TARGET "${PROJECT_NAME}_example")

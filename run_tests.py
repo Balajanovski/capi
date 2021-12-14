@@ -11,6 +11,8 @@ def main():
         "--isort",
         "--pylint",
         "--mypy",
+        "--cov",
+        "--junitxml=python-test-out.xml",
     ]
     run_command(["python3", "-m", "pytest", *options, "capi/test"])
 
