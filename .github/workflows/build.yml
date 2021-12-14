@@ -56,6 +56,11 @@ jobs:
         run: ./build/capi_test
       - name: Run Python tests
         run: python run_tests.py
+      - name: Coverage report
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${{ secrets.CODECOV_TOKEN }} -f python-test-out.xml
       - name: Install pypa/build
         run: >-
           python -m
