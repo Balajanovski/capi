@@ -29,7 +29,7 @@ the visibility graph computation.
 - OpenMP
 - TBB (Thread Building Blocks)
 - [S2Geometry](https://github.com/google/s2geometry) dependencies. `sudo apt install libgflags-dev libgoogle-glog-dev libgtest-dev libssl-dev git`
-- [S2Geometry](https://github.com/google/s2geometry). The repo needs to be cloned at commit `4c7cdae4eb7345fc8824c08af6b8d9581bf8febb` and built.
+- [S2Geometry](https://github.com/google/s2geometry). The repo needs to be cloned at commit `4c7cdae` and built.
 
 ## CAPI History
 

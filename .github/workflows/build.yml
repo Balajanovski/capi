@@ -31,7 +31,7 @@ jobs:
       - name: S2
         run: |
           git clone https://github.com/google/s2geometry.git
-          git reset --hard 4c7cdae4eb7345fc8824c08af6b8d9581bf8febb
+          git reset --hard 4c7cdae
           cd s2geometry
           mkdir build
           cd build
