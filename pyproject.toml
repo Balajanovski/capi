@@ -179,3 +179,61 @@ deprecated-modules="regsub,TERMIOS,Bastion,rexec"
 
 [tool.pylint.'EXCEPTIONS']
 overgeneral-exceptions="Exception"
+
+[tool.coverage.run]
+omit = [
+    '**/__init__.py',
+    '**\test\**',
+    '**/test/**',
+    '**\contract_tests\**',
+    '**/contract_tests/**',
+    '**\hypothesis_strategies\**',
+    '**/hypothesis_strategies/**',
+    '**\interfaces\**',
+    '**/interfaces/**',
+    '**\node_modules\**',
+    '**/node_modules/**',
+    '**/venv/**',
+    '**\venv\**',
+    '**/.venv/**',
+    '**\.venv\**',
+    '**/test_common/**',
+    '**\test_common\**',
+    'src/config/**',
+    'src\config\**',
+    'src/protos/**',
+    'src\protos\**',
+    '/usr/local/lib/**',
+    '**/.local/lib/**',
+    '/usr/lib/**',
+]
+
+[tool.coverage.report]
+omit = [
+    '**/__init__.py',
+    '**\test\**',
+    '**/test/**',
+    '**\contract_tests\**',
+    '**/contract_tests/**',
+    '**\hypothesis_strategies\**',
+    '**/hypothesis_strategies/**',
+    '**\interfaces\**',
+    '**/interfaces/**',
+    '**\node_modules\**',
+    '**/node_modules/**',
+    '**/venv/**',
+    '**\venv\**',
+    '**/.venv/**',
+    '**\.venv\**',
+    '**/test_common/**',
+    '**\test_common\**',
+    'src/config/**',
+    'src\config\**',
+    'src/protos/**',
+    'src\protos\**',
+    '/usr/local/lib/**',
+    '**/.local/lib/**',
+    '/usr/lib/**',
+]
+show_missing=true
+fail_under=90

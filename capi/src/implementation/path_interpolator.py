@@ -87,4 +87,4 @@ class PathInterpolator(IPathInterpolator):
     def _convert_visgraph_coords_list_to_coordinates(
         points: typing.Sequence[VisGraphCoord],
     ) -> typing.Sequence[Coordinate]:
-        return [Coordinate.construct(latitude=point.latitude, longitude=point.longitude) for point in points]
+        return [Coordinate(latitude=point.latitude, longitude=point.longitude) for point in points]

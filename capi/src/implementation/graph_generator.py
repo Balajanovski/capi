@@ -1,5 +1,4 @@
 import os
-import time
 import typing
 from functools import reduce
 
@@ -63,45 +62,3 @@ class GraphGenerator(IGraphGenerator):
     @staticmethod
     def _get_num_vertices_in_polygons(polygons: typing.Sequence[VisGraphPolygon]) -> int:
         return reduce(lambda a, b: a + b, map(lambda polygon: len(polygon.vertices), polygons))
-
-
-if __name__ == "__main__":
-    from capi.test.test_files.test_files_dir import TEST_FILES_DIR
-
-    gen = GraphGenerator()
-
-    start_time = time.time()
-
-    gen.generate(
-        os.path.join(TEST_FILES_DIR, "smaller.shp"),
-        os.path.join(TEST_FILES_DIR, "smaller_graph"),
-    )
-
-    end_time = time.time()
-    print(f"Time taken for smaller: {end_time - start_time}")
-
-    start_time = time.time()
-
-    gen.generate(
-        os.path.join(TEST_FILES_DIR, "GSHHS_c_L1.shp"),
-        os.path.join(TEST_FILES_DIR, "graph"),
-    )
-
-    end_time = time.time()
-    print(f"Time taken for larger: {end_time - start_time}")
-
-    gen.generate_for_vertex_range(
-        os.path.join(TEST_FILES_DIR, "smaller.shp"),
-        os.path.join(TEST_FILES_DIR, "smaller_graph_range_1"),
-        0,
-        2,
-        42,
-    )
-
-    gen.generate_for_vertex_range(
-        os.path.join(TEST_FILES_DIR, "smaller.shp"),
-        os.path.join(TEST_FILES_DIR, "smaller_graph_range_2"),
-        1,
-        2,
-        42,
-    )
