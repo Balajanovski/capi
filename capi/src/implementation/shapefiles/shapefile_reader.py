@@ -13,6 +13,9 @@ class ShapefileReader(IShapefileReader):
         with shapefile.Reader(str(shape_file_path)) as reader:
             polygons = []
             for shape in reader.shapes():
+                if shape.shapeTypeName != "POLYGON":
+                    continue
+
                 current_part = []
 
                 part_i = 1
