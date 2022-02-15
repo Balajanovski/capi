@@ -12,6 +12,7 @@
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
+#include "types/orientation/orientation.hpp"
 
 class Polygon {
   public:
@@ -43,5 +44,7 @@ template <> struct hash<Polygon> { std::size_t operator()(const Polygon &poly) c
 } // namespace std
 
 std::ostream &operator<<(std::ostream &outs, const Polygon &poly);
+
+Orientation get_orientation_of_vertices(const std::vector<Coordinate> &vertices);
 
 #endif // CAPI_POLYGON_HPP
