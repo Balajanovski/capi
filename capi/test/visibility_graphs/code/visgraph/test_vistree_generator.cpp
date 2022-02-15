@@ -570,3 +570,32 @@ TEST_CASE("Vistree generator boundaries") {
 
     REQUIRE(visible_vertices == expected_vertices);
 }
+
+TEST_CASE("Vistree generator directly under V shape") {
+    const auto poly = Polygon({
+        Coordinate(0., 0.),
+        Coordinate(-0.5, 2.),
+        Coordinate(-1., 2.),
+        Coordinate(-1., 0.),
+        Coordinate(-1., -1.),
+        Coordinate(-0.75, -3.),
+        Coordinate(-0.25, -4.),
+        Coordinate(0., -2.),
+        Coordinate(1., -1.),
+        Coordinate(1., 0.5),
+        Coordinate(2., 1.),
+        Coordinate(1.5, 3.),
+        Coordinate(0., 2.),
+    });
+
+    const auto root = Coordinate(0., 0.);
+    auto visible_vertices = VistreeGenerator(std::vector<Polygon>{poly}).get_visible_vertices(root);
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord = Coordinate(-0.5, 2.), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(0., 2.), .is_visible_across_meridian = false},
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}

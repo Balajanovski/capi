@@ -48,6 +48,18 @@ Polygon::normalize_vertex_orientation_to_counter_clockwise(const std::vector<Coo
         return vertices;
     }
 
+    const auto orientation = get_orientation_of_vertices(vertices);
+
+    if (orientation == Orientation::CLOCKWISE) {
+        auto reversed_vertices = std::vector<Coordinate>(vertices);
+        std::reverse(reversed_vertices.begin(), reversed_vertices.end());
+        return reversed_vertices;
+    } else {
+        return vertices;
+    }
+}
+
+Orientation get_orientation_of_vertices(const std::vector<Coordinate> &vertices) {
     double winding_sum = 0;
     long num_vertices = vertices.size();
 #pragma omp simd reduction(+ : winding_sum)
@@ -58,11 +70,11 @@ Polygon::normalize_vertex_orientation_to_counter_clockwise(const std::vector<Coo
     }
 
     if (winding_sum < 0) {
-        return vertices;
+        return Orientation::COUNTER_CLOCKWISE;
+    } else if (winding_sum > 0) {
+        return Orientation::CLOCKWISE;
     } else {
-        auto reversed_vertices = std::vector<Coordinate>(vertices);
-        std::reverse(reversed_vertices.begin(), reversed_vertices.end());
-        return reversed_vertices;
+        return Orientation::COLLINEAR;
     }
 }
 
