@@ -12,12 +12,12 @@
 #include "visgraph/vistree_generator.hpp"
 
 const auto coord_sorter = [](const VisibleVertex &lhs, const VisibleVertex &rhs) {
-    if (std::abs(lhs.coord.get_longitude() - rhs.coord.get_longitude()) > EPSILON_TOLERANCE) {
-        return lhs.coord.get_longitude() < rhs.coord.get_longitude();
+    if (lhs.coord.get_longitude_microdegrees() != rhs.coord.get_longitude_microdegrees()) {
+        return lhs.coord.get_longitude_microdegrees() < rhs.coord.get_longitude_microdegrees();
     }
 
-    if (std::abs(lhs.coord.get_latitude() - rhs.coord.get_latitude()) > EPSILON_TOLERANCE) {
-        return lhs.coord.get_latitude() < rhs.coord.get_latitude();
+    if (lhs.coord.get_latitude_microdegrees() != rhs.coord.get_latitude_microdegrees()) {
+        return lhs.coord.get_latitude_microdegrees() < rhs.coord.get_latitude_microdegrees();
     }
 
     return !lhs.is_visible_across_meridian;
@@ -533,6 +533,7 @@ TEST_CASE("Vistree generator enclosed periodic 3") {
     REQUIRE(visible_vertices == expected_vertices);
 }
 
+//
 TEST_CASE("Vistree generator boundaries") {
     const auto polygon_1 = Polygon({
         Coordinate(MAX_LONGITUDE, MAX_LATITUDE),
@@ -561,7 +562,6 @@ TEST_CASE("Vistree generator boundaries") {
         VisibleVertex{.coord = root, .is_visible_across_meridian = true},
         VisibleVertex{.coord = Coordinate(MIN_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = false},
         VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MIN_LATITUDE), .is_visible_across_meridian = true},
-        VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = true},
         VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = true},
         VisibleVertex{.coord = Coordinate(MAX_LONGITUDE, MAX_LATITUDE), .is_visible_across_meridian = false},
     };
@@ -593,6 +593,68 @@ TEST_CASE("Vistree generator directly under V shape") {
     auto expected_vertices = std::vector<VisibleVertex>{
         VisibleVertex{.coord = Coordinate(-0.5, 2.), .is_visible_across_meridian = false},
         VisibleVertex{.coord = Coordinate(0., 2.), .is_visible_across_meridian = false},
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}
+
+TEST_CASE("Vistree generator parallel line") {
+    const auto poly = Polygon({
+          Coordinate(-0.57008, 38.20505), // 1
+          Coordinate(-0.514999, 38.201167), // 2
+          Coordinate(-0.514999, 38.3399), // 3
+          Coordinate(-0.4049, 38.3704), // 4
+          Coordinate(-0.4049, 44.9903), // 5
+          Coordinate(-0.514999, 44.9903), // 6
+          Coordinate(-0.514999, 44.809999), // 7
+          Coordinate(-0.56505, 44.85002), // 8
+          Coordinate(-0.57005, 44.9903), // 9
+          Coordinate(-0.57008, 44.9903), // 10
+    });
+
+    const auto root1 = Coordinate(-0.514999, 38.201167);
+    auto visible_vertices1 = VistreeGenerator(std::vector<Polygon>{poly}).get_visible_vertices(root1);
+    auto expected_vertices1 = std::vector<VisibleVertex>{
+        VisibleVertex{.coord = Coordinate(-0.57008, 38.20505), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(-0.514999, 38.3399), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(-0.4049, 38.3704), .is_visible_across_meridian = false},
+    };
+    std::sort(visible_vertices1.begin(), visible_vertices1.end(), coord_sorter);
+    std::sort(expected_vertices1.begin(), expected_vertices1.end(), coord_sorter);
+
+    const auto root2 = Coordinate(-0.514999, 44.809999);
+    auto visible_vertices2 = VistreeGenerator(std::vector<Polygon>{poly}).get_visible_vertices(root2);
+    auto expected_vertices2 = std::vector<VisibleVertex>{
+            VisibleVertex{.coord = Coordinate(-0.514999, 44.9903), .is_visible_across_meridian = false},
+            VisibleVertex{.coord = Coordinate(-0.56505, 44.85002), .is_visible_across_meridian = false},
+            VisibleVertex{.coord = Coordinate(-0.57005, 44.9903), .is_visible_across_meridian = false},
+    };
+    std::sort(visible_vertices2.begin(), visible_vertices2.end(), coord_sorter);
+    std::sort(expected_vertices2.begin(), expected_vertices2.end(), coord_sorter);
+
+    REQUIRE(visible_vertices1 == expected_vertices1);
+    REQUIRE(visible_vertices2 == expected_vertices2);
+}
+
+TEST_CASE("Vistree generator parallel line 2") {
+    const auto poly = Polygon({
+        Coordinate(0, 0),
+        Coordinate(1, 0),
+        Coordinate(1, 1),
+        Coordinate(0, 1),
+        Coordinate(-1, 1),
+        Coordinate(-1, -1),
+        Coordinate(0, -1),
+    });
+
+    const auto root = Coordinate(0, -1);
+    auto visible_vertices = VistreeGenerator(std::vector<Polygon>{poly}).get_visible_vertices(root);
+    auto expected_vertices = std::vector<VisibleVertex> {
+            VisibleVertex{.coord = Coordinate(-1, -1), .is_visible_across_meridian = false},
+            VisibleVertex{.coord = Coordinate(0, 0), .is_visible_across_meridian = false},
+            VisibleVertex{.coord = Coordinate(1, 0), .is_visible_across_meridian = false},
     };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);

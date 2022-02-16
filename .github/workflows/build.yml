@@ -56,7 +56,6 @@ jobs:
       - name: Run C++ tests
         run: |
           ./build/capi_test
-          gcov ../capi/test/test_main.cpp
       - name: Run Python tests
         run: python run_tests.py
       - name: Coverage report

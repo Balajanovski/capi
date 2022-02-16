@@ -5,7 +5,6 @@
 #include <s2/s2point.h>
 #include <stdexcept>
 
-#include "constants/constants.hpp"
 #include "line_segment.hpp"
 
 Coordinate LineSegment::get_endpoint_1() const { return _endpoint_1; }
@@ -24,21 +23,29 @@ Coordinate LineSegment::get_adjacent_to(const Coordinate &point) const {
 
 std::optional<Coordinate> LineSegment::intersection_with_segment(const LineSegment &line_segment) const {
     /*
-     * We use Cramer's rule to solve for scalars lambda_1 and lambda_2,
-     * given the parametric representation of the line segment
-     * x = lambda_1(a1 - b1) + b1 where lambda_1 goes from [0, 1] (a, b represent the segment endpoints)
-     * and parametric representation of the ray
-     * x = lambda_2*(a2 - b2) + b2 where lambda_2 goes from [0, 1]
+     * https://math.stackexchange.com/a/3176648
      */
 
-    const auto d = _endpoint_1 - _endpoint_2;
-    const auto segment_vector = line_segment._endpoint_1 - line_segment._endpoint_2;
-    const auto segment_start = line_segment._endpoint_2;
-    if (d.parallel(segment_vector)) {
+    const auto a = _endpoint_1;
+    const auto b = _endpoint_2;
+    const auto c = line_segment._endpoint_1;
+    const auto d = line_segment._endpoint_2;
+
+    const auto n = b - a;
+    const auto m = c - d;
+    const auto p = c - a;
+
+    const auto D = n.get_longitude_microdegrees_long() * m.get_latitude_microdegrees_long() - n.get_latitude_microdegrees_long() * m.get_longitude_microdegrees_long();
+    const auto Qx = m.get_latitude_microdegrees_long() * p.get_longitude_microdegrees_long() - m.get_longitude_microdegrees_long() * p.get_latitude_microdegrees_long();
+    const auto Qy = n.get_longitude_microdegrees_long() * p.get_latitude_microdegrees_long() - n.get_latitude_microdegrees_long() * p.get_longitude_microdegrees_long();
+
+    if (D == 0) {
+        // Parallel
+
         const auto endpoint_1_matches =
-            _endpoint_1 == line_segment._endpoint_1 || _endpoint_1 == line_segment._endpoint_2;
+                _endpoint_1 == line_segment._endpoint_1 || _endpoint_1 == line_segment._endpoint_2;
         const auto endpoint_2_matches =
-            _endpoint_2 == line_segment._endpoint_1 || _endpoint_2 == line_segment._endpoint_2;
+                _endpoint_2 == line_segment._endpoint_1 || _endpoint_2 == line_segment._endpoint_2;
 
         if (endpoint_1_matches) {
             return _endpoint_1;
@@ -47,23 +54,16 @@ std::optional<Coordinate> LineSegment::intersection_with_segment(const LineSegme
         } else {
             return {};
         }
-    }
+    } if (!((D >= 0 && Qx >= 0 && Qy >= 0) || (D <= 0 && Qx <= 0 && Qy <= 0)) ||
+            std::abs(D) < std::abs(Qx) ||
+            std::abs(D) < std::abs(Qy)) {
+        // No intersection
 
-    const auto e = segment_start - _endpoint_2;
-    const auto determinant =
-        (d.get_longitude() * segment_vector.get_latitude()) - (d.get_latitude() * segment_vector.get_longitude());
-    const auto lambda_1 =
-        ((e.get_longitude() * segment_vector.get_latitude()) - (e.get_latitude() * segment_vector.get_longitude())) /
-        determinant;
-    const auto lambda_2 =
-        (-(d.get_longitude() * e.get_latitude()) + (d.get_latitude() * e.get_longitude())) / determinant;
-
-    if (lambda_1 < -EPSILON_TOLERANCE_SQUARED || lambda_1 > (1 + EPSILON_TOLERANCE_SQUARED) ||
-        lambda_2 < -EPSILON_TOLERANCE_SQUARED || lambda_2 > (1 + EPSILON_TOLERANCE_SQUARED)) {
         return {};
     }
 
-    return segment_start + (segment_vector * lambda_2);
+    const auto t = static_cast<double>(Qx) / static_cast<double>(D);
+    return a + (n * t);
 }
 
 Coordinate LineSegment::get_tangent_vector() const { return _endpoint_2 - _endpoint_1; }

@@ -54,7 +54,7 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_candidate
 
     std::vector<VisibleVertex> visible_vertices;
     for (const auto &current_vertex : vertices_sorted_counter_clockwise_around_observer) {
-        if (current_vertex == observer) {
+        if (observer == current_vertex) {
             continue;
         }
 
@@ -75,8 +75,8 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_candidate
         const auto curr_vertex_visible = VistreeGenerator::is_vertex_visible(open_edges, observer, current_vertex);
         if (curr_vertex_visible) {
             visible_vertices.push_back(VisibleVertex{
-                .coord = coordinate_from_periodic_coordinate(current_vertex),
-                .is_visible_across_meridian = is_coordinate_over_meridian(current_vertex),
+                    .coord = coordinate_from_periodic_coordinate(current_vertex),
+                    .is_visible_across_meridian = is_coordinate_over_meridian(current_vertex),
             });
         }
 
@@ -159,8 +159,8 @@ VistreeGenerator::orientation_segments(const std::vector<std::shared_ptr<LineSeg
     std::vector<std::shared_ptr<LineSegment>> orientation_segs;
 
     for (const auto &segment : segments) {
-        const auto segment_orientation = scanline_segment.orientation_of_point_to_segment(
-            segment->get_adjacent_to(scanline_segment.get_endpoint_2()));
+        const auto adjacent_to_segment_point = segment->get_adjacent_to(scanline_segment.get_endpoint_2());
+        const auto segment_orientation = scanline_segment.orientation_of_point_to_segment(adjacent_to_segment_point);
         if (segment_orientation == desired_orientation) {
             orientation_segs.push_back(segment);
         }

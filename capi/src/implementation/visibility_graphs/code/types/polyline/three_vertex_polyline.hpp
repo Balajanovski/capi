@@ -22,6 +22,8 @@ class ThreeVertexPolyline {
     Coordinate _v1;
     Coordinate _v2;
     Coordinate _v3;
+
+    [[nodiscard]] static bool inclusive_between(double value, double lower, double upper);
 };
 
 #endif // CAPI_THREE_VERTEX_POLYLINE_HPP
