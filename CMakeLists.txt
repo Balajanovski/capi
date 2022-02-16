@@ -10,7 +10,7 @@ option(CODE_COVERAGE "Enable coverage reporting" OFF)
 if(CODE_COVERAGE)
     set(CMAKE_CXX_FLAGS "-Wall -Wextra -O0 -g --coverage")
 else()
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra -Ofast")
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -O0")
 endif()
 
 set(CMAKE_CXX_STANDARD 17)

@@ -35,18 +35,17 @@ TEST_CASE("Visgraph Generator Normal Case") {
     auto expected_vis_graph = Graph({poly1, poly2});
     add_edges(Coordinate(5., 0.),
               {
-                  VisibleVertex{.coord = Coordinate(1., 0.), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(3., 0.), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(0., 1.), .is_visible_across_meridian = true},
                   VisibleVertex{.coord = Coordinate(4., 2.), .is_visible_across_meridian = false},
-                  VisibleVertex{.coord = Coordinate(-1., 0.), .is_visible_across_meridian = false},
+                  VisibleVertex{.coord = Coordinate(-1., 0.), .is_visible_across_meridian = true},
               },
               expected_vis_graph);
     add_edges(Coordinate(-1., 0.),
               {
                   VisibleVertex{.coord = Coordinate(1., 0.), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(3., 0.), .is_visible_across_meridian = false},
-                  VisibleVertex{.coord = Coordinate(5., 0.), .is_visible_across_meridian = false},
+                  VisibleVertex{.coord = Coordinate(5., 0.), .is_visible_across_meridian = true},
                   VisibleVertex{.coord = Coordinate(0., 1.), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(4., 2.), .is_visible_across_meridian = true},
               },
@@ -81,7 +80,6 @@ TEST_CASE("Visgraph Generator Normal Case") {
     add_edges(Coordinate(1., 0.),
               {
                   VisibleVertex{.coord = Coordinate(3., 0.), .is_visible_across_meridian = false},
-                  VisibleVertex{.coord = Coordinate(5., 0.), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(0., 1.), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(4., 2.), .is_visible_across_meridian = false},
                   VisibleVertex{.coord = Coordinate(-1., 0.), .is_visible_across_meridian = false},
