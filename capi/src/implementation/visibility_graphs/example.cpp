@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <ctime>
 
 #include "types/coordinate/coordinate.hpp"
 #include "serialization/graph_serializer.hpp"
@@ -15,7 +16,9 @@ int main() {
 
     const auto source = Coordinate(104., 1.);
     const auto dest = Coordinate(13., 55.);
+    const auto start = std::time(nullptr);
     const auto path = computer.shortest_path(source, dest, INFINITY, false, 1.0);
+    std::cout << "Took " << std::time(nullptr) - start << " seconds" << std::endl;
 
     for (const auto &coord : path) {
         std::cout << coord << "\n";
