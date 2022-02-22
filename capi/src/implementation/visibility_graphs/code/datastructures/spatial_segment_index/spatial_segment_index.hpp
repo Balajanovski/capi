@@ -13,6 +13,7 @@
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
 #include "types/polygon/polygon.hpp"
+#include "types/visible_vertex/visible_vertex.hpp"
 
 using s2shapeutil::ShapeEdge;
 
@@ -21,7 +22,7 @@ class SpatialSegmentIndex {
     explicit SpatialSegmentIndex(const std::vector<Polygon> &polygons);
     ~SpatialSegmentIndex();
 
-    [[nodiscard]] std::vector<Coordinate> reachable_vertices(const Coordinate &point, double distance_in_radians) const;
+    [[nodiscard]] std::vector<VisibleVertex> reachable_vertices(const Coordinate &point, double distance_in_radians) const;
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
                                                                              double distance_in_radians) const;
     [[nodiscard]] LineSegment closest_segment_to_point(const Coordinate &point) const;

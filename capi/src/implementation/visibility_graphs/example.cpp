@@ -3,33 +3,22 @@
 //
 
 #include <iostream>
+#include <cmath>
 
-#include "types/polygon/polygon.hpp"
-#include "visgraph/vistree_generator.hpp"
+#include "types/coordinate/coordinate.hpp"
+#include "serialization/graph_serializer.hpp"
+#include "shortest_path/shortest_path_computer.hpp"
 
 int main() {
-    const auto poly1 = Polygon({
-        Coordinate(1., 0.),
-        Coordinate(1., 10.),
-        Coordinate(2., 10.),
-        Coordinate(2., -1.),
-        Coordinate(-2., -1.),
-        Coordinate(-2., 10.),
-        Coordinate(-1., 10.),
-        Coordinate(-1., 0.),
-    });
+    const auto graph = GraphSerializer::deserialize_from_file("/mnt/d/DATVM/vessel_eta_prediction/resources/shapefiles/graph/default");
+    const auto computer = ShortestPathComputer(graph);
 
-    const auto poly2 = Polygon({
-        Coordinate(-357., -2.),
-        Coordinate(-356., -3.),
-        Coordinate(-357., -4.),
-        Coordinate(-358., -3.),
-    });
+    const auto source = Coordinate(104., 1.);
+    const auto dest = Coordinate(13., 55.);
+    const auto path = computer.shortest_path(source, dest, INFINITY, false, 1.0);
 
-    const auto root = Coordinate(0., 1.);
-
-    auto visible_vertices = VistreeGenerator(std::vector<Polygon>{poly1, poly2}).get_visible_vertices(root);
-    for (const auto &visible_vertex : visible_vertices) {
-        std::cout << visible_vertex << std::endl;
+    for (const auto &coord : path) {
+        std::cout << coord << "\n";
     }
+    std::cout << std::flush;
 }

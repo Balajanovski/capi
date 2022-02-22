@@ -93,7 +93,11 @@ TEST_CASE("Test reachable vertices") {
 
     const auto query = Coordinate(0, 0);
     const auto reachable = index.reachable_vertices(query,Coordinate(2, 1).spherical_distance(Coordinate(0, 0)));
-    const auto reachable_set = std::unordered_set<Coordinate>(reachable.begin(), reachable.end());
+    auto reachable_set = std::unordered_set<Coordinate>{};
+    for (const auto& reachable_vert : reachable) {
+        reachable_set.insert(reachable_vert.coord);
+    }
+
     const auto expected_reachable = std::unordered_set<Coordinate> {
         Coordinate(1, 1),
         Coordinate(1, -1),

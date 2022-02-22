@@ -1,15 +1,18 @@
 cmake_minimum_required(VERSION 3.13)
-project(capi VERSION "2.4.9")
+project(capi VERSION "2.5.0")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
+set(CMAKE_C_FLAGS "-Wall -Wextra -Ofast")
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Ofast")
 
 set(CMAKE_CXX_STANDARD 17)
+message("${CMAKE_MODULE_PATH}")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules")
+message("${CMAKE_MODULE_PATH}")
 
 set(PY_MODULE_TARGET _vis_graph)
 set(TEST_TARGET "${PROJECT_NAME}_test")
