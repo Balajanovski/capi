@@ -14,6 +14,24 @@
 VistreeGenerator::VistreeGenerator(const std::vector<Polygon> &polygons)
     : _vertices_and_segments(VistreeGenerator::all_vertices_and_incident_segments(polygons)) {}
 
+VistreeGenerator::VistreeGenerator(const std::vector<std::shared_ptr<LineSegment>> &segments) {
+    _vertices_and_segments = VistreeGenerator::VertexToSegmentMapping();
+
+    for (const auto &segment : segments) {
+        const auto p1 = segment->get_endpoint_1();
+        const auto p2 = segment->get_endpoint_2();
+
+        if (_vertices_and_segments.find(p1) == _vertices_and_segments.end()) {
+            _vertices_and_segments[p1] = std::vector<std::shared_ptr<LineSegment>>{};
+        } if (_vertices_and_segments.find(p2) == _vertices_and_segments.end()) {
+            _vertices_and_segments[p2] = std::vector<std::shared_ptr<LineSegment>>{};
+        }
+
+        _vertices_and_segments[p1].push_back(segment);
+        _vertices_and_segments[p2].push_back(segment);
+    }
+}
+
 std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices(const Coordinate &observer, bool half_scan) const {
     return get_visible_vertices_from_candidate_segments_and_vertices(observer, VistreeGenerator::all_vertices(),
                                                                      VistreeGenerator::all_line_segments(), half_scan);
@@ -116,18 +134,16 @@ VistreeGenerator::all_vertices_and_incident_segments(const std::vector<Polygon> 
 }
 
 std::vector<std::shared_ptr<LineSegment>> VistreeGenerator::all_line_segments() const {
-    std::vector<std::shared_ptr<LineSegment>> segments;
+    std::unordered_set<std::shared_ptr<LineSegment>> segments;
     segments.reserve(_vertices_and_segments.size());
 
     for (const auto &vertex_and_segments : _vertices_and_segments) {
-        if (vertex_and_segments.second.size() != 2) {
-            throw std::runtime_error("Vertex detected which does not have only two segments");
+        for (const auto &segment : vertex_and_segments.second) {
+            segments.insert(segment);
         }
-
-        segments.push_back(vertex_and_segments.second[0]);
     }
 
-    return segments;
+    return std::vector<std::shared_ptr<LineSegment>>(segments.begin(), segments.end());
 }
 
 std::vector<Coordinate> VistreeGenerator::all_vertices() const {
@@ -201,7 +217,7 @@ bool VistreeGenerator::is_vertex_visible(const OpenEdges &open_edges, const Coor
         const auto &closest_edge = open_edges.closest_edge();
         const auto intersection =
             closest_edge.intersection_with_segment(LineSegment(observer_coordinate, vertex_in_question));
-        if (intersection.has_value()) {
+        if (intersection.has_value() && intersection.value() != vertex_in_question) {
             return false;
         }
     }

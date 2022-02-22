@@ -7,7 +7,10 @@
 #include <s2/s2closest_edge_query.h>
 #include <s2/s2contains_point_query.h>
 #include <s2/s2crossing_edge_query.h>
+#include <s2/s2latlng.h>
 #include <unordered_set>
+#include <iostream>
+#include "visgraph/vistree_generator.hpp"
 
 SpatialSegmentIndex::SpatialSegmentIndex(const std::vector<Polygon> &polygons) {
     _loops.reserve(polygons.size());
@@ -25,7 +28,7 @@ SpatialSegmentIndex::~SpatialSegmentIndex() {
     }
 }
 
-std::vector<Coordinate> SpatialSegmentIndex::reachable_vertices(const Coordinate &point,
+std::vector<VisibleVertex> SpatialSegmentIndex::reachable_vertices(const Coordinate &point,
                                                                 double distance_in_radians) const {
     const auto observer = point.to_s2_point();
 
@@ -33,34 +36,28 @@ std::vector<Coordinate> SpatialSegmentIndex::reachable_vertices(const Coordinate
     closest_edge_query.mutable_options()->set_max_distance(S1Angle::Radians(distance_in_radians));
     closest_edge_query.mutable_options()->set_include_interiors(false);
 
-    S2CrossingEdgeQuery crossing_edge_query(&_shape_index);
-
     decltype(closest_edge_query)::PointTarget target(observer);
     const auto closest_edges = closest_edge_query.FindClosestEdges(&target);
 
-    std::unordered_set<Coordinate> visible_points;
-    visible_points.reserve(2 * closest_edges.size());
+    auto closest_line_segments = std::vector<std::shared_ptr<LineSegment>> {};
+    closest_line_segments.reserve(closest_edges.size());
+
     for (const auto &result : closest_edges) {
         if (result.is_empty()) {
             continue;
         }
 
         const auto edge = closest_edge_query.GetEdge(result);
+        const auto v0 = S2LatLng(edge.v0);
+        const auto v1 = S2LatLng(edge.v1);
+        const auto v0_coord = Coordinate(v0.lng().e6(), v0.lat().e6());
+        const auto v1_coord = Coordinate(v1.lng().e6(), v1.lat().e6());
 
-        const auto v0_crossed_edges =
-            crossing_edge_query.GetCrossingEdges(observer, edge.v0, S2CrossingEdgeQuery::CrossingType::INTERIOR);
-        if (v0_crossed_edges.empty()) {
-            visible_points.emplace(edge.v0);
-        }
-
-        const auto v1_crossed_edges =
-            crossing_edge_query.GetCrossingEdges(observer, edge.v1, S2CrossingEdgeQuery::CrossingType::INTERIOR);
-        if (v1_crossed_edges.empty()) {
-            visible_points.emplace(edge.v1);
-        }
+        closest_line_segments.push_back(std::make_shared<LineSegment>(v0_coord, v1_coord));
     }
 
-    return std::vector<Coordinate>(visible_points.begin(), visible_points.end());
+    const auto vistree_gen = VistreeGenerator(closest_line_segments);
+    return vistree_gen.get_visible_vertices(point);
 }
 
 std::vector<LineSegment> SpatialSegmentIndex::segments_within_distance_of_point(const Coordinate &point,

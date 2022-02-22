@@ -39,6 +39,7 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     }
 
     const auto modified_graph = create_modified_graph(corrected_source, corrected_dest);
+
     const auto source_destination_distance = heuristic_distance_measurement(corrected_source, corrected_dest);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
@@ -175,7 +176,6 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         return _graph;
     }
     auto modified_graph = Graph(_graph);
-    const auto half_longitude_period = LONGITUDE_PERIOD * 0.5;
 
     const Coordinate vertices_to_process[2] = {source, destination};
     const auto source_dest_spherical_distance = source.spherical_distance(destination);
@@ -183,12 +183,10 @@ Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, cons
         if (!_graph.has_vertex(vertex_to_process)) {
             modified_graph.add_vertex(vertex_to_process);
             const auto reachable_vertices =
-                _index.reachable_vertices(vertex_to_process, source_dest_spherical_distance);
+                    _index.reachable_vertices(vertex_to_process, source_dest_spherical_distance);
 
             for (const auto &point : reachable_vertices) {
-                const auto is_meridian_crossing =
-                    std::abs(vertex_to_process.get_longitude() - point.get_longitude()) > half_longitude_period;
-                modified_graph.add_edge(vertex_to_process, point, is_meridian_crossing);
+                modified_graph.add_edge(vertex_to_process, point.coord, point.is_visible_across_meridian);
             }
         }
     }

@@ -101,7 +101,10 @@ TEST_CASE("Vistree Generator get visible vertices from root root on edge") {
     });
 
     auto visible_vertices = VistreeGenerator(std::vector<Polygon>{poly1}).get_visible_vertices(root_vertex);
-    auto expected_vertices = std::vector<VisibleVertex>{};
+    auto expected_vertices = std::vector<VisibleVertex>{
+        VisibleVertex{.coord = Coordinate(1., 0.), .is_visible_across_meridian = false},
+        VisibleVertex{.coord = Coordinate(0., 1.), .is_visible_across_meridian = false},
+    };
     std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
     std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
 

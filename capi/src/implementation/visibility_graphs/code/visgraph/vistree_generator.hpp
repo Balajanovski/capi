@@ -19,6 +19,7 @@
 class VistreeGenerator {
   public:
     explicit VistreeGenerator(const std::vector<Polygon> &polygons);
+    explicit VistreeGenerator(const std::vector<std::shared_ptr<LineSegment>> &segments);
     [[nodiscard]] std::vector<VisibleVertex> get_visible_vertices(const Coordinate &observer,
                                                                   bool half_scan = false) const;
     [[nodiscard]] std::vector<VisibleVertex>
