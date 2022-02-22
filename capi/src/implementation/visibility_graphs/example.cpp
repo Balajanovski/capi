@@ -17,11 +17,22 @@ int main() {
     const auto source = Coordinate(104., 1.);
     const auto dest = Coordinate(13., 55.);
     const auto start = std::time(nullptr);
-    const auto path = computer.shortest_path(source, dest, INFINITY, false, 1.0);
+    const auto paths = computer.shortest_paths(
+            std::vector<std::pair<Coordinate, Coordinate>> {std::make_pair(source, dest)},
+            INFINITY,
+            false,
+            1.0);
     std::cout << "Took " << std::time(nullptr) - start << " seconds" << std::endl;
 
-    for (const auto &coord : path) {
-        std::cout << coord << "\n";
+    for (const auto &path : paths) {
+        if (!path.has_value()) {
+            continue;
+        }
+
+        std::cout << "Path:\n";
+        for (const auto &coord : path.value()) {
+            std::cout << coord << "\n";
+        }
     }
     std::cout << std::flush;
 }
