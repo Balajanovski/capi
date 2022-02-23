@@ -14,11 +14,11 @@ TEST_CASE("Graph serialize") {
     const auto coord3 = Coordinate(1., 1.);
     const auto coord4 = Coordinate(10., 2.);
 
-    auto graph = Graph(std::vector<Polygon>{Polygon({coord1, coord2}), Polygon({coord3, coord4})});
+    auto graph = std::make_shared<Graph>(std::vector<Polygon>{Polygon({coord1, coord2}), Polygon({coord3, coord4})});
 
-    graph.add_edge(coord1, coord2, false);
-    graph.add_edge(coord1, coord3, false);
-    graph.add_edge(coord3, coord4, true);
+    graph->add_edge(coord1, coord2, false);
+    graph->add_edge(coord1, coord3, false);
+    graph->add_edge(coord3, coord4, true);
 
     char tmp_name[L_tmpnam];
     tmpnam(tmp_name);
@@ -28,7 +28,7 @@ TEST_CASE("Graph serialize") {
 
     remove(tmp_name);
 
-    REQUIRE(graph == deserialized_graph);
+    REQUIRE(*graph == *deserialized_graph);
 }
 
 TEST_CASE("Graph serialize 2") {
@@ -54,7 +54,7 @@ TEST_CASE("Graph serialize 2") {
 
     remove(tmp_name);
 
-    REQUIRE(graph == deserialized_graph);
+    REQUIRE(*graph == *deserialized_graph);
 }
 
 TEST_CASE("Graph serialize 3") {
@@ -67,7 +67,7 @@ TEST_CASE("Graph serialize 3") {
     const auto coord7 = Coordinate(-2., 1.);
     const auto coord8 = Coordinate(-1., 2.);
 
-    auto graph = Graph(std::vector<Polygon>{Polygon({
+    auto graph = std::make_shared<Graph>(std::vector<Polygon>{Polygon({
         coord1,
         coord2,
         coord3,
@@ -78,9 +78,9 @@ TEST_CASE("Graph serialize 3") {
         coord8,
     })});
 
-    graph.add_edge(coord1, coord2, false);
-    graph.add_edge(coord1, coord3, false);
-    graph.add_edge(coord3, coord4, true);
+    graph->add_edge(coord1, coord2, false);
+    graph->add_edge(coord1, coord3, false);
+    graph->add_edge(coord3, coord4, true);
 
     char tmp_name[L_tmpnam];
     tmpnam(tmp_name);
@@ -90,5 +90,5 @@ TEST_CASE("Graph serialize 3") {
 
     remove(tmp_name);
 
-    REQUIRE(graph == deserialized_graph);
+    REQUIRE(*graph == *deserialized_graph);
 }

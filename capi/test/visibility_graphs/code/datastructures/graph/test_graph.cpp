@@ -101,5 +101,5 @@ TEST_CASE("Graph merge") {
     const auto graph_split_2 = VisgraphGenerator::generate_with_shuffled_range({poly1, poly2}, 3, 6, 0);
     const auto merged_graph = merge_graphs({graph_split_1, graph_split_2});
 
-    REQUIRE(single_graph == merged_graph);
+    REQUIRE(*single_graph == *merged_graph);
 }

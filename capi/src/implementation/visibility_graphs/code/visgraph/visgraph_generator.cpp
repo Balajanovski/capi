@@ -12,9 +12,9 @@
 
 VisgraphGenerator::VisgraphGenerator() = default;
 
-Graph VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
+std::shared_ptr<Graph> VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
     auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
-    auto visgraph = Graph(polygons);
+    auto visgraph = std::make_shared<Graph>(polygons);
     auto vistree_gen = VistreeGenerator(make_polygons_periodic(polygons));
 
 #pragma omp parallel for shared(visgraph, polygon_vertices, vistree_gen) default(none)
@@ -22,17 +22,17 @@ Graph VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
         const auto visible_vertices = vistree_gen.get_visible_vertices(polygon_vertices[i], true);
 
         for (const auto &visible_vertex : visible_vertices) {
-            visgraph.add_edge(polygon_vertices[i], visible_vertex.coord, visible_vertex.is_visible_across_meridian);
+            visgraph->add_edge(polygon_vertices[i], visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
 
     return visgraph;
 }
 
-Graph VisgraphGenerator::generate_with_shuffled_range(const std::vector<Polygon> &polygons, size_t range_start,
+std::shared_ptr<Graph> VisgraphGenerator::generate_with_shuffled_range(const std::vector<Polygon> &polygons, size_t range_start,
                                                       size_t range_end, unsigned int seed) {
     auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
-    auto visgraph = Graph(polygons);
+    auto visgraph = std::make_shared<Graph>(polygons);
     if (polygons.empty()) {
         return visgraph;
     }
@@ -49,7 +49,7 @@ Graph VisgraphGenerator::generate_with_shuffled_range(const std::vector<Polygon>
         const auto visible_vertices = vistree_gen.get_visible_vertices(polygon_vertices[i], true);
 
         for (const auto &visible_vertex : visible_vertices) {
-            visgraph.add_edge(polygon_vertices[i], visible_vertex.coord, visible_vertex.is_visible_across_meridian);
+            visgraph->add_edge(polygon_vertices[i], visible_vertex.coord, visible_vertex.is_visible_across_meridian);
         }
     }
 

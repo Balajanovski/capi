@@ -7,6 +7,7 @@
 //
 
 #include <cmath>
+#include <memory>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
@@ -47,7 +48,7 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def(py::self != py::self)
         .def("__repr__", &Polygon::to_string_representation);
 
-    py::class_<Graph>(m, "VisGraph")
+    py::class_<Graph, std::shared_ptr<Graph>>(m, "VisGraph")
         .def(py::init<const std::vector<Polygon> &>())
         .def("__repr__", &Graph::to_string_representation)
         .def("has_edge", &Graph::has_edge)
@@ -60,7 +61,7 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def("get_neighbors", &Graph::get_neighbors);
 
     py::class_<ShortestPathComputer>(m, "VisGraphShortestPathComputer")
-        .def(py::init<const Graph &>())
+        .def(py::init<const std::shared_ptr<Graph> &>())
         .def(
             "shortest_path",
             [](ShortestPathComputer &self, const Coordinate &source, const Coordinate &destination,

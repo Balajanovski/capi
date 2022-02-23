@@ -16,7 +16,7 @@
 Graph::Graph() = default;
 
 Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {
-    for (const auto &polygon : get_polygons()) {
+    for (const auto &polygon : _polygons) {
         for (const auto &vertex : polygon.get_vertices()) {
             _index_to_coordinate_mapping.push_back(vertex);
         }
@@ -28,18 +28,16 @@ Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {
     }
 }
 
-Graph::Graph(const Graph &other_graph) = default;
-
 void Graph::add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) {
-    if (a == b) {
-        return;
-    }
-
     add_directed_edge(a, b, meridian_crossing);
     add_directed_edge(b, a, meridian_crossing);
 }
 
 void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) {
+    if (a == b) {
+        return;
+    }
+
     decltype(_neighbors)::accessor accessor;
 
     const auto a_index = coordinate_to_index(a);
@@ -53,15 +51,15 @@ void Graph::add_directed_edge(const Coordinate &a, const Coordinate &b, bool mer
 }
 
 void Graph::remove_edge(const Coordinate &a, const Coordinate &b) {
-    if (a == b) {
-        return;
-    }
-
     remove_directed_edge(a, b);
     remove_directed_edge(b, a);
 }
 
 void Graph::remove_directed_edge(const Coordinate &a, const Coordinate &b) {
+    if (a == b) {
+        return;
+    }
+
     decltype(_neighbors)::accessor accessor;
 
     const auto a_index = coordinate_to_index(a);
@@ -173,19 +171,6 @@ bool Graph::operator==(const Graph &other) const {
 
 bool Graph::operator!=(const Graph &other) const { return !(*this == other); }
 
-bool Graph::are_adjacent(const Coordinate &vert1, const Coordinate &vert2) const {
-    auto are_verts_adjacent = false;
-
-    decltype(_neighbors)::const_accessor accessor;
-    const auto found = _neighbors.find(accessor, coordinate_to_index(vert1));
-    if (found && accessor->second.find(coordinate_to_index(vert2)) != accessor->second.end()) {
-        are_verts_adjacent = true;
-    }
-    accessor.release();
-
-    return are_verts_adjacent;
-}
-
 std::vector<Coordinate> Graph::get_neighbors(const Coordinate &vertex) const {
     decltype(_neighbors)::const_accessor accessor;
     const auto found_neighbors = _neighbors.find(accessor, coordinate_to_index(vertex));
@@ -223,23 +208,23 @@ inline int Graph::coordinate_to_index(Coordinate coordinate) const {
 
 inline Coordinate Graph::index_to_coordinate(unsigned int index) const { return _index_to_coordinate_mapping[index]; }
 
-Graph merge_graphs(const std::vector<Graph> &graphs) {
+std::shared_ptr<Graph> merge_graphs(const std::vector<std::shared_ptr<Graph>> &graphs) {
     auto polygons = std::unordered_set<Polygon>();
     for (const auto &graph : graphs) {
-        for (const auto &poly : graph.get_polygons()) {
+        for (const auto &poly : graph->get_polygons()) {
             polygons.insert(poly);
         }
     }
 
-    auto merged_graph = Graph(std::vector<Polygon>(polygons.begin(), polygons.end()));
+    auto merged_graph = std::make_shared<Graph>(std::vector<Polygon>(polygons.begin(), polygons.end()));
 
-    //#pragma omp parallel for shared(graphs, merged_graph) default(none)
+    #pragma omp parallel for shared(graphs, merged_graph) default(none)
     for (size_t i = 0; i < graphs.size(); ++i) { // NOLINT
         const auto graph = graphs[i];
-        for (const auto &vert_1 : graph.get_vertices()) {
-            for (const auto &vert_2 : graph.get_vertices()) {
-                if (graph.are_adjacent(vert_1, vert_2)) {
-                    merged_graph.add_edge(vert_1, vert_2, graph.is_edge_meridian_crossing(vert_1, vert_2));
+        for (const auto &vert_1 : graph->get_vertices()) {
+            for (const auto &vert_2 : graph->get_vertices()) {
+                if (graph->has_edge(vert_1, vert_2)) {
+                    merged_graph->add_edge(vert_1, vert_2, graph->is_edge_meridian_crossing(vert_1, vert_2));
                 }
             }
         }

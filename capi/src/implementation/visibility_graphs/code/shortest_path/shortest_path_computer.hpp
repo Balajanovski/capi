@@ -8,11 +8,13 @@
 #include <cmath>
 #include <utility>
 #include <vector>
+#include <memory>
 
-#include "datastructures/graph/graph.hpp"
+#include "datastructures/i_graph/i_graph.hpp"
 #include "datastructures/spatial_segment_index/spatial_segment_index.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
+
 
 struct LandCollisionCorrection {
     Coordinate corrected_source;
@@ -22,7 +24,7 @@ struct LandCollisionCorrection {
 
 class ShortestPathComputer {
   public:
-    explicit ShortestPathComputer(const Graph &graph);
+    explicit ShortestPathComputer(const std::shared_ptr<IGraph> &graph);
     [[nodiscard]] std::vector<Coordinate> shortest_path(const Coordinate &source, const Coordinate &destination,
                                                         double maximum_distance_to_search_from_source = INFINITY,
                                                         bool correct_vertices_on_land = false,
@@ -39,9 +41,9 @@ class ShortestPathComputer {
     [[nodiscard]] LandCollisionCorrection handle_land_collisions(const Coordinate &source,
                                                                  const Coordinate &destination,
                                                                  bool correct_vertices_on_land) const;
-    [[nodiscard]] Graph create_modified_graph(const Coordinate &source, const Coordinate &destination) const;
+    [[nodiscard]] std::shared_ptr<IGraph> create_modified_graph(const Coordinate &source, const Coordinate &destination) const;
 
-    Graph _graph;
+    std::shared_ptr<IGraph> _graph;
     SpatialSegmentIndex _index;
 };
 
