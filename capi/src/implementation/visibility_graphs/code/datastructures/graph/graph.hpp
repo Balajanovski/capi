@@ -21,7 +21,6 @@ class Graph : public IGraph {
   public:
     Graph();
     explicit Graph(std::vector<Polygon> polygons);
-    Graph(const Graph &other_graph);
 
     void add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) override;
     void add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) override;

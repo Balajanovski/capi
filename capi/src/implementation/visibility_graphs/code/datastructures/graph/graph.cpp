@@ -16,7 +16,7 @@
 Graph::Graph() = default;
 
 Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {
-    for (const auto &polygon : get_polygons()) {
+    for (const auto &polygon : _polygons) {
         for (const auto &vertex : polygon.get_vertices()) {
             _index_to_coordinate_mapping.push_back(vertex);
         }
@@ -27,8 +27,6 @@ Graph::Graph(std::vector<Polygon> polygons) : _polygons(std::move(polygons)) {
         _coordinate_to_index_mapping[_index_to_coordinate_mapping[i]] = i;
     }
 }
-
-Graph::Graph(const Graph &other_graph) = default;
 
 void Graph::add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) {
     add_directed_edge(a, b, meridian_crossing);
