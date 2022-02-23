@@ -4,7 +4,7 @@
 
 #include "modified_graph.hpp"
 
-ModifiedGraph::ModifiedGraph(std::shared_ptr<IGraph> base_graph): _graph(std::move(base_graph)) { }
+ModifiedGraph::ModifiedGraph(std::shared_ptr<IGraph> base_graph): _graph(base_graph) { } // NOLINT
 
 void ModifiedGraph::add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) {
     add_directed_edge(a, b, meridian_crossing);
