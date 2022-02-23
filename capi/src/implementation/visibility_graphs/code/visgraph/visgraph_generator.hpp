@@ -7,6 +7,7 @@
 #define CAPI_VISGRAPH_GENERATOR_HPP
 
 #include <vector>
+#include <memory>
 
 #include "datastructures/graph/graph.hpp"
 #include "types/polygon/polygon.hpp"
@@ -15,8 +16,8 @@ class VisgraphGenerator {
   public:
     explicit VisgraphGenerator();
 
-    [[nodiscard]] static Graph generate(const std::vector<Polygon> &polygons);
-    [[nodiscard]] static Graph generate_with_shuffled_range(const std::vector<Polygon> &polygons, size_t range_start,
+    [[nodiscard]] static std::shared_ptr<Graph> generate(const std::vector<Polygon> &polygons);
+    [[nodiscard]] static std::shared_ptr<Graph> generate_with_shuffled_range(const std::vector<Polygon> &polygons, size_t range_start,
                                                             size_t range_end, unsigned int seed);
 
   private:

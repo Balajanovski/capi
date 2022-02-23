@@ -256,17 +256,4 @@ int main() {
             false,
             1.0);
     std::cout << "Took " << std::time(nullptr) - start << " seconds" << std::endl;
-
-    /*
-    for (const auto &path : paths) {
-        if (!path.has_value()) {
-            continue;
-        }
-
-        std::cout << "Path:\n";
-        for (const auto &coord : path.value()) {
-            std::cout << coord << "\n";
-        }
-    }
-    std::cout << std::flush;*/
 }

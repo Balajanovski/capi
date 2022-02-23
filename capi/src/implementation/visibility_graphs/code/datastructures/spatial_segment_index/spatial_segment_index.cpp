@@ -7,8 +7,6 @@
 #include <s2/s2closest_edge_query.h>
 #include <s2/s2contains_point_query.h>
 #include <s2/s2crossing_edge_query.h>
-#include <s2/s2latlng.h>
-#include <unordered_set>
 #include <iostream>
 #include "visgraph/vistree_generator.hpp"
 

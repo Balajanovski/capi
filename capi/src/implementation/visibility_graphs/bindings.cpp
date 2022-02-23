@@ -7,6 +7,7 @@
 //
 
 #include <cmath>
+#include <memory>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
@@ -60,7 +61,7 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def("get_neighbors", &Graph::get_neighbors);
 
     py::class_<ShortestPathComputer>(m, "VisGraphShortestPathComputer")
-        .def(py::init<const Graph &>())
+        .def(py::init<const std::shared_ptr<Graph> &>())
         .def(
             "shortest_path",
             [](ShortestPathComputer &self, const Coordinate &source, const Coordinate &destination,

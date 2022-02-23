@@ -4,10 +4,11 @@
 
 #include <algorithm>
 #include <queue>
+#include <iostream>
 
-#include "constants/constants.hpp"
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "shortest_path_computer.hpp"
+#include "datastructures/modified_graph/modified_graph.hpp"
 
 struct AStarHeapElement {
     Coordinate node;
@@ -15,7 +16,7 @@ struct AStarHeapElement {
     double heuristic_distance_to_destination;
 };
 
-ShortestPathComputer::ShortestPathComputer(const Graph &graph) : _graph(graph), _index(graph.get_polygons()) {}
+ShortestPathComputer::ShortestPathComputer(const std::shared_ptr<IGraph> &graph) : _graph(graph), _index(graph->get_polygons()) {}
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination,
                                                             double maximum_distance_to_search_from_source,
@@ -39,7 +40,6 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     }
 
     const auto modified_graph = create_modified_graph(corrected_source, corrected_dest);
-
     const auto source_destination_distance = heuristic_distance_measurement(corrected_source, corrected_dest);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
@@ -65,8 +65,8 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
             break;
         }
 
-        for (const auto &neighbor : modified_graph.get_neighbors(top.node)) {
-            const auto meridian_spanning = modified_graph.is_edge_meridian_crossing(top.node, neighbor);
+        for (const auto &neighbor : modified_graph->get_neighbors(top.node)) {
+            const auto meridian_spanning = modified_graph->is_edge_meridian_crossing(top.node, neighbor);
 
             const auto edge_dist = distance_measurement(neighbor, top.node, meridian_spanning);
             const auto neighbor_dist_to_source = top.distance_to_source + edge_dist;
@@ -171,22 +171,24 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
     };
 }
 
-Graph ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
-    if (_graph.has_vertex(source) && _graph.has_vertex(destination)) {
+std::shared_ptr<IGraph> ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
+    if (_graph->has_vertex(source) && _graph->has_vertex(destination)) {
         return _graph;
     }
-    auto modified_graph = Graph(_graph);
 
+    auto modified_graph = std::make_shared<ModifiedGraph>(_graph);
     const Coordinate vertices_to_process[2] = {source, destination};
+
     const auto source_dest_spherical_distance = source.spherical_distance(destination);
     for (const auto &vertex_to_process : vertices_to_process) {
-        if (!_graph.has_vertex(vertex_to_process)) {
-            modified_graph.add_vertex(vertex_to_process);
+        if (!_graph->has_vertex(vertex_to_process)) {
+            modified_graph->add_vertex(vertex_to_process);
+
             const auto reachable_vertices =
                     _index.reachable_vertices(vertex_to_process, source_dest_spherical_distance);
 
             for (const auto &point : reachable_vertices) {
-                modified_graph.add_edge(vertex_to_process, point.coord, point.is_visible_across_meridian);
+                modified_graph->add_edge(vertex_to_process, point.coord, point.is_visible_across_meridian);
             }
         }
     }
