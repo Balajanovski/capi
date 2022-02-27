@@ -12,6 +12,8 @@
 
 class IGraph {
 public:
+    virtual ~IGraph() = default;
+
     virtual void add_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) = 0;
     virtual void add_directed_edge(const Coordinate &a, const Coordinate &b, bool meridian_crossing) = 0;
     virtual void remove_edge(const Coordinate &a, const Coordinate &b) = 0;
@@ -27,6 +29,5 @@ public:
     [[nodiscard]] virtual std::vector<Coordinate> get_vertices() const = 0;
     [[nodiscard]] virtual std::vector<Polygon> get_polygons() const = 0;
 };
-
 
 #endif //CAPI_I_GRAPH_HPP
