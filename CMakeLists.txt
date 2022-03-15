@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(capi VERSION "2.5.2")
+project(capi VERSION "2.5.3")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -29,8 +29,26 @@ find_package(OpenMP REQUIRED)
 find_package(TBB REQUIRED)
 
 # S2
-set(S2_LIB /usr/local/lib/libs2.so)
-set(S2_HEADERS /usr/local/include/s2)
+if (EXISTS /usr/local/lib/libs2.so)
+    set(S2_LIB /usr/local/lib/libs2.so)
+elseif (EXISTS /usr/lib/libs2.so)
+    set(S2_LIB /usr/lib/libs2.so)
+else()
+    message(FATAL_ERROR "S2 Library was not found")
+endif()
+
+message("S2 Library was found in ${S2_LIB}")
+
+if (EXISTS /usr/local/include/s2)
+    set(S2_HEADERS /usr/local/include/s2)
+elseif (EXISTS /usr/include/s2)
+    set(S2_HEADERS /usr/include/s2)
+else()
+    message(FATAL_ERROR "S2 include folder was not found")
+endif()
+
+message("S2 includes were found in ${S2_HEADERS}")
+
 include_directories(S2_HEADERS)
 
 # Currently, Scikit-build does not support FindPython, so we convert the
