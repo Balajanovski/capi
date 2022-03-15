@@ -113,7 +113,7 @@ ShortestPathComputer::shortest_paths(const std::vector<std::pair<Coordinate, Coo
                                      double a_star_greediness_weighting) const {
     auto paths = std::vector<std::optional<std::vector<Coordinate>>>(source_dest_pairs.size());
 
-#pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source,                      \
+#pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source, \
                                 correct_vertices_on_land, a_star_greediness_weighting) default(none)
     for (size_t i = 0; i < source_dest_pairs.size(); ++i) {
         try {
