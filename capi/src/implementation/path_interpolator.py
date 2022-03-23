@@ -82,7 +82,7 @@ class PathInterpolator(IPathInterpolator):
             coord_pairs, search_distance_from_source_limit, correct_vertices_on_land, a_star_greediness_weighting
         )
 
-        interpolated_paths = []
+        interpolated_paths: typing.List[typing.Optional[typing.Sequence[Coordinate]]] = []
         for result in results:
             if result.error_msg is not None:
                 warnings.warn(f"CAPI Batch Interpolate: {result.error_msg}")
