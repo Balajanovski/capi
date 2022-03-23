@@ -1,9 +1,10 @@
 import math
 import typing
+import warnings
 
 from capi.src.implementation.datastructures.graph_file_paths import GraphFilePaths
 from capi.src.implementation.dtos.coordinate import Coordinate
-from capi.src.implementation.visibility_graphs import VisGraphCoord, VisGraphShortestPathComputer, load_graph_from_file
+from capi.src.implementation.visibility_graphs import VisGraphCoord, VisGraphShortestPathComputer, VisGraphBatchInterpolateResult, load_graph_from_file
 from capi.src.interfaces.path_interpolator import IPathInterpolator
 
 
@@ -77,11 +78,19 @@ class PathInterpolator(IPathInterpolator):
         correct_vertices_on_land: bool,
         a_star_greediness_weighting: float,
     ) -> typing.Sequence[typing.Optional[typing.Sequence[Coordinate]]]:
-        paths = self._shortest_path_computer.shortest_paths(
+        results = self._shortest_path_computer.shortest_paths(
             coord_pairs, search_distance_from_source_limit, correct_vertices_on_land, a_star_greediness_weighting
         )
 
-        return [self._convert_visgraph_coords_list_to_coordinates(path) if path is not None else None for path in paths]
+        interpolated_paths: typing.List[typing.Optional[typing.Sequence[Coordinate]]] = []
+        for result in results:
+            if result.error_msg is not None:
+                warnings.warn(f"CAPI Batch Interpolate: {result.error_msg}")
+                interpolated_paths.append(None)
+            else:
+                interpolated_paths.append(self._convert_visgraph_coords_list_to_coordinates(result.path))
+
+        return interpolated_paths
 
     @staticmethod
     def _convert_visgraph_coords_list_to_coordinates(
