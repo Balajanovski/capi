@@ -107,21 +107,33 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     return path;
 }
 
-std::vector<std::optional<std::vector<Coordinate>>>
+std::vector<BatchInterpolateResult>
 ShortestPathComputer::shortest_paths(const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
                                      double maximum_distance_to_search_from_source, bool correct_vertices_on_land,
                                      double a_star_greediness_weighting) const {
-    auto paths = std::vector<std::optional<std::vector<Coordinate>>>(source_dest_pairs.size());
+    auto paths = std::vector<BatchInterpolateResult>(source_dest_pairs.size());
 
 #pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source, \
                                 correct_vertices_on_land, a_star_greediness_weighting) default(none)
     for (size_t i = 0; i < source_dest_pairs.size(); ++i) {
         try {
-            paths[i] = std::make_optional(shortest_path(source_dest_pairs[i].first, source_dest_pairs[i].second,
-                                                        maximum_distance_to_search_from_source,
-                                                        correct_vertices_on_land, a_star_greediness_weighting));
-        } catch (...) {
-            paths[i] = std::nullopt;
+            paths[i] = BatchInterpolateResult{
+                .path = std::make_optional(
+                    shortest_path(
+                        source_dest_pairs[i].first,
+                        source_dest_pairs[i].second,
+                        maximum_distance_to_search_from_source,
+                        correct_vertices_on_land,
+                        a_star_greediness_weighting
+                    )
+                ),
+                .error_msg = std::nullopt
+            };
+        } catch (const std::exception &e) {
+            paths[i] = BatchInterpolateResult{
+                .path = std::nullopt,
+                .error_msg = std::string(e.what())
+            };
         }
     }
 

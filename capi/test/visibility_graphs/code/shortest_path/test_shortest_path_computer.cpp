@@ -91,7 +91,16 @@ TEST_CASE("ShortestPathComputer shortest paths") {
         std::nullopt,
     };
 
-    REQUIRE(shortest_paths == expected_shortest_paths);
+    REQUIRE(shortest_paths.size() == expected_shortest_paths.size());
+    for (size_t i = 0; i < expected_shortest_paths.size(); ++i) {
+        REQUIRE(shortest_paths[i].path == expected_shortest_paths[i]);
+
+        if (expected_shortest_paths[i] == std::nullopt) {
+            REQUIRE_FALSE(shortest_paths[i].error_msg == std::nullopt);
+        } else{
+            REQUIRE(shortest_paths[i].error_msg == std::nullopt);
+        }
+    }
 }
 
 TEST_CASE("ShortestPathComputer shortest path in land") {

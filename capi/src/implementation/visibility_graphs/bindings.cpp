@@ -83,6 +83,10 @@ PYBIND11_MODULE(_vis_graph, m) {
             py::arg("source_dest_pairs"), py::arg("maximum_distance_to_search_from_source") = INFINITY,
             py::arg("correct_vertices_on_land") = false, py::arg("a_star_greediness_weighting") = 1.0);
 
+    py::class_<BatchInterpolateResult>(m, "VisGraphBatchInterpolateResult")
+        .def_readwrite("path", &BatchInterpolateResult::path)
+        .def_readwrite("error_msg", &BatchInterpolateResult::error_msg);
+
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
     m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,
           "Generates a visgraph from the supplied polygons using only a certain range of vertices (after shuffling)");

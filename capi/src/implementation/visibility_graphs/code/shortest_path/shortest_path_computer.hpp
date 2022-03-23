@@ -22,6 +22,11 @@ struct LandCollisionCorrection {
     std::optional<LineSegment> corrected_source_edge;
 };
 
+struct BatchInterpolateResult {
+    std::optional<std::vector<Coordinate>> path;
+    std::optional<std::string> error_msg;
+};
+
 class ShortestPathComputer {
   public:
     explicit ShortestPathComputer(const std::shared_ptr<IGraph> &graph);
@@ -29,7 +34,7 @@ class ShortestPathComputer {
                                                         double maximum_distance_to_search_from_source = INFINITY,
                                                         bool correct_vertices_on_land = false,
                                                         double a_star_greediness_weighting = 1.0) const;
-    [[nodiscard]] std::vector<std::optional<std::vector<Coordinate>>>
+    [[nodiscard]] std::vector<BatchInterpolateResult>
     shortest_paths(const std::vector<std::pair<Coordinate, Coordinate>> &source_dest_pairs,
                    double maximum_distance_to_search_from_source = INFINITY, bool correct_vertices_on_land = false,
                    double a_star_greediness_weighting = 1.0) const;
