@@ -152,6 +152,7 @@ bool Graph::operator==(const Graph &other) const {
 
         decltype(other._neighbors)::const_accessor accessor;
         if (!other.has_vertex(current_vertex)) {
+            accessor.release();
             return false;
         }
 
@@ -159,6 +160,7 @@ bool Graph::operator==(const Graph &other) const {
             if (!other.has_edge(current_vertex, neighbor) ||
                 (is_edge_meridian_crossing(current_vertex, neighbor) !=
                  other.is_edge_meridian_crossing(current_vertex, neighbor))) {
+                accessor.release();
                 return false;
             }
         }
@@ -218,7 +220,7 @@ std::shared_ptr<Graph> merge_graphs(const std::vector<std::shared_ptr<Graph>> &g
 
     auto merged_graph = std::make_shared<Graph>(std::vector<Polygon>(polygons.begin(), polygons.end()));
 
-    #pragma omp parallel for shared(graphs, merged_graph) default(none)
+    #pragma omp parallel for shared(graphs, merged_graph) default(none) schedule(static)
     for (size_t i = 0; i < graphs.size(); ++i) { // NOLINT
         const auto graph = graphs[i];
         for (const auto &vert_1 : graph->get_vertices()) {
