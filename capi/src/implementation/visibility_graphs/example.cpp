@@ -12,6 +12,7 @@
 int main() {
     const auto graph = GraphSerializer::deserialize_from_file("/mnt/d/DATVM/vessel_eta_prediction/resources/shapefiles/graph/default");
     const auto computer = ShortestPathComputer(graph);
+    std::cout << "Loaded graph" << std::endl;
 
     const auto num_trials = 1;
     float total_time = 0.0;

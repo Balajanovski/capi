@@ -17,7 +17,7 @@ std::shared_ptr<Graph> VisgraphGenerator::generate(const std::vector<Polygon> &p
     auto visgraph = std::make_shared<Graph>(polygons);
     auto vistree_gen = VistreeGenerator(make_polygons_periodic(polygons));
 
-#pragma omp parallel for shared(visgraph, polygon_vertices, vistree_gen) default(none)
+#pragma omp parallel for shared(visgraph, polygon_vertices, vistree_gen) default(none) schedule(dynamic)
     for (size_t i = 0; i < polygon_vertices.size(); ++i) { // NOLINT
         const auto visible_vertices = vistree_gen.get_visible_vertices(polygon_vertices[i], true);
 
@@ -44,7 +44,7 @@ std::shared_ptr<Graph> VisgraphGenerator::generate_with_shuffled_range(const std
     std::mt19937 gen(seed);
     std::shuffle(polygon_vertices.begin(), polygon_vertices.end(), gen);
 
-#pragma omp parallel for shared(visgraph, vistree_gen, polygon_vertices, range_start, range_end) default(none)
+#pragma omp parallel for shared(visgraph, vistree_gen, polygon_vertices, range_start, range_end) default(none) schedule(dynamic)
     for (size_t i = range_start; i < range_end; ++i) { // NOLINT
         const auto visible_vertices = vistree_gen.get_visible_vertices(polygon_vertices[i], true);
 

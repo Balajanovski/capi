@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <queue>
 #include <iostream>
+#include <fmt/format.h>
 
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "shortest_path_computer.hpp"
@@ -96,7 +97,12 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
         path.push_back(curr_node);
 
         if (prev_coord.find(curr_node) == prev_coord.end()) {
-            throw std::runtime_error("Could not find a shortest path");
+            throw std::runtime_error(
+                    fmt::format("Could not find a shortest path. "
+                                "Source: {}. "
+                                "Destination: {}.",
+                                source.to_string_representation(),
+                                destination.to_string_representation()));
         }
         curr_node = prev_coord.at(curr_node);
     }
@@ -114,7 +120,7 @@ ShortestPathComputer::shortest_paths(const std::vector<std::pair<Coordinate, Coo
     auto paths = std::vector<BatchInterpolateResult>(source_dest_pairs.size());
 
 #pragma omp parallel for shared(source_dest_pairs, paths, maximum_distance_to_search_from_source, \
-                                correct_vertices_on_land, a_star_greediness_weighting) default(none)
+                                correct_vertices_on_land, a_star_greediness_weighting) default(none) schedule(dynamic)
     for (size_t i = 0; i < source_dest_pairs.size(); ++i) {
         try {
             paths[i] = BatchInterpolateResult{
@@ -160,7 +166,11 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
     const auto destination_is_on_land = _index.is_point_contained(destination);
 
     if (!correct_vertices_on_land && (source_is_on_land || destination_is_on_land)) {
-        throw std::runtime_error("Either the source or the destination are on land.");
+        throw std::runtime_error(
+                fmt::format("Either the source or the destination are on land. "
+                            "Source: {}. Destination: {}.",
+                            source.to_string_representation(),
+                            destination.to_string_representation()));
     }
 
     auto corrected_source = source;
