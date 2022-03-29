@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(capi VERSION "2.5.6")
+project(capi VERSION "2.5.7")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -24,9 +24,6 @@ find_package(Git REQUIRED)
 
 # OpenMP
 find_package(OpenMP REQUIRED)
-
-# TBB
-find_package(TBB REQUIRED)
 
 # S2
 if (NOT DEFINED S2_LIB)
@@ -100,8 +97,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
-        tbb)
+        ${S2_LIB})
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
 # Setup unit tests
@@ -121,8 +117,7 @@ add_executable(${TEST_TARGET}
 
 target_link_libraries(${TEST_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
-        tbb)
+        ${S2_LIB})
 
 add_executable(${EXAMPLE_TARGET}
         ${VIS_GRAPH_IMPLEMENTATION_FILES}
@@ -132,5 +127,4 @@ add_executable(${EXAMPLE_TARGET}
 
 target_link_libraries(${EXAMPLE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
-        tbb)
+        ${S2_LIB})

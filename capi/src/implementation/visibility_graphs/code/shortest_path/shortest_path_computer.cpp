@@ -6,6 +6,7 @@
 #include <queue>
 #include <iostream>
 #include <fmt/format.h>
+#include <sstream>
 
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "shortest_path_computer.hpp"
@@ -17,7 +18,8 @@ struct AStarHeapElement {
     double heuristic_distance_to_destination;
 };
 
-ShortestPathComputer::ShortestPathComputer(const std::shared_ptr<IGraph> &graph) : _graph(graph), _index(graph->get_polygons()) {}
+ShortestPathComputer::ShortestPathComputer(const std::shared_ptr<IGraph> &graph) :
+    _graph(graph), _index(graph->get_polygons()), _vistree_gen(graph->get_polygons()) {}
 
 std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &source, const Coordinate &destination,
                                                             double maximum_distance_to_search_from_source,
@@ -201,13 +203,11 @@ std::shared_ptr<IGraph> ShortestPathComputer::create_modified_graph(const Coordi
     auto modified_graph = std::make_shared<ModifiedGraph>(_graph);
     const Coordinate vertices_to_process[2] = {source, destination};
 
-    const auto source_dest_spherical_distance = source.spherical_distance(destination);
     for (const auto &vertex_to_process : vertices_to_process) {
         if (!_graph->has_vertex(vertex_to_process)) {
             modified_graph->add_vertex(vertex_to_process);
 
-            const auto reachable_vertices =
-                    _index.reachable_vertices(vertex_to_process, source_dest_spherical_distance);
+            const auto reachable_vertices = _vistree_gen.get_visible_vertices(vertex_to_process);
 
             for (const auto &point : reachable_vertices) {
                 modified_graph->add_edge(vertex_to_process, point.coord, point.is_visible_across_meridian);

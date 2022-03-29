@@ -73,35 +73,3 @@ TEST_CASE("Test closest segment to point") {
 
     REQUIRE(expected_closest_seg_a == closest_seg_a);
 }
-
-TEST_CASE("Test reachable vertices") {
-    const auto polygons = std::vector<Polygon> {
-        Polygon({
-            Coordinate(1, 1),
-            Coordinate(2, 1),
-            Coordinate(2, -1),
-            Coordinate(1, -1),
-        }),
-        Polygon({
-            Coordinate(-100, 1),
-            Coordinate(-101, 1),
-            Coordinate(-101, -1),
-            Coordinate(-100, -1),
-        }),
-    };
-    const auto index = SpatialSegmentIndex(polygons);
-
-    const auto query = Coordinate(0, 0);
-    const auto reachable = index.reachable_vertices(query,Coordinate(2, 1).spherical_distance(Coordinate(0, 0)));
-    auto reachable_set = std::unordered_set<Coordinate>{};
-    for (const auto& reachable_vert : reachable) {
-        reachable_set.insert(reachable_vert.coord);
-    }
-
-    const auto expected_reachable = std::unordered_set<Coordinate> {
-        Coordinate(1, 1),
-        Coordinate(1, -1),
-    };
-
-    REQUIRE(reachable_set == expected_reachable);
-}

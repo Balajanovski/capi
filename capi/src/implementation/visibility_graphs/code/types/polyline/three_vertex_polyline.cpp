@@ -21,17 +21,17 @@ bool ThreeVertexPolyline::point_visible(const Coordinate &coordinate) const {
         return !(
             (v2v1_orientation == Orientation::CLOCKWISE && v2v3_orientation == Orientation::COUNTER_CLOCKWISE) ||
             (v2v1_orientation == Orientation::COLLINEAR && v2v3_orientation == Orientation::COUNTER_CLOCKWISE &&
-                    !ThreeVertexPolyline::inclusive_between(v2v1.scalar_multiple_factor(v2coord).value(), 0, 1)) ||
+                    !ThreeVertexPolyline::inclusive_between(v2v1.scalar_multiple_factor(v2coord).value(), -EPSILON_TOLERANCE, 1 + EPSILON_TOLERANCE)) ||
             (v2v1_orientation == Orientation::CLOCKWISE && v2v3_orientation == Orientation::COLLINEAR &&
-                    !ThreeVertexPolyline::inclusive_between(v2v3.scalar_multiple_factor(v2coord).value(), 0, 1))
+                    !ThreeVertexPolyline::inclusive_between(v2v3.scalar_multiple_factor(v2coord).value(), -EPSILON_TOLERANCE, 1 + EPSILON_TOLERANCE))
         );
     } else {
         return (
             (v2v1_orientation == Orientation::COUNTER_CLOCKWISE && v2v3_orientation == Orientation::CLOCKWISE) ||
             (v2v1_orientation == Orientation::COLLINEAR && v2v3_orientation == Orientation::CLOCKWISE &&
-                    ThreeVertexPolyline::inclusive_between(v2v1.scalar_multiple_factor(v2coord).value(), 0, 1)) ||
+                    ThreeVertexPolyline::inclusive_between(v2v1.scalar_multiple_factor(v2coord).value(), -EPSILON_TOLERANCE, 1 + EPSILON_TOLERANCE)) ||
             (v2v1_orientation == Orientation::COUNTER_CLOCKWISE && v2v3_orientation == Orientation::COLLINEAR &&
-                    ThreeVertexPolyline::inclusive_between(v2v3.scalar_multiple_factor(v2coord).value(), 0, 1))
+                    ThreeVertexPolyline::inclusive_between(v2v3.scalar_multiple_factor(v2coord).value(), -EPSILON_TOLERANCE, 1 + EPSILON_TOLERANCE))
         );
     }
 }

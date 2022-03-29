@@ -15,6 +15,7 @@
 #include "serialization/graph_serializer.hpp"
 #include "shortest_path/shortest_path_computer.hpp"
 #include "visgraph/visgraph_generator.hpp"
+#include "visgraph/vistree_generator.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -86,6 +87,14 @@ PYBIND11_MODULE(_vis_graph, m) {
     py::class_<BatchInterpolateResult>(m, "VisGraphBatchInterpolateResult")
         .def_readwrite("path", &BatchInterpolateResult::path)
         .def_readwrite("error_msg", &BatchInterpolateResult::error_msg);
+
+    py::class_<VistreeGenerator>(m, "VistreeGenerator")
+        .def(py::init<const std::vector<Polygon> &>())
+        .def("get_visible_vertices", &VistreeGenerator::get_visible_vertices);
+
+    py::class_<VisibleVertex>(m, "VisGraphVisibleVertex")
+        .def_readwrite("coord", &VisibleVertex::coord)
+        .def_readwrite("is_visible_across_meridian", &VisibleVertex::is_visible_across_meridian);
 
     m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
     m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,

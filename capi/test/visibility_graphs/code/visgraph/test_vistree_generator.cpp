@@ -664,3 +664,23 @@ TEST_CASE("Vistree generator parallel line 2") {
 
     REQUIRE(visible_vertices == expected_vertices);
 }
+
+TEST_CASE("Vistree generator sees neighbors") {
+    const auto poly = Polygon({
+       Coordinate(11.777472, -15.785472),
+       Coordinate(11.732028, -15.890833),
+       Coordinate(11.808694, -16.017527),
+       Coordinate(11.88, -15.787111),
+    });
+
+    const auto root = Coordinate(11.732028, -15.890833);
+    auto visible_vertices = VistreeGenerator(std::vector<Polygon>{poly}).get_visible_vertices(root, false);
+    auto expected_vertices = std::vector<VisibleVertex> {
+            VisibleVertex{.coord = Coordinate(11.808694, -16.017527), .is_visible_across_meridian = false},
+            VisibleVertex{.coord = Coordinate(11.777472, -15.785472), .is_visible_across_meridian = false},
+    };
+    std::sort(visible_vertices.begin(), visible_vertices.end(), coord_sorter);
+    std::sort(expected_vertices.begin(), expected_vertices.end(), coord_sorter);
+
+    REQUIRE(visible_vertices == expected_vertices);
+}
