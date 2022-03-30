@@ -16,7 +16,7 @@
 
 VisgraphGenerator::VisgraphGenerator() = default;
 
-std::shared_ptr<Graph> VisgraphGenerator::generate(const std::vector<Polygon> &polygons, std::ostream &progress_stream) {
+std::shared_ptr<Graph> VisgraphGenerator::generate(const std::vector<Polygon> &polygons) {
     auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
     auto visgraph = std::make_shared<Graph>(polygons);
 
@@ -36,11 +36,11 @@ std::shared_ptr<Graph> VisgraphGenerator::generate(const std::vector<Polygon> &p
         indicators::option::FontStyles{std::vector<indicators::FontStyle>{indicators::FontStyle::bold}},
         indicators::option::ShowElapsedTime{true},
         indicators::option::ShowRemainingTime{true},
-        indicators::option::Stream{progress_stream},
+        indicators::option::Stream{std::cout},
         indicators::option::MaxProgress{num_vertices},
     };
 
-#pragma omp parallel shared(visgraph, polygon_vertices, progress_stream, vistree_gen, num_vertices, bar) default(none)
+#pragma omp parallel shared(visgraph, polygon_vertices, vistree_gen, num_vertices, bar) default(none)
     {
         size_t num_threads = omp_get_num_threads();
 
@@ -69,7 +69,7 @@ std::shared_ptr<Graph> VisgraphGenerator::generate(const std::vector<Polygon> &p
 }
 
 std::shared_ptr<Graph> VisgraphGenerator::generate_with_shuffled_range(const std::vector<Polygon> &polygons, size_t range_start,
-                                                      size_t range_end, unsigned int seed, std::ostream &progress_stream) {
+                                                      size_t range_end, unsigned int seed) {
     auto polygon_vertices = VisgraphGenerator::polygon_vertices(polygons);
     auto visgraph = std::make_shared<Graph>(polygons);
     if (polygons.empty()) {

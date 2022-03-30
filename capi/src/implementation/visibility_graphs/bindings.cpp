@@ -100,7 +100,7 @@ PYBIND11_MODULE(_vis_graph, m) {
     m.def("generate_visgraph",
      [](const std::vector<Polygon> &polygons) {
             py::scoped_ostream_redirect output;
-            return VisgraphGenerator::generate(polygons, std::cout);
+            return VisgraphGenerator::generate(polygons);
         },
         "Generates a visgraph from the supplied polygons");
     m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,
