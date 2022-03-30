@@ -56,7 +56,7 @@ std::vector<VisibleVertex> VistreeGenerator::get_visible_vertices_from_candidate
 
     auto open_edges = OpenEdges();
     const auto initial_scanline_segment =
-        LineSegment(observer, Coordinate(MAX_PERIODIC_LONGITUDE, observer.get_latitude()));
+        LineSegment(observer, Coordinate(MAX_PERIODIC_LONGITUDE_MICRODEGREES, observer.get_latitude_microdegrees()));
     const auto initial_scanline_vector = initial_scanline_segment.get_tangent_vector();
     for (const auto &line_segment : candidate_segments) {
         if (observer == line_segment->get_endpoint_1() || observer == line_segment->get_endpoint_2()) {

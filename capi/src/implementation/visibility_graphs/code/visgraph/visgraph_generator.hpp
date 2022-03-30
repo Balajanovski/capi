@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <iostream>
 
 #include "datastructures/graph/graph.hpp"
 #include "types/polygon/polygon.hpp"
@@ -16,9 +17,9 @@ class VisgraphGenerator {
   public:
     explicit VisgraphGenerator();
 
-    [[nodiscard]] static std::shared_ptr<Graph> generate(const std::vector<Polygon> &polygons);
+    [[nodiscard]] static std::shared_ptr<Graph> generate(const std::vector<Polygon> &polygons, std::ostream &progress_stream = std::cout);
     [[nodiscard]] static std::shared_ptr<Graph> generate_with_shuffled_range(const std::vector<Polygon> &polygons, size_t range_start,
-                                                            size_t range_end, unsigned int seed);
+                                                            size_t range_end, unsigned int seed, std::ostream &progress_stream = std::cout);
 
   private:
     static std::vector<Coordinate> polygon_vertices(const std::vector<Polygon> &polygons);

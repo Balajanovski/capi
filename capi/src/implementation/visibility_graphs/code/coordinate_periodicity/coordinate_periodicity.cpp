@@ -26,10 +26,10 @@ bool is_coordinate_over_meridian(const Coordinate &coordinate) {
 
 Coordinate coordinate_from_periodic_coordinate(const Coordinate &periodic_coordinate) {
     auto adjusted_longitude = periodic_coordinate.get_longitude_microdegrees();
-    if (adjusted_longitude > MAX_LONGITUDE_MICRODEGREES) {
+    while (adjusted_longitude > MAX_LONGITUDE_MICRODEGREES) {
         adjusted_longitude -= LONGITUDE_PERIOD_MICRODEGREES;
     }
-    if (adjusted_longitude < MIN_LONGITUDE_MICRODEGREES) {
+    while (adjusted_longitude < MIN_LONGITUDE_MICRODEGREES) {
         adjusted_longitude += LONGITUDE_PERIOD_MICRODEGREES;
     }
 

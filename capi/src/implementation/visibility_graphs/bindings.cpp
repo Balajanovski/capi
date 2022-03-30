@@ -10,6 +10,7 @@
 #include <memory>
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
+#include <pybind11/iostream.h>
 
 #include "datastructures/graph/graph.hpp"
 #include "serialization/graph_serializer.hpp"
@@ -96,7 +97,12 @@ PYBIND11_MODULE(_vis_graph, m) {
         .def_readwrite("coord", &VisibleVertex::coord)
         .def_readwrite("is_visible_across_meridian", &VisibleVertex::is_visible_across_meridian);
 
-    m.def("generate_visgraph", &VisgraphGenerator::generate, "Generates a visgraph from the supplied polygons");
+    m.def("generate_visgraph",
+     [](const std::vector<Polygon> &polygons) {
+            py::scoped_ostream_redirect output;
+            return VisgraphGenerator::generate(polygons, std::cout);
+        },
+        "Generates a visgraph from the supplied polygons");
     m.def("generate_visgraph_with_shuffled_range", &VisgraphGenerator::generate_with_shuffled_range,
           "Generates a visgraph from the supplied polygons using only a certain range of vertices (after shuffling)");
 
