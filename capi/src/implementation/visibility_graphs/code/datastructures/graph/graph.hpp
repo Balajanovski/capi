@@ -8,7 +8,6 @@
 #include <array>
 #include <mutex>
 #include <string>
-#include <tbb/concurrent_hash_map.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
