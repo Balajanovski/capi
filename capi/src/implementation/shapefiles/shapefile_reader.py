@@ -27,8 +27,6 @@ class ShapefileReader(IShapefileReader):
                 # We only create a new polygon if the part has 3 or more vertices
                 # (> because shapefiles repeat the first vertex)
                 if len(current_part) > 3:
-                    polygons.append(
-                        Polygon(vertices=current_part[:-1])
-                    )
+                    polygons.append(Polygon(vertices=current_part[:-1]))
 
             return polygons

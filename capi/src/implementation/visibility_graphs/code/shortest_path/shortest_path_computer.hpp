@@ -14,6 +14,7 @@
 #include "datastructures/spatial_segment_index/spatial_segment_index.hpp"
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
+#include "visgraph/vistree_generator.hpp"
 
 
 struct LandCollisionCorrection {
@@ -50,6 +51,7 @@ class ShortestPathComputer {
 
     std::shared_ptr<IGraph> _graph;
     SpatialSegmentIndex _index;
+    VistreeGenerator _vistree_gen;
 };
 
 #endif // CAPI_SHORTEST_PATH_COMPUTER_HPP

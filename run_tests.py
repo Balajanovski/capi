@@ -13,8 +13,9 @@ def main():
         "--mypy",
         "--cov=capi",
         "--junitxml=python-test-out.xml",
+        "--pyargs",
     ]
-    run_command(["python3", "-m", "pytest", *options, "capi/test"])
+    run_command(["python3", "-m", "pytest", *options, "capi.test"])
 
 
 if __name__ == "__main__":

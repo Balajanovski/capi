@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.13)
-project(capi VERSION "2.5.6")
+project(capi VERSION "3.0.0")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
-set(CMAKE_C_FLAGS "-Wall -Wextra -Ofast")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Ofast")
+set(CMAKE_C_FLAGS "-Wall -Wextra -O2")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -O2")
 
 set(CMAKE_CXX_STANDARD 17)
 message("${CMAKE_MODULE_PATH}")
@@ -24,9 +24,6 @@ find_package(Git REQUIRED)
 
 # OpenMP
 find_package(OpenMP REQUIRED)
-
-# TBB
-find_package(TBB REQUIRED)
 
 # S2
 if (NOT DEFINED S2_LIB)
@@ -87,6 +84,10 @@ include_directories(${VIS_GRAPH_IMPL_DIR}/code)
 include_directories(${CPP_LIBS_DIR}/fmt/include)
 file(GLOB_RECURSE FMT_SOURCE "${CPP_LIBS_DIR}/fmt/*.cc" "${CPP_LIBS_DIR}/fmt/*.h")
 
+# Get indicators library
+include_directories(${CPP_LIBS_DIR}/indicators/include)
+file(GLOB_RECURSE PROGRESS_BAR_SOURCE "${CPP_LIBS_DIR}/indicators/*.hpp")
+
 # Get mio library
 include_directories(${CPP_LIBS_DIR}/mio)
 file(GLOB_RECURSE MIO_SOURCE "${CPP_LIBS_DIR}/mio/*.hpp" "${CPP_LIBS_DIR}/mio/*.cpp")
@@ -100,8 +101,7 @@ pybind11_add_module(${PY_MODULE_TARGET} MODULE
 target_compile_definitions(${PY_MODULE_TARGET} PRIVATE VERSION_INFO=${PROJECT_VERSION})
 target_link_libraries(${PY_MODULE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
-        tbb)
+        ${S2_LIB})
 install(TARGETS ${PY_MODULE_TARGET} DESTINATION .)
 
 # Setup unit tests
@@ -121,8 +121,7 @@ add_executable(${TEST_TARGET}
 
 target_link_libraries(${TEST_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
-        tbb)
+        ${S2_LIB})
 
 add_executable(${EXAMPLE_TARGET}
         ${VIS_GRAPH_IMPLEMENTATION_FILES}
@@ -132,5 +131,4 @@ add_executable(${EXAMPLE_TARGET}
 
 target_link_libraries(${EXAMPLE_TARGET} PRIVATE
         OpenMP::OpenMP_CXX
-        ${S2_LIB}
-        tbb)
+        ${S2_LIB})

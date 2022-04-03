@@ -8,10 +8,11 @@
 #include <array>
 #include <mutex>
 #include <string>
-#include <tbb/concurrent_hash_map.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <shared_mutex>
+#include <memory>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/polygon/polygon.hpp"
@@ -45,10 +46,21 @@ class Graph : public IGraph {
 
   private:
     Coordinate index_to_coordinate(unsigned int index) const;
-    int coordinate_to_index(Coordinate coordinate) const;
+    unsigned int coordinate_to_index(Coordinate coordinate) const;
 
     std::vector<Polygon> _polygons;
-    tbb::concurrent_hash_map<unsigned int, std::unordered_map<unsigned int, bool>> _neighbors;
+    size_t _num_coords = 0;
+
+    enum EdgeState : uint8_t {
+        DISCONNECTED = 0x0,
+        CONNECTED = 0x1,
+        CONNECTED_OVER_MERIDIAN = 0x2,
+        CONNECTED_BOTH = 0x3,
+    };
+
+    std::vector<EdgeState> _neighbors;
+    mutable std::vector<std::unique_ptr<std::shared_mutex>> _accessor_locks;
+
     std::unordered_map<Coordinate, unsigned int> _coordinate_to_index_mapping;
     std::vector<Coordinate> _index_to_coordinate_mapping;
 };

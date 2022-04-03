@@ -66,6 +66,7 @@ class GraphGenerator(IGraphGenerator):
 
 if __name__ == "__main__":  # pragma: no cover
     import time
+
     from capi.test.test_files.test_files_dir import TEST_FILES_DIR
 
     gen = GraphGenerator()

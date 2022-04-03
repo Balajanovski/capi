@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <iostream>
 
 #include "datastructures/graph/graph.hpp"
 #include "types/polygon/polygon.hpp"

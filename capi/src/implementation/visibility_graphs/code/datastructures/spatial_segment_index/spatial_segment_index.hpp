@@ -22,7 +22,6 @@ class SpatialSegmentIndex {
     explicit SpatialSegmentIndex(const std::vector<Polygon> &polygons);
     ~SpatialSegmentIndex();
 
-    [[nodiscard]] std::vector<VisibleVertex> reachable_vertices(const Coordinate &point, double distance_in_radians) const;
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
                                                                              double distance_in_radians) const;
     [[nodiscard]] LineSegment closest_segment_to_point(const Coordinate &point) const;

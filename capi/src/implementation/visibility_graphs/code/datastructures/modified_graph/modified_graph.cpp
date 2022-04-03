@@ -87,6 +87,8 @@ std::vector<Coordinate> ModifiedGraph::get_neighbors(const Coordinate &vertex) c
     for (const auto& neighbor : _neighbors.at(vertex)) {
         if (neighbor.second.relationship == NeighborRelationship::EDGE_PRESENT) {
             neighbors.push_back(neighbor.first);
+        } else if (neighbor.second.relationship == NeighborRelationship::EDGE_REMOVED) {
+            neighbors.erase(std::remove(neighbors.begin(), neighbors.end(), neighbor.first), neighbors.end());
         }
     }
 

@@ -3,6 +3,7 @@
 //
 
 #include <catch.hpp>
+#include <unordered_set>
 
 #include "datastructures/graph/graph.hpp"
 #include "serialization/graph_serializer.hpp"
@@ -12,7 +13,7 @@ TEST_CASE("Graph serialize") {
     const auto coord1 = Coordinate(1., 2.);
     const auto coord2 = Coordinate(2., 1.);
     const auto coord3 = Coordinate(1., 1.);
-    const auto coord4 = Coordinate(10., 2.);
+    const auto coord4 = Coordinate(39.068387,47.276612);
 
     auto graph = std::make_shared<Graph>(std::vector<Polygon>{Polygon({coord1, coord2}), Polygon({coord3, coord4})});
 
@@ -29,6 +30,14 @@ TEST_CASE("Graph serialize") {
     remove(tmp_name);
 
     REQUIRE(*graph == *deserialized_graph);
+
+    for (const auto &vertex : graph->get_vertices()) {
+        const auto g_neighbors = graph->get_neighbors(vertex);
+        const auto d_neighbors = deserialized_graph->get_neighbors(vertex);
+        REQUIRE(std::unordered_set<Coordinate>(g_neighbors.begin(), g_neighbors.end()) ==
+                std::unordered_set<Coordinate>(d_neighbors.begin(), d_neighbors.end()));
+        REQUIRE(deserialized_graph->has_vertex(vertex));
+    }
 }
 
 TEST_CASE("Graph serialize 2") {
