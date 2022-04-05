@@ -62,6 +62,27 @@ TEST_CASE("ShortestPathComputer shortest path over meridian") {
                                                         Coordinate(1., 1.)});
 }
 
+TEST_CASE("ShortestPathComputer shortest path parallel to edge") {
+    const auto poly = Polygon({
+        Coordinate(1000, 1000),
+        Coordinate(-1000, 1000),
+        Coordinate(-1000, -1000),
+        Coordinate(1000, -1000),
+    });
+
+    const auto graph = VisgraphGenerator::generate({poly});
+    const auto a = Coordinate(-800, -1000);
+    const auto b = Coordinate(800, -1000);
+    const auto path_computer = ShortestPathComputer(graph);
+
+    const auto shortest_path_ab = path_computer.shortest_path(a, b, INFINITY, true);
+    auto shortest_path_ba = path_computer.shortest_path(b, a, INFINITY, true);
+    std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
+
+    REQUIRE(shortest_path_ab == shortest_path_ba);
+    REQUIRE(shortest_path_ab == std::vector<Coordinate>{a, b});
+}
+
 TEST_CASE("ShortestPathComputer shortest paths") {
     const auto poly = Polygon({
         Coordinate(1., 0.),
@@ -75,19 +96,19 @@ TEST_CASE("ShortestPathComputer shortest paths") {
     const auto a2 = Coordinate(-1.5, -0.5);
     const auto a3 = Coordinate(0., 0.);
 
-    const auto b = Coordinate(1.5, 0.);
+    const auto b1 = Coordinate(1.5, 0.);
 
     const auto source_dest_pairs = std::vector<std::pair<Coordinate, Coordinate>> {
-        std::make_pair(a1, b),
-        std::make_pair(a2, b),
-        std::make_pair(a3, b),
+        std::make_pair(a1, b1),
+        std::make_pair(a2, b1),
+        std::make_pair(a3, b1),
     };
     const auto path_computer = ShortestPathComputer(graph);
 
     const auto shortest_paths = path_computer.shortest_paths(source_dest_pairs);
     const auto expected_shortest_paths = std::vector<std::optional<std::vector<Coordinate>>>{
-        std::make_optional(std::vector<Coordinate> {a1, Coordinate(0., 1.), b}),
-        std::make_optional(std::vector<Coordinate> {a2, Coordinate(0., -1.), b}),
+        std::make_optional(std::vector<Coordinate> {a1, Coordinate(0., 1.), b1}),
+        std::make_optional(std::vector<Coordinate> {a2, Coordinate(0., -1.), b1}),
         std::nullopt,
     };
 
