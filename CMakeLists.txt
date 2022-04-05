@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(capi VERSION "3.0.4")
+project(capi VERSION "3.0.5")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
