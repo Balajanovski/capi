@@ -34,7 +34,8 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     const auto &corrected_dest = land_corrections.corrected_dest;
 
     auto intersections = _index.intersect_with_segments(LineSegment(corrected_source, corrected_dest));
-    if (land_corrections.corrected_source_edge) {
+    if (land_corrections.corrected_source_edge.has_value()
+        && !land_corrections.corrected_source_edge.value().get_tangent_vector().parallel(corrected_dest - corrected_source)) {
         intersections.insert(intersections.begin(), land_corrections.corrected_source_edge.value());
     }
 
@@ -102,9 +103,13 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
             throw std::runtime_error(
                     fmt::format("Could not find a shortest path. "
                                 "Source: {}. "
-                                "Destination: {}.",
+                                "Destination: {}. "
+                                "Corrected Source: {}. "
+                                "Corrected Destination: {}. ",
                                 source.to_string_representation(),
-                                destination.to_string_representation()));
+                                destination.to_string_representation(),
+                                corrected_source.to_string_representation(),
+                                corrected_dest.to_string_representation()));
         }
         curr_node = prev_coord.at(curr_node);
     }

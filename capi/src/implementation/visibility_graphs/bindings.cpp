@@ -69,6 +69,7 @@ PYBIND11_MODULE(_vis_graph, m) {
             [](ShortestPathComputer &self, const Coordinate &source, const Coordinate &destination,
                double maximum_distance_to_search_from_source, bool correct_vertices_on_land,
                double a_star_greediness_weighting) {
+                py::scoped_ostream_redirect output;
                 return self.shortest_path(source, destination, maximum_distance_to_search_from_source,
                                           correct_vertices_on_land, a_star_greediness_weighting);
             },
