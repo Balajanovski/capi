@@ -34,12 +34,15 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
     const auto &corrected_dest = land_corrections.corrected_dest;
 
     auto intersections = _index.intersect_with_segments(LineSegment(corrected_source, corrected_dest));
-    if (land_corrections.corrected_source_edge.has_value()
-        && !land_corrections.corrected_source_edge.value().get_tangent_vector().parallel(corrected_dest - corrected_source)) {
-        intersections.insert(intersections.begin(), land_corrections.corrected_source_edge.value());
+    size_t num_intersections_excluding_corrections = 0;
+    for (const auto &intersection : intersections) {
+        if ((!land_corrections.corrected_source_edge.has_value() || intersection != land_corrections.corrected_source_edge.value()) &&
+        (!land_corrections.corrected_dest_edge.has_value() || intersection != land_corrections.corrected_dest_edge.value())) {
+            ++num_intersections_excluding_corrections;
+        }
     }
 
-    if (intersections.empty()) {
+    if (num_intersections_excluding_corrections == 0) {
         return std::vector<Coordinate>{corrected_source, corrected_dest};
     }
 
@@ -183,6 +186,7 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
     auto corrected_source = source;
     auto corrected_destination = destination;
     std::optional<LineSegment> corrected_source_edge = std::nullopt;
+    std::optional<LineSegment> corrected_dest_edge = std::nullopt;
     if (source_is_on_land) {
         const auto closest_seg = _index.closest_segment_to_point(source);
         corrected_source = closest_seg.project(source);
@@ -191,12 +195,14 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
     if (destination_is_on_land) {
         const auto closest_seg = _index.closest_segment_to_point(destination);
         corrected_destination = closest_seg.project(destination);
+        corrected_dest_edge = std::make_optional(closest_seg);
     }
 
     return LandCollisionCorrection{
         .corrected_source = corrected_source,
         .corrected_dest = corrected_destination,
         .corrected_source_edge = corrected_source_edge,
+        .corrected_dest_edge = corrected_dest_edge,
     };
 }
 

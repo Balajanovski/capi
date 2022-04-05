@@ -112,7 +112,8 @@ Coordinate LineSegment::project(const Coordinate &point) const {
 
     delete polyline_s2;
 
-    return Coordinate(projected_point_s2);
+    const auto projected_point = Coordinate(projected_point_s2);
+    return projected_point;
 }
 
 bool LineSegment::operator==(const LineSegment &other) const {

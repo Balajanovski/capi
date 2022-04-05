@@ -17,16 +17,19 @@
 #include "visgraph/vistree_generator.hpp"
 
 
-struct LandCollisionCorrection {
-    Coordinate corrected_source;
-    Coordinate corrected_dest;
-    std::optional<LineSegment> corrected_source_edge;
-};
-
 struct BatchInterpolateResult {
     std::optional<std::vector<Coordinate>> path;
     std::optional<std::string> error_msg;
 };
+
+namespace {
+    struct LandCollisionCorrection {
+        Coordinate corrected_source;
+        Coordinate corrected_dest;
+        std::optional<LineSegment> corrected_source_edge;
+        std::optional<LineSegment> corrected_dest_edge;
+    };
+}
 
 class ShortestPathComputer {
   public:
