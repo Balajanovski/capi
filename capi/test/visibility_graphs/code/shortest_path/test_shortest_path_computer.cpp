@@ -83,6 +83,30 @@ TEST_CASE("ShortestPathComputer shortest path parallel to edge") {
     REQUIRE(shortest_path_ab == std::vector<Coordinate>{a, b});
 }
 
+TEST_CASE("ShortestPathComputer shortest path parallel to edge 2") {
+    const auto poly = Polygon({
+        Coordinate(1000, 0),
+        Coordinate(0, 1000),
+        Coordinate(-1000, 0),
+        Coordinate(0, -1000),
+    });
+
+    const auto graph = VisgraphGenerator::generate({poly});
+    const auto a = Coordinate(-300, -300);
+    const auto b = Coordinate(-600, -600);
+    const auto path_computer = ShortestPathComputer(graph);
+
+    const auto shortest_path_ab = path_computer.shortest_path(a, b, INFINITY, true);
+    auto shortest_path_ba = path_computer.shortest_path(b, a, INFINITY, true);
+    std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
+
+    REQUIRE(shortest_path_ab == shortest_path_ba);
+    REQUIRE(shortest_path_ab == std::vector<Coordinate>{
+        Coordinate(-500, -500),
+        Coordinate(-600, -600),
+    });
+}
+
 TEST_CASE("ShortestPathComputer shortest paths") {
     const auto poly = Polygon({
         Coordinate(1., 0.),
