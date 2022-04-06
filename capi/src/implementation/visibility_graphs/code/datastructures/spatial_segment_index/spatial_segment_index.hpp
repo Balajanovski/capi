@@ -20,7 +20,6 @@ using s2shapeutil::ShapeEdge;
 class SpatialSegmentIndex {
   public:
     explicit SpatialSegmentIndex(const std::vector<Polygon> &polygons);
-    ~SpatialSegmentIndex();
 
     [[nodiscard]] std::vector<LineSegment> segments_within_distance_of_point(const Coordinate &point,
                                                                              double distance_in_radians) const;
@@ -32,8 +31,6 @@ class SpatialSegmentIndex {
 
   private:
     MutableS2ShapeIndex _shape_index;
-
-    std::vector<S2Loop *> _loops;
     static LineSegment s2_to_capi_line_segment(s2shapeutil::ShapeEdge edge);
 };
 

@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "line_segment.hpp"
+#include "constants/constants.hpp"
 
 Coordinate LineSegment::get_endpoint_1() const { return _endpoint_1; }
 
@@ -103,7 +104,7 @@ bool LineSegment::on_segment(const Coordinate &point) const {
             (_endpoint_2.get_latitude() <= point.get_latitude() && point.get_latitude() <= _endpoint_1.get_latitude()));
 }
 
-Coordinate LineSegment::project(const Coordinate &point) const {
+Coordinate LineSegment::project(const Coordinate &point, float margin) const {
     const auto point_s2 = point.to_s2_point();
     const auto polyline_s2 = this->to_s2_polyline();
 
@@ -112,7 +113,14 @@ Coordinate LineSegment::project(const Coordinate &point) const {
 
     delete polyline_s2;
 
-    const auto projected_point = Coordinate(projected_point_s2);
+    auto projected_point = Coordinate(projected_point_s2);
+    const auto diff = projected_point - point;
+    const auto diff_magn = diff.magnitude();
+
+    if (diff_magn > EPSILON_TOLERANCE) {
+        projected_point = projected_point + (diff / diff_magn * margin);
+    }
+
     return projected_point;
 }
 

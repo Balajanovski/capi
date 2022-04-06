@@ -6,6 +6,7 @@
 #include <fmt/format.h>
 #include <s2/s2latlng.h>
 #include <stdexcept>
+#include <iostream>
 
 #include "coordinate.hpp"
 
@@ -153,6 +154,12 @@ double Coordinate::angle_to_horizontal() const {
 
 std::string Coordinate::to_string_representation() const {
     return fmt::format("({},{})", get_longitude(), get_latitude());
+}
+
+Coordinate Coordinate::normalize() const {
+    const auto magn = magnitude();
+    std::cout << magn << std::endl;
+    return (*this) / magn;
 }
 
 S2Point Coordinate::to_s2_point() const { return S2Point(to_s2_lat_lng()); }

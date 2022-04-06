@@ -7,8 +7,10 @@
 
 #include <initializer_list>
 #include <s2/s2loop.h>
+#include <s2/s2polygon.h>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "types/coordinate/coordinate.hpp"
 #include "types/line_segment/line_segment.hpp"
@@ -26,15 +28,16 @@ class Polygon {
     bool operator==(const Polygon &other) const;
     bool operator!=(const Polygon &other) const;
 
-    [[nodiscard]] S2Loop *to_s2_loop() const;
+    [[nodiscard]] std::unique_ptr<S2Loop> to_s2_loop() const;
+    [[nodiscard]] std::unique_ptr<const S2Polygon> to_s2_polygon() const;
 
     [[nodiscard]] std::string to_string_representation() const;
 
   private:
-    std::vector<Coordinate> _vertices;
+    std::shared_ptr<std::vector<Coordinate>> _vertices;
 
-    static std::vector<Coordinate> preprocess_vertices(const std::vector<Coordinate> &vertices);
-    static std::vector<Coordinate>
+    static std::shared_ptr<std::vector<Coordinate>> preprocess_vertices(const std::vector<Coordinate> &vertices);
+    static std::shared_ptr<std::vector<Coordinate>>
     normalize_vertex_orientation_to_counter_clockwise(const std::vector<Coordinate> &vertices);
     static std::vector<Coordinate> remove_collinear_vertices(const std::vector<Coordinate> &vertices);
 };

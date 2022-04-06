@@ -50,6 +50,7 @@ class Coordinate {
     [[nodiscard]] std::optional<double> scalar_multiple_factor(const Coordinate &other) const;
     [[nodiscard]] double angle_to_horizontal() const;
     [[nodiscard]] std::string to_string_representation() const;
+    [[nodiscard]] Coordinate normalize() const;
 
     // S2 operations
     [[nodiscard]] S2Point to_s2_point() const;

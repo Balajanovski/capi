@@ -10,18 +10,9 @@
 #include <iostream>
 
 SpatialSegmentIndex::SpatialSegmentIndex(const std::vector<Polygon> &polygons) {
-    _loops.reserve(polygons.size());
-
     for (const auto &polygon : polygons) {
-        const auto loop = polygon.to_s2_loop();
-        _shape_index.Add(std::make_unique<S2Loop::Shape>(loop));
-        _loops.push_back(loop);
-    }
-}
-
-SpatialSegmentIndex::~SpatialSegmentIndex() {
-    for (const auto &loop : _loops) {
-        delete loop;
+        auto loop = polygon.to_s2_polygon();
+        _shape_index.Add(std::make_unique<S2Polygon::OwningShape>(std::move(loop)));
     }
 }
 
