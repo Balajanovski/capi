@@ -11,6 +11,7 @@
 #include "coordinate_periodicity/coordinate_periodicity.hpp"
 #include "shortest_path_computer.hpp"
 #include "datastructures/modified_graph/modified_graph.hpp"
+#include "constants/constants.hpp"
 
 struct AStarHeapElement {
     Coordinate node;
@@ -78,8 +79,7 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
             const auto edge_dist = distance_measurement(neighbor, top.node, meridian_spanning);
             const auto neighbor_dist_to_source = top.distance_to_source + edge_dist;
             const auto neighbor_direct_distance_to_source = heuristic_distance_measurement(corrected_source, neighbor);
-            if (edge_dist > source_destination_distance ||
-                neighbor_direct_distance_to_source > maximum_distance_to_search_from_source ||
+            if (neighbor_direct_distance_to_source > maximum_distance_to_search_from_source ||
                 (distances_to_source.find(neighbor) != distances_to_source.end() &&
                  distances_to_source.at(neighbor) <= neighbor_dist_to_source)) {
                 continue;
@@ -105,10 +105,12 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
         if (prev_coord.find(curr_node) == prev_coord.end()) {
             throw std::runtime_error(
                     fmt::format("Could not find a shortest path. "
+                                "Got stuck on {}. "
                                 "Source: {}. "
                                 "Destination: {}. "
                                 "Corrected Source: {}. "
                                 "Corrected Destination: {}. ",
+                                curr_node.to_string_representation(),
                                 source.to_string_representation(),
                                 destination.to_string_representation(),
                                 corrected_source.to_string_representation(),
@@ -189,12 +191,12 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
     std::optional<LineSegment> corrected_dest_edge = std::nullopt;
     if (source_is_on_land) {
         const auto closest_seg = _index.closest_segment_to_point(source);
-        corrected_source = closest_seg.project(source);
+        corrected_source = closest_seg.project(source, EPSILON_TOLERANCE);
         corrected_source_edge = std::make_optional(closest_seg);
     }
     if (destination_is_on_land) {
         const auto closest_seg = _index.closest_segment_to_point(destination);
-        corrected_destination = closest_seg.project(destination);
+        corrected_destination = closest_seg.project(destination, EPSILON_TOLERANCE);
         corrected_dest_edge = std::make_optional(closest_seg);
     }
 

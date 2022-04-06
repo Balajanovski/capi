@@ -7,6 +7,7 @@
 #include "datastructures/graph/graph.hpp"
 #include "shortest_path/shortest_path_computer.hpp"
 #include "visgraph/visgraph_generator.hpp"
+#include "constants/constants.hpp"
 
 TEST_CASE("ShortestPathComputer shortest path") {
     const auto poly1 = Polygon({
@@ -78,9 +79,14 @@ TEST_CASE("ShortestPathComputer shortest path parallel to edge") {
     const auto shortest_path_ab = path_computer.shortest_path(a, b, INFINITY, true);
     auto shortest_path_ba = path_computer.shortest_path(b, a, INFINITY, true);
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
+    const auto expected_path = std::vector<Coordinate>{a, b};
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{a, b});
+    REQUIRE(shortest_path_ab.size() == expected_path.size());
+
+    for (size_t i = 0; i < shortest_path_ab.size(); ++i) {
+        REQUIRE((shortest_path_ab[i] - expected_path[i]).magnitude() <= EPSILON_TOLERANCE);
+    }
 }
 
 TEST_CASE("ShortestPathComputer shortest path parallel to edge 2") {
@@ -99,12 +105,19 @@ TEST_CASE("ShortestPathComputer shortest path parallel to edge 2") {
     const auto shortest_path_ab = path_computer.shortest_path(a, b, INFINITY, true);
     auto shortest_path_ba = path_computer.shortest_path(b, a, INFINITY, true);
     std::reverse(shortest_path_ba.begin(), shortest_path_ba.end());
+    const auto expected_path = std::vector<Coordinate>{
+            Coordinate(-500, -500),
+            Coordinate(-600, -600),
+    };
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab == std::vector<Coordinate>{
-        Coordinate(-500, -500),
-        Coordinate(-600, -600),
-    });
+
+    REQUIRE(shortest_path_ab == shortest_path_ba);
+    REQUIRE(shortest_path_ab.size() == expected_path.size());
+
+    for (size_t i = 0; i < shortest_path_ab.size(); ++i) {
+        REQUIRE((shortest_path_ab[i] - expected_path[i]).magnitude() <= EPSILON_TOLERANCE*2.0f);
+    }
 }
 
 TEST_CASE("ShortestPathComputer shortest paths") {
@@ -189,7 +202,11 @@ TEST_CASE("ShortestPathComputer shortest path in land correction") {
         Coordinate(1.25,-0.1),
     };
 
-    REQUIRE(path == expected_path);
+    REQUIRE(path.size() == expected_path.size());
+
+    for (size_t i = 0; i < path.size(); ++i) {
+        REQUIRE((path[i] - expected_path[i]).magnitude() <= EPSILON_TOLERANCE);
+    }
 }
 
 TEST_CASE("ShortestPathComputer shortest path without obstacles") {

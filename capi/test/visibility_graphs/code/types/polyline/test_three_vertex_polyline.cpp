@@ -116,3 +116,13 @@ TEST_CASE("Polyline parallel case reflex") {
     REQUIRE_FALSE(polyline.point_visible(Coordinate(0., 2.)));
     REQUIRE(polyline.point_visible(Coordinate(-1., 1.)));
 }
+
+TEST_CASE("Polyline visible broken case")
+{
+    const auto polyline = ThreeVertexPolyline(
+            Coordinate(-70.410444, -23.651722),
+            Coordinate(-70.410056, -23.652110999999998),
+            Coordinate(-70.408389, -23.652082999999998));
+
+    REQUIRE_FALSE(polyline.point_visible(Coordinate(-70.236059, -23.437144)));
+}
