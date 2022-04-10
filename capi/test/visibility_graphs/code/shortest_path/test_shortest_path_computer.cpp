@@ -7,7 +7,6 @@
 #include "datastructures/graph/graph.hpp"
 #include "shortest_path/shortest_path_computer.hpp"
 #include "visgraph/visgraph_generator.hpp"
-#include "constants/constants.hpp"
 
 TEST_CASE("ShortestPathComputer shortest path") {
     const auto poly1 = Polygon({
@@ -82,11 +81,7 @@ TEST_CASE("ShortestPathComputer shortest path parallel to edge") {
     const auto expected_path = std::vector<Coordinate>{a, b};
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab.size() == expected_path.size());
-
-    for (size_t i = 0; i < shortest_path_ab.size(); ++i) {
-        REQUIRE((shortest_path_ab[i] - expected_path[i]).magnitude() <= EPSILON_TOLERANCE);
-    }
+    REQUIRE(shortest_path_ab == expected_path);
 }
 
 TEST_CASE("ShortestPathComputer shortest path parallel to edge 2") {
@@ -111,13 +106,7 @@ TEST_CASE("ShortestPathComputer shortest path parallel to edge 2") {
     };
 
     REQUIRE(shortest_path_ab == shortest_path_ba);
-
-    REQUIRE(shortest_path_ab == shortest_path_ba);
-    REQUIRE(shortest_path_ab.size() == expected_path.size());
-
-    for (size_t i = 0; i < shortest_path_ab.size(); ++i) {
-        REQUIRE((shortest_path_ab[i] - expected_path[i]).magnitude() <= EPSILON_TOLERANCE*2.0f);
-    }
+    REQUIRE(shortest_path_ab == expected_path);
 }
 
 TEST_CASE("ShortestPathComputer shortest paths") {
@@ -202,11 +191,7 @@ TEST_CASE("ShortestPathComputer shortest path in land correction") {
         Coordinate(1.25,-0.1),
     };
 
-    REQUIRE(path.size() == expected_path.size());
-
-    for (size_t i = 0; i < path.size(); ++i) {
-        REQUIRE((path[i] - expected_path[i]).magnitude() <= EPSILON_TOLERANCE);
-    }
+    REQUIRE(path == expected_path);
 }
 
 TEST_CASE("ShortestPathComputer shortest path without obstacles") {
