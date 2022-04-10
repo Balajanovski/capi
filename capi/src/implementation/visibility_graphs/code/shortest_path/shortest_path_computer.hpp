@@ -50,7 +50,7 @@ class ShortestPathComputer {
     [[nodiscard]] LandCollisionCorrection handle_land_collisions(const Coordinate &source,
                                                                  const Coordinate &destination,
                                                                  bool correct_vertices_on_land) const;
-    [[nodiscard]] std::shared_ptr<IGraph> create_modified_graph(const Coordinate &source, const Coordinate &destination) const;
+    [[nodiscard]] std::shared_ptr<IGraph> create_modified_graph(const LandCollisionCorrection &correction) const;
 
     std::shared_ptr<IGraph> _graph;
     SpatialSegmentIndex _index;

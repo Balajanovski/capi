@@ -47,7 +47,7 @@ std::vector<Coordinate> ShortestPathComputer::shortest_path(const Coordinate &so
         return std::vector<Coordinate>{corrected_source, corrected_dest};
     }
 
-    const auto modified_graph = create_modified_graph(corrected_source, corrected_dest);
+    const auto modified_graph = create_modified_graph(land_corrections);
     const auto source_destination_distance = heuristic_distance_measurement(corrected_source, corrected_dest);
 
     const auto comparison_func = [&](const AStarHeapElement &a, const AStarHeapElement &b) {
@@ -191,12 +191,12 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
     std::optional<LineSegment> corrected_dest_edge = std::nullopt;
     if (source_is_on_land) {
         const auto closest_seg = _index.closest_segment_to_point(source);
-        corrected_source = closest_seg.project(source, EPSILON_TOLERANCE);
+        corrected_source = closest_seg.project(source);
         corrected_source_edge = std::make_optional(closest_seg);
     }
     if (destination_is_on_land) {
         const auto closest_seg = _index.closest_segment_to_point(destination);
-        corrected_destination = closest_seg.project(destination, EPSILON_TOLERANCE);
+        corrected_destination = closest_seg.project(destination);
         corrected_dest_edge = std::make_optional(closest_seg);
     }
 
@@ -208,22 +208,26 @@ LandCollisionCorrection ShortestPathComputer::handle_land_collisions(const Coord
     };
 }
 
-std::shared_ptr<IGraph> ShortestPathComputer::create_modified_graph(const Coordinate &source, const Coordinate &destination) const {
-    if (_graph->has_vertex(source) && _graph->has_vertex(destination)) {
+std::shared_ptr<IGraph> ShortestPathComputer::create_modified_graph(const LandCollisionCorrection &correction) const {
+    if (_graph->has_vertex(correction.corrected_source) && _graph->has_vertex(correction.corrected_dest)) {
         return _graph;
     }
 
     auto modified_graph = std::make_shared<ModifiedGraph>(_graph);
-    const Coordinate vertices_to_process[2] = {source, destination};
+    const Coordinate vertices_to_process[2] = {correction.corrected_source, correction.corrected_dest};
+    const std::optional<LineSegment> blocking_edges[2] = {correction.corrected_source_edge, correction.corrected_dest_edge};
 
-    for (const auto &vertex_to_process : vertices_to_process) {
-        if (!_graph->has_vertex(vertex_to_process)) {
-            modified_graph->add_vertex(vertex_to_process);
+    for (size_t i = 0; i < 2; ++i) {
+        if (!_graph->has_vertex(vertices_to_process[i])) {
+            modified_graph->add_vertex(vertices_to_process[i]);
 
-            const auto reachable_vertices = _vistree_gen.get_visible_vertices(vertex_to_process);
+            const auto reachable_vertices = _vistree_gen.get_visible_vertices(vertices_to_process[i]);
 
             for (const auto &point : reachable_vertices) {
-                modified_graph->add_edge(vertex_to_process, point.coord, point.is_visible_across_meridian);
+                if (!blocking_edges[i].has_value() ||
+                    blocking_edges[i].value().orientation_of_point_to_segment(point.coord) != Orientation::COUNTER_CLOCKWISE) {
+                    modified_graph->add_edge(vertices_to_process[i], point.coord, point.is_visible_across_meridian);
+                }
             }
         }
     }
